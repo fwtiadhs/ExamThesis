@@ -1,48 +1,16 @@
 using ExamThesis.Data;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
-var builder = Host.CreateDefaultBuilder(args);
-builder.ConfigureAppConfiguration((hostingContext, config) =>
-{
-    config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-})
-.ConfigureServices((hostContext, services) =>
-{
-    services.AddControllersWithViews();
-    services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
-        hostContext.Configuration.GetConnectionString("DefaultConnection")));
 
-    services.AddAuthentication(options =>
-    {
-        options.DefaultScheme = "Cookies";
-        options.DefaultChallengeScheme = "OAuth";
-    })
-    .AddCookie("Cookies")
-    .AddOAuth("OAuth", options =>
-    {
-        options.ClientId = "CLIENT_ID";
-        options.ClientSecret = "CLIENT_SECRET";
-        options.CallbackPath = new PathString("/callback");
-        options.AuthorizationEndpoint = "https://login.it.teithe.gr/authorize";
-        options.TokenEndpoint = "https://login.it.teithe.gr/token";
-        options.UserInformationEndpoint = "https://api.it.teithe.gr/profile";
-        options.SaveTokens = true;
-        options.ClaimActions.MapJsonKey("id", "id");
-        options.ClaimActions.MapJsonKey("cn", "cn");
-        options.ClaimActions.MapJsonKey("title", "title");
-    });
-})
-.ConfigureWebHostDefaults(webBuilder =>
-{
-    webBuilder.UseStartup<Program>();
-})
-.Build();
- 
-// Build the application
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
+  builder.Configuration.GetConnectionString("DefaultConnection")
+    ));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

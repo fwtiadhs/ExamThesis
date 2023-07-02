@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamThesis", "ExamThesis\ExamThesis.csproj", "{F00FA169-97BE-4C67-9543-BEA08AF6EFCE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExamThesis", "ExamThesis\ExamThesis.csproj", "{F00FA169-97BE-4C67-9543-BEA08AF6EFCE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamThesis.Services", "ExamThesis.Services\ExamThesis.Services.csproj", "{4D446570-C374-46AA-BD81-CE06DC0FBE9F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamThesis.IntegrationTests", "ExamThesis.IntegrationTests\ExamThesis.IntegrationTests.csproj", "{ABB7E6D5-3225-4018-B02F-E7E796F83D38}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{F00FA169-97BE-4C67-9543-BEA08AF6EFCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F00FA169-97BE-4C67-9543-BEA08AF6EFCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F00FA169-97BE-4C67-9543-BEA08AF6EFCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D446570-C374-46AA-BD81-CE06DC0FBE9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D446570-C374-46AA-BD81-CE06DC0FBE9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D446570-C374-46AA-BD81-CE06DC0FBE9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D446570-C374-46AA-BD81-CE06DC0FBE9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABB7E6D5-3225-4018-B02F-E7E796F83D38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABB7E6D5-3225-4018-B02F-E7E796F83D38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABB7E6D5-3225-4018-B02F-E7E796F83D38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABB7E6D5-3225-4018-B02F-E7E796F83D38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
