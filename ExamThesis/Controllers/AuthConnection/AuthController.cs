@@ -10,7 +10,9 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 using static System.Net.WebRequestMethods;
+using ExamThesis.Models;
 
 namespace ExamThesis.Controllers.AuthConnection
 {
@@ -22,85 +24,35 @@ namespace ExamThesis.Controllers.AuthConnection
         private const string TokenUrl = "https://login.iee.ihu.gr/token";
 
 
-      
-
-         [HttpGet]
-          public IActionResult Index()
-          {
-              if (HttpContext.Request.Query.TryGetValue("error", out var error) && HttpContext.Request.Query["state"] == HttpContext.Session.Id)
-              {
-                  ViewBag.Message = "Αρνηθήκατε την σύνδεση.";
-              }
 
 
-              return Redirect(GetUrl());
-          }
-          private string GetUrl()
-          {
-              var url = $"https://login.iee.ihu.gr/login?client_id={CLIENT_ID}&response_type=code&scope=profile&state=12345&redirect_uri=https://localhost:7134/Auth/Callback";
-              return url;
-          }
+        [HttpGet]
+        public IActionResult Index()
+        {
+            return Redirect(GetUrl());
+        }
+        private string GetUrl()
+        {
+            var url = $"https://login.iee.ihu.gr/login?client_id={CLIENT_ID}&response_type=code&scope=profile&state=12345&redirect_uri=https://localhost:7134/Auth/Callback";
+            return url;
+        }
 
-          [HttpGet]
-          public async Task<IActionResult> Callback(string code, string state)
-          {
+        [HttpGet]
+        public async Task<IActionResult> Callback(string code, string state)
+        {
 
-               //var response = await GetAccessToken(code);
-               var response = await GetAccessTokenn(code);
+            var token = await GetAccessToken(code);
+            var profileResponse = await GetProfile(token.access_token);
+            //Αποθήκευση των πληροφοριών του χρήστη στην συνεδρία
+            //HttpContext.Session.SetString("UserID", profileResponse.id);
+            ViewData.Add("Name", profileResponse.cn);
+            //HttpContext.Session.SetString("Email", profileResponse.mail);
 
-
-              return RedirectToAction("Index", "Home");
-          }
-
-
-
-          private async Task<string> GetAccessToken(string code)
-          {
-              var InfoUrl = $"https://api.it.teithe.gr/profile?access_token={code}";
-              var httpClient = new HttpClient();
-              httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
-
-              var request = new HttpRequestMessage()
-              {
-
-                  RequestUri = new Uri(InfoUrl, UriKind.Absolute),
-                  Method = HttpMethod.Get
+            return RedirectToAction("Index", "Home");
+        }
 
 
-          };
-
-             
-              var tokenResponse = await httpClient.SendAsync(request);
-              var tokenContent = await tokenResponse.Content.ReadAsStringAsync();
-              var token = System.Text.Json.JsonSerializer.Deserialize<Token>(tokenContent);
-
-
-              return tokenContent;
-
-             if (token?.error != null)
-              {
-                  ViewBag.Message = token.error.message;
-              }
-              else
-              {
-
-                  var infoContent = await infoResponse.Content.ReadAsStringAsync();
-                  var userInfo = JsonSerializer.Deserialize<UserInfo>(infoContent);
-
-                  if (userInfo?.Cn != null)
-                  {
-                      // Αποθήκευση των πληροφοριών του χρήστη στην συνεδρία
-                      HttpContext.Session.SetString("UserID", userInfo.Id);
-                      HttpContext.Session.SetString("Name", userInfo.Cn);
-                      HttpContext.Session.SetString("Email", userInfo.Email);
-                  }
-              }
-
-
-        // Υπόλοιπος κώδικας ελεγκτή
-    }
-
-        private async Task<string> GetAccessTokenn(string code)
+        private async Task<TokenResponse> GetAccessToken(string code)
         {
             var TokenUrl = $"https://login.iee.ihu.gr/token";
             var httpClient = new HttpClient();
@@ -114,19 +66,35 @@ namespace ExamThesis.Controllers.AuthConnection
                 { "code", code }
             };
 
-
-
             var stringContent = JsonConvert.SerializeObject(payload);
 
             var tokenResponse = await httpClient.PostAsync(TokenUrl, new StringContent(stringContent, Encoding.UTF8,
                 "application/json"));
             var tokenContent = await tokenResponse.Content.ReadAsStringAsync();
-            var token = System.Text.Json.JsonSerializer.Deserialize<TokenResponse>(tokenContent);
+            var token = JsonSerializer.Deserialize<TokenResponse>(tokenContent);
 
-            return tokenContent;
+            return token;
 
+
+        }
+        private async Task<ProfileResponse> GetProfile(string token)
+        {
+            var TokenUrl = $"https://api.iee.ihu.gr/profile";
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders
+            .Accept
+            .Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.Add("x-access-token", token);
+            var response = await httpClient.GetAsync(TokenUrl);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            var profile = JsonSerializer.Deserialize<ProfileResponse>(responseContent);
+
+
+            return profile;
 
         }
     }
 }
+
 
