@@ -1,0 +1,13 @@
+﻿@model QuestionCategory
+<form method="post">
+    <div class="border p-3 mt-4"></div>
+        <div class="row pb-2">
+            <h2 class="text-primary">Create Question Category</h2>
+        </div>
+        <div class="mb-3">
+            <label asp-for="CategoryName">Name</label>
+            <input asp-for="CategoryName" class="form-control" /> 
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:150px">Create</button>
+        <a asp-controller="QuestionCategory" asp-action="Index" class="btn btn-secondary" style="width:150px">Back to List</a>
+</form>

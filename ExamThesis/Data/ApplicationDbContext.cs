@@ -9,6 +9,6 @@ namespace ExamThesis.Data
         {
 
         }
-        public DbSet<Category> Categories { get; set; }              
+        public DbSet<QuestionCategory> QuestionCategories { get; set; }
     }
 }
