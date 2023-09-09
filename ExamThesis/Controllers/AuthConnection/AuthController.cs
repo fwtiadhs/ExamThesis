@@ -44,13 +44,25 @@ namespace ExamThesis.Controllers.AuthConnection
             var token = await GetAccessToken(code);
             var profileResponse = await GetProfile(token.access_token);
             //Αποθήκευση των πληροφοριών του χρήστη στην συνεδρία
-            //HttpContext.Session.SetString("UserID", profileResponse.id);
             ViewData.Add("Name", profileResponse.cn);
+            HttpContext.Session.SetString("Name", profileResponse.cn);
             //HttpContext.Session.SetString("Email", profileResponse.mail);
 
             return RedirectToAction("Index", "Home");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            // Εκκαθαρίστε τα δεδομένα του χρήστη από τη συνεδρία
+            HttpContext.Session.Clear();
+
+            // Εκτελέστε τη διαδικασία αποσύνδεσης του χρήστη από την εξωτερική πηγή αυθεντικοποίησης (εάν απαιτείται)
+
+            // Επιστροφή στην αρχική σελίδα ή σε μια συγκεκριμένη σελίδα μετά την αποσύνδεση
+            return RedirectToAction("Index", "Home");
+        }
 
         private async Task<TokenResponse> GetAccessToken(string code)
         {
