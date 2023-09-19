@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using static System.Net.WebRequestMethods;
 using ExamThesis.Models;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 
 namespace ExamThesis.Controllers.AuthConnection
 {
@@ -47,7 +50,20 @@ namespace ExamThesis.Controllers.AuthConnection
             ViewData.Add("Name", profileResponse.cn);
             HttpContext.Session.SetString("Name", profileResponse.cn);
             //HttpContext.Session.SetString("Email", profileResponse.mail);
+            var claims = new List<Claim>
+                {
+                     new Claim(ClaimTypes.Name, profileResponse.cn), // Υποθέτουμε ότι η ιδιότητα Username υπάρχει στο προφίλ
+                 };
 
+            // Εάν χρειάζεστε και άλλους ισχυρισμούς, προσθέστε τους εδώ
+
+            // Δημιουργήστε έναν ClaimsIdentity με τους ισχυρισμούς
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Κάντε το Sign In με τον ClaimsPrincipal
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity));
             return RedirectToAction("Index", "Home");
         }
 
@@ -57,6 +73,7 @@ namespace ExamThesis.Controllers.AuthConnection
         {
             // Εκκαθαρίστε τα δεδομένα του χρήστη από τη συνεδρία
             HttpContext.Session.Clear();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             // Εκτελέστε τη διαδικασία αποσύνδεσης του χρήστη από την εξωτερική πηγή αυθεντικοποίησης (εάν απαιτείται)
 
