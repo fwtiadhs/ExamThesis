@@ -1,18 +1,37 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace ExamThesis.Models;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace ExamThesis.Models
+public class Question
 {
-    public class Question
-    {
-        public int QuestionId { get; set; }
-        public string QuestionText { get; set; }
-        public int CategoryId { get; set; }
-        public List<Answer> Answers { get; set; }
-        public int CorrectAnswerId { get; set; }
-        public byte[]? ImageData { get; set; } // Τα δεδομένα της εικόνας (nullable)
-        public string? ImageMimeType { get; set; } // Ο τύπος της εικόνας (π.χ., image/jpeg, nullable)
-        public int Points { get; set; } // Τα βαθμολογικά σημεία για την ερώτηση
-        public QuestionType Type { get; set; } // Το είδος της ερώτησης (πολλαπλής επιλογής ή ανάπτυξης)
-    }
+    public int Id { get; set; }
 
+    [Required(ErrorMessage = "Το πεδίο 'Κατηγορία Ερώτησης' είναι υποχρεωτικό.")]
+    public string QuestionId { get; set; }
+
+    public string ImageUrl { get; set; } // Προαιρετική εικόνα
+
+    [Required(ErrorMessage = "Το πεδίο 'Τύπος Ερώτησης' είναι υποχρεωτικό.")]
+    public QuestionType QuestionType { get; set; }
+
+    public string FilePath { get; set; } // Προαιρετικό αρχείο
+
+    [Required(ErrorMessage = "Το πεδίο 'Πόντοι Ερώτησης' είναι υποχρεωτικό.")]
+    [Range(0, int.MaxValue, ErrorMessage = "Οι πόντοι πρέπει να είναι μεταξύ 0 και 2,147,483,647.")]
+    public int QuestionPoints { get; set; }
+
+    [Required(ErrorMessage = "Το πεδίο 'Πόντοι Αρνητικής Βαθμολογίας' είναι υποχρεωτικό.")]
+    [Range(0, int.MaxValue, ErrorMessage = "Οι πόντοι πρέπει να είναι μεταξύ 0 και 2,147,483,647.")]
+    public int NegativePoints { get; set; }
+
+    public List<Answer> Answers { get; set; } // Λίστα με τις απαντήσεις
+}
+
+
+
+public enum QuestionType
+{
+    ΠολλαπλήςΕπιλογής,
+    ΣωστόΛάθος,
+    // Άλλοι τύποι ερωτήσεων που μπορεί να χρειάζεστε
 }
