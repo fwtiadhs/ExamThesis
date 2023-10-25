@@ -5,8 +5,8 @@ namespace ExamThesis.Models
     public class QuestionCategory
     {
         [Key]
-        public int CategoryId { get; set; }
+        public int QuestionCategoryId { get; set; }
         [Required]
-        public string CategoryName { get; set; }
+        public string QuestionCategoryName { get; set; }
     }
 }

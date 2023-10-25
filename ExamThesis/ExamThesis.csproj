@@ -17,10 +17,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.16" />
+    <PackageReference Include="Octopus.Client" Version="14.3.931" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Migrations\" />
     <Folder Include="Views\Auth\" />
+    <Folder Include="wwwroot\files\packet_tracer\" />
+    <Folder Include="wwwroot\files\wireshark\" />
   </ItemGroup>
 
 </Project>

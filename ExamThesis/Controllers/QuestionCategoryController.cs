@@ -29,7 +29,7 @@ namespace ExamThesis.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(QuestionCategory obj)
         {
-            if (obj.CategoryName == obj.CategoryName.ToString()) {
+            if (obj.QuestionCategoryName == obj.QuestionCategoryName.ToString()) {
                 ModelState.AddModelError("CategoryName", "Cannot be the same name");
             }
             _db.QuestionCategories.Add(obj);
@@ -45,7 +45,7 @@ namespace ExamThesis.Controllers
                 return NotFound();
             }
             //var QCategoryFromDb = _db.QuestionCategories.Find(id);
-            var QCategoryFromDbFirst = _db.QuestionCategories.FirstOrDefault(u => u.CategoryId == id);
+            var QCategoryFromDbFirst = _db.QuestionCategories.FirstOrDefault(u => u.QuestionCategoryId == id);
            // var QCategoryFromDbSingle = _db.QuestionCategories.SingleOrDefault(u => u.CategoryId == id);
           
             if (QCategoryFromDbFirst == null)

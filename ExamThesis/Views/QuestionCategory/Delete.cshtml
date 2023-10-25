@@ -1,15 +1,15 @@
 ﻿@model QuestionCategory
 
 <form method="post" asp-action="DeletePOST">
-    <input asp-for="CategoryId" hidden />
+    <input asp-for="QuestionCategoryId" hidden />
     <div class="border p-3 mt-4"></div>
     <div class="row pb-2">
         <h2 class="text-primary">Edit Category</h2>
     </div>
     <div class="mb-3">
-        <label asp-for="CategoryName">Name</label>
-        <input asp-for="CategoryName" disabled class="form-control" />
-        <span asp-validation-for="CategoryName" class="text-danger"></span>
+        <label asp-for="QuestionCategoryName">Name</label>
+        <input asp-for="QuestionCategoryName" disabled class="form-control" />
+        <span asp-validation-for="QuestionCategoryName" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-danger" style="width:150px">Delete</button>
     <a asp-controller="QuestionCategory" asp-action="Index" class="btn btn-secondary" style="width:150px">Back to List</a>

@@ -12,6 +12,12 @@ namespace ExamThesis.Data
         }
         public DbSet<QuestionCategory> QuestionCategories { get; set; }
         public DbSet<Question> Questions { get; set; }
+        public DbSet<QuestionAnswer> QuestionAnswer { get; set; }
+        public DbSet<QuestionType> QuestionType { get; set; }
+        public DbSet<AppFile> AppFile { get; set; }
+
 
     }
+
+
 }
