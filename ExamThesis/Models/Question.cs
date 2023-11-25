@@ -33,9 +33,9 @@ public class Question
     [Required(ErrorMessage = "Το πεδίο 'Τύπος Ερώτησης' είναι υποχρεωτικό.")]
     public QuestionType QuestionType { get; set; }
 
-    [NotMapped]
+    /*[NotMapped]
     [Display(Name = "File")]
-    public IFormFile FilePath { get; set; } // Προαιρετικό αρχείο
+    public IFormFile FilePath { get; set; } // Προαιρετικό αρχείο*/
 
     [Required(ErrorMessage = "Το πεδίο 'Πόντοι Ερώτησης' είναι υποχρεωτικό.")]
     public int QuestionPoints { get; set; }

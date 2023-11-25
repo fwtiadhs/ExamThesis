@@ -13,17 +13,36 @@ namespace ExamThesis.Controllers
         {
             _db = db;
         }
+        
         public IActionResult Index()
         {
             IEnumerable<Question> objQuestionList = _db.Questions.ToList();
             return View(objQuestionList);
         }
-        public IActionResult Create()
+        public  IActionResult Create()
         {
+            ViewBag.QuestionCategories = _db.QuestionCategories.ToList();
             return View();
         }
-        //POST ACTION
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Question obj)
+        {
+            ViewBag.QuestionCategories = _db.QuestionCategories.ToList();
+            if (ModelState.IsValid)
+            {
+                // Εδώ γίνεται η αποθήκευση της ερώτησης στη βάση δεδομένων
+                _db.Questions.Add(obj);
+                await _db.SaveChangesAsync();
+                return Ok(obj);
+            }
+
+            // Εάν το ModelState δεν είναι έγκυρο, πρέπει να ξαναφορτώσετε τις κατηγορίες για το dropdown list
+           
+            return View(obj);
+        }
+        //POST ACTION
+        /*[HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Question obj)
         {
@@ -52,6 +71,8 @@ namespace ExamThesis.Controllers
             else
                 return RedirectToAction("Index");
         }
+        */
+
         /*public async Task<IActionResult> OnPostUploadAsync()
         {
             using (var memoryStream = new MemoryStream())
@@ -78,7 +99,7 @@ namespace ExamThesis.Controllers
 
             return View();
         }*/
-        
+
 
         // Άλλες μέθοδοι ελέγχου για τη δημιουργία, επεξεργασία και διαγραφή ερωτήσεων
     }
