@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Question>
+﻿@model IEnumerable<ExamThesis.Storage.Model.Question>
 @{
     ViewData["Title"] = "Index";
 }
@@ -43,7 +43,7 @@
         {
             <tr>
                 <td width="50%">
-                    @obj.QuestionId
+                  @*  @obj.QuestionId *@
                 </td>
                 <td width="50%">
                     @obj.QuestionCategoryId
@@ -52,7 +52,7 @@
                     @obj.QuestionText
                 </td>
                 <td width="30%">
-                    @obj.QuestionType
+                   @*  @obj.QuestionType *@
                 </td>
                 <td width="30%">
                     @obj.QuestionPoints

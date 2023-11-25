@@ -19,9 +19,19 @@ public class QuestionModel : Question
 */
 public class Question
 {
-    [Key]
-    public int QuestionId { get; set; }
-    public string QuestionText { get; set; }
+    public int QuestionCategoryId { get; set; }
+
+    public int QuestionTypeId { get; set; }
+
+    public int QuestionPoints { get; set; }
+
+    public double NegativePoints { get; set; }
+
+    public string QuestionText { get; set; } = null!;
+
+
+
+    /*public string QuestionText { get; set; }
 
     
     [Required(ErrorMessage = "Το πεδίο 'Κατηγορία Ερώτησης' είναι υποχρεωτικό.")]
@@ -35,7 +45,7 @@ public class Question
 
     /*[NotMapped]
     [Display(Name = "File")]
-    public IFormFile FilePath { get; set; } // Προαιρετικό αρχείο*/
+    public IFormFile FilePath { get; set; } // Προαιρετικό αρχείο
 
     [Required(ErrorMessage = "Το πεδίο 'Πόντοι Ερώτησης' είναι υποχρεωτικό.")]
     public int QuestionPoints { get; set; }
@@ -43,7 +53,7 @@ public class Question
     [Required(ErrorMessage = "Το πεδίο 'Πόντοι Αρνητικής Βαθμολογίας' είναι υποχρεωτικό.")]
     public double NegativePoints { get; set; }
 
-    public List<Answer> Answers { get; set; } // Λίστα με τις απαντήσεις
+    public List<Answer> Answers { get; set; } // Λίστα με τις απαντήσεις */
 }
     [Keyless]
 public class QuestionAnswer {

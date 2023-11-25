@@ -1,5 +1,6 @@
 ﻿using ExamThesis.Data;
 using ExamThesis.Models;
+using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Octopus.Client.Model;
@@ -8,38 +9,48 @@ namespace ExamThesis.Controllers
 {
     public class QuestionController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public QuestionController(ApplicationDbContext db)
+      
+        private readonly ExamContext _context;
+        public QuestionController(ExamContext context)
         {
-            _db = db;
+          
+            _context = context;
         }
-        
+
         public IActionResult Index()
         {
-            IEnumerable<Question> objQuestionList = _db.Questions.ToList();
+            IEnumerable<ExamThesis.Storage.Model.Question> objQuestionList = _context.Questions.ToList();
             return View(objQuestionList);
         }
         public  IActionResult Create()
         {
-            ViewBag.QuestionCategories = _db.QuestionCategories.ToList();
+            ViewBag.QuestionCategories = _context.QuestionCategories.ToList();
             return View();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Question obj)
+        public async Task<IActionResult> Create(ExamThesis.Models.Question obj)
         {
-            ViewBag.QuestionCategories = _db.QuestionCategories.ToList();
+            ViewBag.QuestionCategories = _context.QuestionCategories.ToList();
             if (ModelState.IsValid)
             {
+                var model = new ExamThesis.Storage.Model.Question()
+                {
+                    NegativePoints = obj.NegativePoints,
+                    QuestionPoints = obj.QuestionPoints,
+                    QuestionText = obj.QuestionText,   
+                    QuestionCategoryId = obj.QuestionCategoryId,    
+                    QuestionTypeId = obj.QuestionTypeId,  
+                };
                 // Εδώ γίνεται η αποθήκευση της ερώτησης στη βάση δεδομένων
-                _db.Questions.Add(obj);
-                await _db.SaveChangesAsync();
-                return Ok(obj);
+                _context.Questions.Add(model);
+                await _context.SaveChangesAsync();
+                
             }
 
             // Εάν το ModelState δεν είναι έγκυρο, πρέπει να ξαναφορτώσετε τις κατηγορίες για το dropdown list
            
-            return View(obj);
+            return View("Index");
         }
         //POST ACTION
         /*[HttpPost]

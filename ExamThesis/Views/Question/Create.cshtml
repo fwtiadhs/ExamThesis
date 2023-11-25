@@ -1,4 +1,4 @@
-﻿@model Question
+﻿@model ExamThesis.Storage.Model.Question
 <form method="post">
     <div class="border p-3 mt-4"></div>
     <div class="row pb-2">
@@ -19,8 +19,8 @@
         </select>
     </div>
     <div class="mb-3">
-        <label asp-for="QuestionType">Type</label>
-        <input asp-for="QuestionType" class="form-control" />
+        <label asp-for="QuestionTypeId">Type</label>
+        <input asp-for="QuestionTypeId" class="form-control" />
     </div>
     <div class="mb-3">
         <label asp-for="QuestionPoints">Points</label>
