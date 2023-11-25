@@ -33,4 +33,7 @@
     </PackageReference>
     
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ExamThesis.Storage\ExamThesis.Storage.csproj" />
+  </ItemGroup>
 </Project>
