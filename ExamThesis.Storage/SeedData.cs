@@ -18,6 +18,22 @@ namespace ExamThesis.Storage
                 await context.QuestionTypes.AddRangeAsync(GetQuestionTypes());
                 await context.SaveChangesAsync();
             }
+            if (!context.QuestionCategories.Any())
+            {
+                await context.QuestionCategories.AddRangeAsync(GetQuestionCategories());
+                await context.SaveChangesAsync();
+            }
+        }
+
+        private static QuestionCategory[] GetQuestionCategories()
+        {
+            return new QuestionCategory[]
+            {
+                new QuestionCategory()
+                {
+                    QuestionCategoryName = "category1"
+                }
+            };
         }
 
         private static QuestionType[] GetQuestionTypes()

@@ -1,5 +1,5 @@
 ﻿using ExamThesis.Data;
-using ExamThesis.Models;
+using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +7,8 @@ namespace ExamThesis.Controllers
 {
     public class QuestionCategoryController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public QuestionCategoryController(ApplicationDbContext db)
+        private readonly ExamContext _db;
+        public QuestionCategoryController(ExamContext db)
         {
             _db= db;
         }
