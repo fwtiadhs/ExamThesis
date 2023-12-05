@@ -10,6 +10,6 @@ public partial class Answer
     public string Text { get; set; } = null!;
 
     public int? QuestionId { get; set; }
-
+    public bool IsCorrect { get; set; }
     public virtual Question? Question { get; set; }
 }

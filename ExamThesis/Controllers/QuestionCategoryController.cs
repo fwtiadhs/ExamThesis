@@ -21,24 +21,43 @@ namespace ExamThesis.Controllers
         //GET ACTION
         public IActionResult Create()
         {
+            
             return View();
         }
-
+        //TODO na kanw thn create na xrhsimopoiei thn ExamThesis.Model.QuestionCategory kai oxi thn Storage.QuestionCategory var model = new ExamThesis.Storage.Model.QuestionCategory()
         //POST ACTION
+        /* [HttpPost]
+         [ValidateAntiForgeryToken]
+         public IActionResult Create(QuestionCategory obj)
+         {
+             if (obj.QuestionCategoryName == obj.QuestionCategoryName.ToString()) {
+                 ModelState.AddModelError("CategoryName", "Cannot be the same name");
+             }
+             _db.QuestionCategories.Add(obj);
+             _db.SaveChanges();
+             return RedirectToAction("Index");
+         }*/
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(QuestionCategory obj)
+        public async Task<IActionResult> Create(ExamThesis.Models.QuestionCategory obj)
         {
-            if (obj.QuestionCategoryName == obj.QuestionCategoryName.ToString()) {
-                ModelState.AddModelError("CategoryName", "Cannot be the same name");
-            }
-            _db.QuestionCategories.Add(obj);
-            _db.SaveChanges();
-            return RedirectToAction("Index");
-        }
+            ViewBag.QuestionCategories = _db.QuestionCategories.ToList();
+            if (ModelState.IsValid)
+            {
+                var model = new ExamThesis.Storage.Model.QuestionCategory()
+                {
+                    QuestionCategoryName = obj.QuestionCategoryName,
 
-        //GET ACTION
-        public IActionResult Edit(int? id)
+                };
+                // Εδώ γίνεται η αποθήκευση της ερώτησης στη βάση δεδομένων
+                _db.QuestionCategories.Add(model);
+                await _db.SaveChangesAsync();
+
+            }
+            return View("Index");
+        }
+            //GET ACTION
+            public IActionResult Edit(int? id)
         {
             if(id==null|| id == 0)
             {

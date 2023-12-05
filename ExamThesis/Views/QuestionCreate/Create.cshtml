@@ -1,0 +1,63 @@
+﻿@model ExamThesis.Storage.Model.CreateQuestion
+
+<h2>Create Question and Answers</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="QuestionText" class="control-label"></label>
+        <input asp-for="QuestionText" class="form-control" />
+    </div>
+
+    <h4>Answers</h4>
+    <div id="answers-container">
+        @for (var i = 0; i < Model.Answers.Count; i++)
+        {
+            <div class="form-group">
+                <label asp-for="Answers[i].Text" class="control-label"></label>
+                <input asp-for="Answers[i].Text" class="form-control" />
+
+                <label>
+                    <input type="checkbox" asp-for="Answers[i].IsCorrect" />
+                    Correct Answer
+                </label>
+            </div>
+        }
+    </div>
+
+    <button type="button" class="btn btn-secondary" onclick="addAnswer()">Add Answer</button>
+    <button type="button" class="btn btn-secondary" onclick="removeAnswer()">Remove Answer</button>
+
+    <button type="submit" class="btn btn-primary">Create Question and Answers</button>
+</form>
+
+@section scripts {
+    <script>
+        function addAnswer() {
+            var container = $('#answers-container');
+            var index = container.children().length;
+
+            var answerHtml = `
+                <div class="form-group">
+                    <label asp-for="Answers[${index}].AnswerText" class="control-label"></label>
+                    <input asp-for="Answers[${index}].AnswerText" class="form-control" />
+
+                    <label>
+                        <input type="checkbox" asp-for="Answers[${index}].IsCorrect" />
+                        Correct Answer
+                    </label>
+                </div>
+            `;
+
+            container.append(answerHtml);
+        }
+
+        function removeAnswer() {
+            var container = $('#answers-container');
+            var childrenCount = container.children().length;
+
+            if (childrenCount > 1) {
+                container.children().last().remove();
+            }
+        }
+    </script>
+}

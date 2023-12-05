@@ -1,0 +1,33 @@
+﻿@model IEnumerable<ExamThesis.Storage.Model.Question>
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<h2>Questions and Answers</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Question</th>
+            <th>Answers</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var question in Model)
+        {
+            <tr>
+                <td>@question.QuestionText</td>
+                <td>
+                    <ul>
+                        @foreach (var answer in question.Answers)
+                        {
+                            <li>@answer.Text (Correct: @answer.IsCorrect)</li>
+                        }
+                    </ul>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-controller="QuestionCreate" asp-action="Create" class="btn btn-primary">Create Questions and Answers</a>

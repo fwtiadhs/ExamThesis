@@ -23,6 +23,7 @@
   <ItemGroup>
     <Folder Include="Migrations\" />
     <Folder Include="Views\Auth\" />
+    <Folder Include="Views\Question\" />
     <Folder Include="wwwroot\files\packet_tracer\" />
     <Folder Include="wwwroot\files\wireshark\" />
   </ItemGroup>

@@ -11,7 +11,7 @@ namespace ExamThesis.Models
         public string Text { get; set; }
 
       
-       //public bool IsCorrect { get; set; }
+       public bool IsCorrect { get; set; }
 
        //public int QuestionId { get; set; } // Εξωτερικό κλειδί προς την ερώτηση
     }
