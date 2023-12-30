@@ -8,6 +8,12 @@ namespace ExamThesis.Storage.Model
 {
     public class CreateQuestion
     {
+        public CreateQuestion()
+        {
+            Answers = new List<CreateAnswer>();
+            Answers.Add(new CreateAnswer() { });
+            Answers.Add(new CreateAnswer() { });
+        }
         public string QuestionText { get; set; }
 
         public List<CreateAnswer> Answers { get; set; }
