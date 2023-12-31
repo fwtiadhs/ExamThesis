@@ -29,8 +29,9 @@
 
     <button type="submit" class="btn btn-primary">Create Question and Answers</button>
 
+    
 
-@section scripts {
+@* @section scripts {
     <script>
         function addAnswer() {
             var container = $('#answers-container');
@@ -52,8 +53,30 @@
             `;
 
             container.append(answerHtml);
-        }
+        } *@
+    @section scripts {
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <script>
+            function addAnswer() {
+                var container = $('#answers-container');
+                var index = container.children().length;
 
+                // Κατασκευή νέας απάντησης ως HTML
+                var newAnswerHtml = `
+                            <div class="form-group">
+                                <label for="Answers_${index}__Text" class="control-label">Answer ${index + 1}</label>
+                                <input type="text" name="Answers[${index}].Text" class="form-control" />
+
+                                <label>
+                                    <input type="checkbox" name="Answers[${index}].IsCorrect" />
+                                    Correct Answer
+                                </label>
+                            </div>
+                        `;
+
+                // Προσθήκη της νέας απάντησης στο container
+                container.append(newAnswerHtml);
+            }
         function removeAnswer() {
             var container = $('#answers-container');
             var childrenCount = container.children().length;

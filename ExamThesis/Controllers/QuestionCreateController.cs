@@ -50,7 +50,16 @@ namespace ExamThesis.Controllers
             // Αν υπάρχουν λάθη, επιστρέφετε στο View με τα λάθη
             return View(viewModel);
         }
-       
+        [HttpPost]
+        public IActionResult AddAnswer()
+        {
+            // Κώδικας για να προσθέσετε μια νέα απάντηση στο μοντέλο
+            var newAnswer = new CreateAnswer();
+            // Εδώ πρέπει να προσθέσετε τη νέα απάντηση στο μοντέλο της ερώτησης
+
+            return PartialView("_AnswerPartial", newAnswer);
+        }
+
     }
 
 
