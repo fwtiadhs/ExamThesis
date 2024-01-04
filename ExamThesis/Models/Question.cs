@@ -21,7 +21,6 @@ public class Question
 {
     public int QuestionCategoryId { get; set; }
 
-    public int QuestionTypeId { get; set; }
 
     public int QuestionPoints { get; set; }
 
@@ -63,10 +62,4 @@ public class QuestionAnswer {
 }
 
 
-public class QuestionType
-{
-    [Key]
-    public int QuestionTypeId { get; set; }
-    public string QuestionTypeName { get; set; }
-    // Άλλοι τύποι ερωτήσεων που μπορεί να χρειάζεστε
-}
+

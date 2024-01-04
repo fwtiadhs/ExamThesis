@@ -9,7 +9,6 @@ public partial class Question
 
     public int QuestionCategoryId { get; set; }
 
-    public int QuestionTypeId { get; set; }
 
     public int QuestionPoints { get; set; }
 
@@ -19,5 +18,5 @@ public partial class Question
 
     public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
 
-    public virtual QuestionType QuestionType { get; set; } = null!;
+   
 }

@@ -13,11 +13,7 @@ namespace ExamThesis.Storage
 
         public static async Task Seed(ExamContext context)
         {
-            if (!context.QuestionTypes.Any())
-            {
-                await context.QuestionTypes.AddRangeAsync(GetQuestionTypes());
-                await context.SaveChangesAsync();
-            }
+           
             if (!context.QuestionCategories.Any())
             {
                 await context.QuestionCategories.AddRangeAsync(GetQuestionCategories());
@@ -52,16 +48,6 @@ namespace ExamThesis.Storage
             };
         }
 
-        private static QuestionType[] GetQuestionTypes()
-        {
-            return new QuestionType[]
-            {
-                new QuestionType()
-                {
-                   // QuestionTypeId = 1,
-                    QuestionTypeName = "type1"
-                }
-            };
-        }
+       
     }
 }

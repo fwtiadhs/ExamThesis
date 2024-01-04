@@ -40,7 +40,7 @@ namespace ExamThesis.Controllers
                     QuestionPoints = obj.QuestionPoints,
                     QuestionText = obj.QuestionText,   
                     QuestionCategoryId = obj.QuestionCategoryId,    
-                    QuestionTypeId = obj.QuestionTypeId,  
+                 
                 };
                 // Εδώ γίνεται η αποθήκευση της ερώτησης στη βάση δεδομένων
                 _context.Questions.Add(model);

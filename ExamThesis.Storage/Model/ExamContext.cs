@@ -25,7 +25,7 @@ public partial class ExamContext : DbContext
 
     public virtual DbSet<QuestionCategory> QuestionCategories { get; set; }
 
-    public virtual DbSet<QuestionType> QuestionTypes { get; set; }
+   
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
@@ -49,11 +49,11 @@ public partial class ExamContext : DbContext
 
         modelBuilder.Entity<Question>(entity =>
         {
-            entity.HasIndex(e => e.QuestionTypeId, "IX_Questions_QuestionTypeId");
+            
 
             entity.Property(e => e.QuestionText).HasDefaultValueSql("(N'')");
 
-            entity.HasOne(d => d.QuestionType).WithMany(p => p.Questions).HasForeignKey(d => d.QuestionTypeId);
+           
         });
 
         modelBuilder.Entity<QuestionAnswer>(entity =>
@@ -75,10 +75,7 @@ public partial class ExamContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-        modelBuilder.Entity<QuestionType>(entity =>
-        {
-            entity.ToTable("QuestionType");
-        });
+        
 
         OnModelCreatingPartial(modelBuilder);
     }
