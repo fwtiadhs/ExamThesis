@@ -1,6 +1,8 @@
 ﻿using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Mvc;
+using System.Web.WebPages.Html;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace ExamThesis.Controllers
 {
@@ -20,6 +22,7 @@ namespace ExamThesis.Controllers
         }
         public IActionResult Create()
         {
+            
             var viewModel = new CreateQuestion();
             return View(viewModel);
         }
@@ -27,6 +30,13 @@ namespace ExamThesis.Controllers
         [HttpPost]
         public IActionResult Create(CreateQuestion viewModel)
         {
+            viewModel.Categories = _db.QuestionCategories
+       .Select(c => new SelectListItem
+       {
+           Value = c.QuestionCategoryId.ToString(),
+           Text = c.QuestionCategoryName
+       })
+       .ToList();
             if (ModelState.IsValid)
             {
                 var question = new Question

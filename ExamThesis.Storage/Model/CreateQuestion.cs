@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.WebPages.Html;
+
 
 namespace ExamThesis.Storage.Model
 {
     public class CreateQuestion
     {
+        
+        public List<SelectListItem> Categories { get; set; }
         public CreateQuestion()
         {
             Answers = new List<CreateAnswer>();
