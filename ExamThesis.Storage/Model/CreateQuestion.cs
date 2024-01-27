@@ -11,7 +11,7 @@ namespace ExamThesis.Storage.Model
     public class CreateQuestion
     {
         
-        public List<SelectListItem> Categories { get; set; }
+
         public CreateQuestion()
         {
             Answers = new List<CreateAnswer>();

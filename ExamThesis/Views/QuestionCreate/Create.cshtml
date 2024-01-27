@@ -58,16 +58,23 @@
         <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
         <script>
             function addAnswer() {
-                $.ajax({
-                    url: '/QuestionCreate/AddAnswer',
-                    type: 'POST',
-                    success: function (result) {
-                        $('#answers-container').append(result);
-                    },
-                    error: function () {
-                        alert('An error occurred while adding an answer.');
-                    }
-                });
+                var container = $('#answers-container');
+                var index = container.children().length;
+
+                // Κατασκευή νέας απάντησης ως HTML
+                var newAnswerHtml = `
+                            <div class="form-group">
+                                <label for="Answers_${index}__Text" class="control-label">Answer ${index + 1}</label>
+                                <input type="text" name="Answers[${index}].Text" class="form-control" />
+                                <label>
+                                    <input type="checkbox" class="answer-checkbox" name="Answers[${index}].IsCorrect" />
+                                    Correct Answer
+                                </label>
+                            </div>
+                        `;
+
+                // Προσθήκη της νέας απάντησης στο container
+                container.append(newAnswerHtml);
             }
 
         function removeAnswer() {

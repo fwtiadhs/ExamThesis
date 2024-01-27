@@ -22,21 +22,22 @@ namespace ExamThesis.Controllers
         }
         public IActionResult Create()
         {
-            
+
             var viewModel = new CreateQuestion();
+            //viewModel.Categories = _db.QuestionCategories
+            // .Select(c => new SelectListItem
+            // {
+            //     Value = c.QuestionCategoryId.ToString(),
+            //     Text = c.QuestionCategoryName
+            // })
+            // .ToList();
             return View(viewModel);
         }
 
         [HttpPost]
         public IActionResult Create(CreateQuestion viewModel)
         {
-            viewModel.Categories = _db.QuestionCategories
-       .Select(c => new SelectListItem
-       {
-           Value = c.QuestionCategoryId.ToString(),
-           Text = c.QuestionCategoryName
-       })
-       .ToList();
+           
             if (ModelState.IsValid)
             {
                 var question = new Question
