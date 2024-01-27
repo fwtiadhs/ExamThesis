@@ -23,6 +23,7 @@ namespace ExamThesis.Models
         public List<CreateAnswer> Answers { get; set; }
         public double QuestionPoints { get;  set; }
         public double NegativePoints { get;  set; }
+        public int QuestionCategoryId { get;  set; }
     }
     public class CreateAnswer
     {

@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using System.Web.WebPages.Html;
 using Microsoft.EntityFrameworkCore;
 using ExamThesis.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
 
 
 namespace ExamThesis.Controllers
 {
-    // QuestionCreateController.cs
     public class QuestionCreateController : Controller
     {
         private readonly ExamContext _db;
@@ -32,6 +33,7 @@ namespace ExamThesis.Controllers
             //     Text = c.QuestionCategoryName
             // })
             // .ToList();
+            ViewBag.QuestionCategories = new SelectList( _db.QuestionCategories, "QuestionCategoryId", "QuestionCategoryName");
             return View(viewModel);
         }
 
@@ -54,7 +56,7 @@ namespace ExamThesis.Controllers
                         }).ToList(),
                             QuestionPoints = viewModel.QuestionPoints,
                             NegativePoints = viewModel.NegativePoints,
-
+                            QuestionCategoryId = viewModel.QuestionCategoryId
                 };
 
                 _db.Questions.Add(question);
