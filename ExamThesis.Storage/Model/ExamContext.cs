@@ -21,8 +21,6 @@ public partial class ExamContext : DbContext
 
     public virtual DbSet<Question> Questions { get; set; }
 
-    public virtual DbSet<QuestionAnswer> QuestionAnswers { get; set; }
-
     public virtual DbSet<QuestionCategory> QuestionCategories { get; set; }
 
    
@@ -56,24 +54,6 @@ public partial class ExamContext : DbContext
            
         });
 
-        modelBuilder.Entity<QuestionAnswer>(entity =>
-        {
-            entity
-                .HasNoKey()
-                .ToTable("QuestionAnswer");
-
-            entity.HasIndex(e => e.AnswerId, "IX_QuestionAnswer_AnswerId");
-
-            entity.HasIndex(e => e.QuestionId, "IX_QuestionAnswer_QuestionId");
-
-            entity.HasOne(d => d.Answer).WithMany()
-                .HasForeignKey(d => d.AnswerId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
-
-            entity.HasOne(d => d.Question).WithMany()
-                .HasForeignKey(d => d.QuestionId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
-        });
 
         
 
