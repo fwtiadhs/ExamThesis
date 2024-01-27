@@ -21,6 +21,8 @@ namespace ExamThesis.Models
         public string QuestionText { get; set; }
 
         public List<CreateAnswer> Answers { get; set; }
+        public double QuestionPoints { get;  set; }
+        public double NegativePoints { get;  set; }
     }
     public class CreateAnswer
     {

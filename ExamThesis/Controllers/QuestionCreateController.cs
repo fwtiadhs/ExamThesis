@@ -50,7 +50,11 @@ namespace ExamThesis.Controllers
                         {
                             Text = answer.Text,
                             IsCorrect = answer.IsCorrect
-                        }).ToList()
+                            
+                        }).ToList(),
+                            QuestionPoints = viewModel.QuestionPoints,
+                            NegativePoints = viewModel.NegativePoints,
+
                 };
 
                 _db.Questions.Add(question);
