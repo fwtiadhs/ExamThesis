@@ -1,6 +1,4 @@
-﻿using ExamThesis;
-using ExamThesis.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using ExamThesis.Storage.Model;
@@ -26,9 +24,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         };
         options.Cookie.HttpOnly = true;
     });
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
-  builder.Configuration.GetConnectionString("DefaultConnection")
-    ));
 builder.Services.AddDbContext<ExamContext>(options => options.UseSqlServer(
   builder.Configuration.GetConnectionString("DefaultConnection")
     ));

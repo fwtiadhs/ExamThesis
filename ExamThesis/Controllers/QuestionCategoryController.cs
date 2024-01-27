@@ -1,5 +1,4 @@
-﻿using ExamThesis.Data;
-using ExamThesis.Storage.Model;
+﻿using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,36 +11,26 @@ namespace ExamThesis.Controllers
         {
             _db= db;
         }
+
         public IActionResult Index()
         {
             IEnumerable<QuestionCategory> objQuestionCategoryList = _db.QuestionCategories.ToList();
+            ViewBag.QuestionCategoryList = _db.QuestionCategories.ToList();
 
-            return View(objQuestionCategoryList) ;
+            return View() ;
         }
-        //GET ACTION
+
+        [HttpGet]
         public IActionResult Create()
         {
             
             return View();
         }
-        //TODO na kanw thn create na xrhsimopoiei thn ExamThesis.Model.QuestionCategory kai oxi thn Storage.QuestionCategory var model = new ExamThesis.Storage.Model.QuestionCategory()
-        //POST ACTION
-        /* [HttpPost]
-         [ValidateAntiForgeryToken]
-         public IActionResult Create(QuestionCategory obj)
-         {
-             if (obj.QuestionCategoryName == obj.QuestionCategoryName.ToString()) {
-                 ModelState.AddModelError("CategoryName", "Cannot be the same name");
-             }
-             _db.QuestionCategories.Add(obj);
-             _db.SaveChanges();
-             return RedirectToAction("Index");
-         }*/
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ExamThesis.Models.QuestionCategory obj)
         {
-            ViewBag.QuestionCategories = _db.QuestionCategories.ToList();
             if (ModelState.IsValid)
             {
                 var model = new ExamThesis.Storage.Model.QuestionCategory()
@@ -49,24 +38,23 @@ namespace ExamThesis.Controllers
                     QuestionCategoryName = obj.QuestionCategoryName,
 
                 };
-                // Εδώ γίνεται η αποθήκευση της ερώτησης στη βάση δεδομένων
                 _db.QuestionCategories.Add(model);
                 await _db.SaveChangesAsync();
+                ViewBag.QuestionCategoryList = _db.QuestionCategories.ToList();
 
             }
             return View("Index");
         }
-            //GET ACTION
-            public IActionResult Edit(int? id)
+
+        public IActionResult Edit(int? id)
         {
-            if(id==null|| id == 0)
+            if (id == null || id == 0)
             {
                 return NotFound();
             }
-            //var QCategoryFromDb = _db.QuestionCategories.Find(id);
+           
             var QCategoryFromDbFirst = _db.QuestionCategories.FirstOrDefault(u => u.QuestionCategoryId == id);
-           // var QCategoryFromDbSingle = _db.QuestionCategories.SingleOrDefault(u => u.CategoryId == id);
-          
+
             if (QCategoryFromDbFirst == null)
             {
                 return NotFound();
@@ -75,15 +63,12 @@ namespace ExamThesis.Controllers
             return View(QCategoryFromDbFirst);
         }
 
-        //POST ACTION
+      
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(QuestionCategory obj)
         {
-           // if (obj.CategoryName == obj.CategoryName.ToString())
-            //{
-              //  ModelState.AddModelError("CategoryName", "Cannot be the same name");
-            //}
+          
 
             if (ModelState.IsValid) { 
 
@@ -95,7 +80,7 @@ namespace ExamThesis.Controllers
             return View(obj);
         }
 
-        //GET ACTION
+
         public IActionResult Delete(int? id)
         {
             if (id == null || id == 0)
@@ -103,8 +88,7 @@ namespace ExamThesis.Controllers
                 return NotFound();
             }
             var QCategoryFromDb = _db.QuestionCategories.Find(id);
-            //var QCategoryFromDbFirst = _db.QuestionCategories.FirstOrDefault(u => u.CategoryId == id);
-            // var QCategoryFromDbSingle = _db.QuestionCategories.SingleOrDefault(u => u.CategoryId == id);
+         
 
             if (QCategoryFromDb == null)
             {
@@ -114,7 +98,7 @@ namespace ExamThesis.Controllers
             return View(QCategoryFromDb);
         }
 
-        //POST ACTION
+      
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult DeletePOST(int? id)
