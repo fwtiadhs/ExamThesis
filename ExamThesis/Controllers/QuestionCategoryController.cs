@@ -52,7 +52,7 @@ namespace ExamThesis.Controllers
             {
                 return NotFound();
             }
-           
+
             var QCategoryFromDbFirst = _db.QuestionCategories.FirstOrDefault(u => u.QuestionCategoryId == id);
 
             if (QCategoryFromDbFirst == null)
@@ -63,24 +63,53 @@ namespace ExamThesis.Controllers
             return View(QCategoryFromDbFirst);
         }
 
-      
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(QuestionCategory obj)
+
+
+        [HttpPut]
+        public IActionResult Edit(int id, [FromBody] QuestionCategory obj)
         {
-          
+            if (id == 0)
+            {
+                return NotFound();
+            }
 
-            if (ModelState.IsValid) { 
+            var QCategoryFromDbFirst = _db.QuestionCategories.FirstOrDefault(u => u.QuestionCategoryId == id);
 
-                _db.QuestionCategories.Update(obj);
+            if (QCategoryFromDbFirst == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                //QCategoryFromDbFirst.QuestionCategoryId = obj.QuestionCategoryId;
+                QCategoryFromDbFirst.QuestionCategoryName = obj.QuestionCategoryName;
+               
+
+                _db.QuestionCategories.Update(QCategoryFromDbFirst);
                 _db.SaveChanges();
 
-             return RedirectToAction("Index");
+                return RedirectToAction("Index");
             }
-            return View(obj);
+
+            return View(QCategoryFromDbFirst);
         }
 
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public IActionResult Edit(QuestionCategory obj)
+        //{
 
+
+        //    if (ModelState.IsValid) { 
+
+        //        _db.QuestionCategories.Update(obj);
+        //        _db.SaveChanges();
+
+        //     return RedirectToAction("Index");
+        //    }
+        //    return View(obj);
+        //}
         public IActionResult Delete(int? id)
         {
             if (id == null || id == 0)
@@ -99,9 +128,8 @@ namespace ExamThesis.Controllers
         }
 
       
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeletePOST(int? id)
+        [HttpDelete]
+        public IActionResult DeletePost(int? id)
         {
             var obj = _db.QuestionCategories.Find(id);
 
@@ -110,7 +138,7 @@ namespace ExamThesis.Controllers
                 return NotFound();
             }
 
-            _db.QuestionCategories.Remove(obj);
+                _db.QuestionCategories.Remove(obj);
                 _db.SaveChanges();
                 return RedirectToAction("Index");
         }

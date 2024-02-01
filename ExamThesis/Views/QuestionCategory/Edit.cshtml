@@ -1,20 +1,43 @@
 ﻿@model ExamThesis.Storage.Model.QuestionCategory
-<form method="post" asp-action="Edit">
+
+<form id="editForm" asp-action="Edit" asp-controller="QuestionCategory">
+    @Html.AntiForgeryToken()
+
     <div class="border p-3 mt-4"></div>
     <div class="row pb-2">
         <h2 class="text-primary">Edit Category</h2>
     </div>
     <div class="mb-3">
         <label asp-for="QuestionCategoryName">Name</label>
-        <input asp-for="QuestionCategoryName" class="form-control" />
+        <input id="editName" name="QuestionCategoryName" class="form-control" />
         <span asp-validation-for="QuestionCategoryName" class="text-danger"></span>
     </div>
-    <button type="submit" class="btn btn-primary" style="width:150px">Update</button>
+    <button type="button" onclick="submitEditForm()" class="btn btn-primary" style="width:150px">Update</button>
     <a asp-controller="QuestionCategory" asp-action="Index" class="btn btn-secondary" style="width:150px">Back to List</a>
 </form>
 
-@section Scripts{
-    @{
-        <partial name="_ValidationScriptsPartial" />
-    }
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        function submitEditForm() {
+            var id = @Model.QuestionCategoryId;
+            var newName = $('#editName').val();
+
+            $.ajax({
+                url: '/QuestionCategory/Edit/' + id,
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify({ QuestionCategoryName: newName }),
+                success: function (data) {
+                    // Επιτυχία, μπορείτε να εκτελέσετε επιπλέον κώδικα αν χρειάζεται
+                    console.log('Success:', data);
+                    window.location.href = '/QuestionCategory/Index';
+                },
+                error: function (error) {
+                    // Σφάλμα, μπορείτε να εκτελέσετε επιπλέον κώδικα αν χρειάζεται
+                    console.error('Error:', error);
+                }
+            });
+        }
+    </script>
 }
