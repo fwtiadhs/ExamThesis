@@ -10,8 +10,8 @@ namespace ExamThesis.Models
 {
     public class CreateQuestion
     {
-        
 
+        public int QuestionId { get; set; }
         public CreateQuestion()
         {
             Answers = new List<CreateAnswer>();

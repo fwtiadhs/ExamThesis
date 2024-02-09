@@ -95,21 +95,6 @@ namespace ExamThesis.Controllers
             return View(QCategoryFromDbFirst);
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public IActionResult Edit(QuestionCategory obj)
-        //{
-
-
-        //    if (ModelState.IsValid) { 
-
-        //        _db.QuestionCategories.Update(obj);
-        //        _db.SaveChanges();
-
-        //     return RedirectToAction("Index");
-        //    }
-        //    return View(obj);
-        //}
         public IActionResult Delete(int? id)
         {
             if (id == null || id == 0)

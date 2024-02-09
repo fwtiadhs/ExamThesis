@@ -1,0 +1,120 @@
+﻿@model ExamThesis.Models.CreateQuestion
+
+<h2>Edit Question and Answers</h2>
+
+<form asp-action="Edit" id="editForm">
+    <div class="form-group">
+        <label asp-for="QuestionText" class="control-label"></label>
+        <input asp-for="QuestionText" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="QuestionPoints" class="control-label"></label>
+        <input asp-for="QuestionPoints" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="NegativePoints" class="control-label"></label>
+        <input asp-for="NegativePoints" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="QuestionCategoryId" class="control-label"></label>
+        <select asp-items="ViewBag.QuestionCategories" asp-for="QuestionCategoryId" class="form-control"></select>
+
+
+    </div>
+
+    <h4>Answers</h4>
+    <div id="answers-container">
+        @for (var i = 0; i < Model.Answers.Count; i++)
+        {
+            <div class="form-group">
+                <label asp-for="Answers[i].Text" class="control-label"></label>
+                <input asp-for="Answers[i].Text" class="form-control" />
+
+                <label>
+                    <input type="checkbox" asp-for="Answers[i].IsCorrect" />
+                    Correct Answer
+                </label>
+            </div>
+        }
+    </div>
+    <button type="button" class="btn btn-success" onclick="addAnswer()">Add Answer</button>
+    <button type="button" class="btn btn-danger" onclick="removeAnswer(this)">Remove</button>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+
+
+
+    @section scripts {
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <script>
+            function updateQuestion() {
+                var formData = {
+                    QuestionId: @Model.QuestionId,
+                    QuestionText: $('#QuestionText').val(),
+                    QuestionPoints: $('#QuestionPoints').val(),
+                    NegativePoints: $('#NegativePoints').val(),
+                    QuestionCategoryId: $('#QuestionCategoryId').val(),
+                    Answers: []
+                };
+
+                // Loop through answers and add them to formData
+                $('input[name^="Answers"]').each(function () {
+                    var answer = {
+                        Text: $(this).val(),
+                        IsCorrect: $(this).closest('.form-group').find('input[type="checkbox"]').prop('checked')
+                    };
+                    formData.Answers.push(answer);
+                });
+
+                $.ajax({
+                    url: '/QuestionCreate/Edit',
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: formData,  
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (data) {
+                        console.log('Question updated successfully');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error updating question:', error);
+
+                        // Εκτυπώστε περισσότερες πληροφορίες σφάλματος
+                        console.log(xhr.responseText);
+                    }
+                });
+            }
+            function addAnswer() {
+                var container = $('#answers-container');
+                var index = container.children().length;
+
+                // Κατασκευή νέας απάντησης ως HTML
+                var newAnswerHtml = `
+                                        <div class="form-group">
+                                            <label for="Answers_${index}__Text" class="control-label">Answer ${index + 1}</label>
+                                            <input type="text" name="Answers[${index}].Text" class="form-control" />
+                                            <label>
+                                                <input type="checkbox" class="answer-checkbox" name="Answers[${index}].IsCorrect" />
+                                                Correct Answer
+                                            </label>
+                                        </div>
+                                    `;
+
+                // Προσθήκη της νέας απάντησης στο container
+                container.append(newAnswerHtml);
+            }
+
+            function removeAnswer() {
+                var container = $('#answers-container');
+                var childrenCount = container.children().length;
+
+                if (childrenCount > 1) {
+                    container.children().last().remove();
+                }
+            }
+        </script>
+    }
+</form>
