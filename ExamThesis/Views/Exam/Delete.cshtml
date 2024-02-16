@@ -1,0 +1,41 @@
+﻿@model ExamThesis.Storage.Model.Exam
+
+<h2>Delete Exam</h2>
+
+<h3>Are you sure you want to delete this exam?</h3>
+<div>
+    <h4>Exam:</h4>
+    <div>
+        <strong>@Model.ExamName</strong>
+    </div>
+</div>
+
+<form id="deleteForm">
+     @Html.AntiForgeryToken() 
+    <button type="button" class="btn btn-danger" onclick="deleteExam(@Model.ExamId)">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</form>
+
+@section Scripts {
+    <script>
+        function deleteExam() {
+            if (confirm('Are you sure you want to delete this question?')) {
+                $.ajax({
+                    url: '/Exam/DeleteConfirmed/' + @Model.ExamId,
+                    type: 'DELETE',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (data) {
+                        console.log('Question deleted successfully');
+                        // Προαιρετικά μπορείτε να κάνετε κάποια ενέργεια μετά τη διαγραφή
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error deleting question:', error);
+                    }
+                });
+            }
+        }
+
+    </script>
+}

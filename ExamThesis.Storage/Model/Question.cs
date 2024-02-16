@@ -15,5 +15,9 @@ public partial class Question
 
     public double QuestionPoints { get; set; }
 
+    public int? ExamId { get; set; }
+
     public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
+
+    public virtual Exam? Exam { get; set; }
 }

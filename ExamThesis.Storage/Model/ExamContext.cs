@@ -19,6 +19,8 @@ public partial class ExamContext : DbContext
 
     public virtual DbSet<AppFile> AppFiles { get; set; }
 
+    public virtual DbSet<Exam> Exams { get; set; }
+
     public virtual DbSet<Question> Questions { get; set; }
 
     public virtual DbSet<QuestionCategory> QuestionCategories { get; set; }
@@ -45,9 +47,28 @@ public partial class ExamContext : DbContext
             entity.ToTable("AppFile");
         });
 
+        modelBuilder.Entity<Exam>(entity =>
+        {
+            entity.HasKey(e => e.ExamId).HasName("PK__Exam__297521C7826CB490");
+
+            entity.ToTable("Exam");
+
+            entity.Property(e => e.EndTime).HasColumnType("datetime");
+            entity.Property(e => e.ExamName).HasMaxLength(255);
+            entity.Property(e => e.StartTime).HasColumnType("datetime");
+
+            entity.HasOne(d => d.QuestionCategory).WithMany(p => p.Exams)
+                .HasForeignKey(d => d.QuestionCategoryId)
+                .HasConstraintName("FK_Exam_QuestionCategories");
+        });
+
         modelBuilder.Entity<Question>(entity =>
         {
             entity.Property(e => e.QuestionText).HasDefaultValueSql("(N'')");
+
+            entity.HasOne(d => d.Exam).WithMany(p => p.Questions)
+                .HasForeignKey(d => d.ExamId)
+                .HasConstraintName("FK_Questions_Exam");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -1,0 +1,16 @@
+﻿@model IEnumerable<ExamThesis.Storage.Model.Question>
+
+<h2>Questions By Category</h2>
+
+@foreach (var question in Model)
+{
+    <div>
+        <h4>@question.QuestionText</h4>
+        <ul>
+            @foreach (var answer in question.Answers)
+            {
+                <li>@answer.Text</li>
+            }
+        </ul>
+    </div>
+}

@@ -1,0 +1,41 @@
+﻿@model ExamThesis.Storage.Model.Exam
+
+@{
+    ViewData["Title"] = "Create Exam";
+}
+
+<h2>Create Exam</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="ExamName" class="control-label">Όνομα Εξέτασης:</label>
+        <input asp-for="ExamName" class="form-control" />
+        <span asp-validation-for="ExamName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="StartTime" class="control-label">Έναρξη:</label>
+        <input asp-for="StartTime" class="form-control" />
+        <span asp-validation-for="StartTime" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="EndTime" class="control-label">Λήξη:</label>
+        <input asp-for="EndTime" class="form-control" />
+        <span asp-validation-for="EndTime" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TotalPoints" class="control-label">Συνολικοί Πόντοι:</label>
+        <input asp-for="TotalPoints" class="form-control" />
+        <span asp-validation-for="TotalPoints" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="QuestionCategoryId" class="control-label">Επιλογή Κατηγοριών Ερωτήσεων:</label>
+        <select asp-items="ViewBag.QuestionCategories" asp-for="QuestionCategoryId" class="form-control"></select>
+        <span asp-validation-for="QuestionCategoryId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>

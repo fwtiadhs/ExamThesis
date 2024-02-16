@@ -1,0 +1,30 @@
+﻿@model List<ExamThesis.Storage.Model.Exam>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row">
+        @foreach (var exam in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@exam.ExamName</h5>
+                        <p class="card-text">
+                            <strong>Start Time:</strong> @exam.StartTime.ToString("dd/MM/yyyy HH:mm")<br />
+                            <strong>End Time:</strong> @exam.EndTime.ToString("dd/MM/yyyy HH:mm")<br />
+                            <strong>Total Points:</strong> @exam.TotalPoints
+                        </p>
+                        <a href="@Url.Action("Exam", new { id = exam.ExamId })" class="btn btn-primary">Start Exam</a>
+                        <a asp-controller="Exam" asp-action="Delete" asp-route-id="@exam.ExamId" class="btn btn-danger">Delete</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>No exams available.</p>
+}
+
+<a href="@Url.Action("Create")" class="btn btn-success">Create Exam</a>
