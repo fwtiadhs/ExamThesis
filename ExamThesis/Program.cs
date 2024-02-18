@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using ExamThesis.Storage.Model;
 using ExamThesis.Storage;
+using ExamThesis.Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,7 @@ builder.Services.AddDbContext<ExamContext>(options => options.UseSqlServer(
   builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
+builder.Services.AddTransient<IExamService, ExamService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

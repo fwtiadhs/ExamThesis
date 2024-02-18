@@ -34,6 +34,7 @@
     
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ExamThesis.Services\ExamThesis.Services.csproj" />
     <ProjectReference Include="..\ExamThesis.Storage\ExamThesis.Storage.csproj" />
   </ItemGroup>
 </Project>

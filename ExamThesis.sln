@@ -5,7 +5,9 @@ VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExamThesis", "ExamThesis\ExamThesis.csproj", "{F00FA169-97BE-4C67-9543-BEA08AF6EFCE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamThesis.Storage", "ExamThesis.Storage\ExamThesis.Storage.csproj", "{1D62F06D-3666-4AD2-8DB4-0E0349591A5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExamThesis.Storage", "ExamThesis.Storage\ExamThesis.Storage.csproj", "{1D62F06D-3666-4AD2-8DB4-0E0349591A5F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExamThesis.Services", "ExamThesis.Services\ExamThesis.Services.csproj", "{286FAD6F-CCD0-4A33-804F-470A66DE24B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{1D62F06D-3666-4AD2-8DB4-0E0349591A5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D62F06D-3666-4AD2-8DB4-0E0349591A5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D62F06D-3666-4AD2-8DB4-0E0349591A5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{286FAD6F-CCD0-4A33-804F-470A66DE24B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{286FAD6F-CCD0-4A33-804F-470A66DE24B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{286FAD6F-CCD0-4A33-804F-470A66DE24B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{286FAD6F-CCD0-4A33-804F-470A66DE24B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

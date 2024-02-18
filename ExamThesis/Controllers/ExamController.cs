@@ -1,15 +1,19 @@
-﻿using ExamThesis.Storage.Model;
+﻿using ExamThesis.Services.Services;
+using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExamThesis.Controllers
 {
     public class ExamController : Controller
     {
         private readonly ExamContext _db;
-        public ExamController(ExamContext db)
+        private readonly IExamService _examService;
+        public ExamController(ExamContext db, IExamService examService)
         {
             _db = db;
+            _examService = examService;
         }
         public IActionResult Index()
         {
@@ -76,12 +80,7 @@ namespace ExamThesis.Controllers
         }
         public IActionResult Exam(int id)
         {
-            // Λογική για να ανακτήσετε τις ερωτήσεις ανά κατηγορία για την εξέταση με το συγκεκριμένο ID
-            var exam = _db.Questions.Where(q => q.ExamId == id).ToList();
-
-            // Κατάλληλη λογική για να εμφανίσετε τις ερωτήσεις στο view
-
-            return View(exam);
+           return View(_examService.GetExamQuestionsByExamId(id));
         }
     }
 

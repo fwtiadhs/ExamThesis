@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ExamThesis.Storage\ExamThesis.Storage.csproj" />
+  </ItemGroup>
+
 </Project>
