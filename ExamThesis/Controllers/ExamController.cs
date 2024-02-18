@@ -64,23 +64,15 @@ namespace ExamThesis.Controllers
         }
         [HttpDelete]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult>  DeleteConfirmed(int id)
         {
-            var examsToDelete = _db.Exams.Find(id);
+           await _examService.DeleteByExamId(id);
 
-            if (examsToDelete == null)
-            {
-                return NotFound();
-            }
-
-            _db.Exams.Remove(examsToDelete);
-            _db.SaveChanges();
-
-            return View(examsToDelete);
+            return Index();
         }
         public IActionResult Exam(int id)
         {
-           return View(_examService.GetExamQuestionsByExamId(id));
+           return View(_examService.GetExamQuestionsByExamId);
         }
     }
 

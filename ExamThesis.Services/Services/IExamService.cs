@@ -10,7 +10,8 @@ namespace ExamThesis.Services.Services
 {
     public interface IExamService
     {
-        IEnumerable<Question> GetExamQuestionsByExamId(int examId);
+        Task<IEnumerable<Question>> GetExamQuestionsByExamId(int examId);
+        Task DeleteByExamId(int examId);
     }
 
     public class ExamService : IExamService
@@ -21,11 +22,21 @@ namespace ExamThesis.Services.Services
             _db = db;
         }
 
-        public IEnumerable<Question> GetExamQuestionsByExamId(int id)
+        public async Task DeleteByExamId(int examId)
         {
-            var exam = _db.Exams.Where(q => q.ExamId == id);
-            var questions = _db.Questions.Where(q => q.QuestionCategoryId == exam.First().QuestionCategoryId).Include(q => q.Answers);
+            var examsToDelete = await _db.Exams.FindAsync(examId);
+
+            _db.Exams.Remove(examsToDelete);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Question>> GetExamQuestionsByExamId(int examId)
+        {
+            var exam = await _db.Exams.FirstAsync(q => q.ExamId == examId);
+            var questions = _db.Questions.Where(q => q.QuestionCategoryId == exam.QuestionCategoryId).Include(q => q.Answers);
             return(questions); 
         }
+
+        
     }
 }

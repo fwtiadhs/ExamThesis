@@ -11,13 +11,7 @@ public partial class Exam
 
     public double TotalPoints { get; set; }
 
-    public int? QuestionCategoryId { get; set; }
-
     public int ExamId { get; set; }
 
     public string? ExamName { get; set; }
-
-    public virtual QuestionCategory? QuestionCategory { get; set; }
-
-    public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
 }
