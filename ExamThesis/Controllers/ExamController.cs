@@ -40,7 +40,7 @@ namespace ExamThesis.Controllers
                     StartTime = viewModel.StartTime,
                     EndTime = viewModel.EndTime,
                     TotalPoints = viewModel.TotalPoints,
-                    QuestionCategoryId = viewModel.QuestionCategoryId
+                    
                 };
 
                 _db.Exams.Add(exam);
