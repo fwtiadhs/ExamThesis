@@ -1,4 +1,5 @@
-﻿using ExamThesis.Services.Services;
+﻿using ExamThesis.Models;
+using ExamThesis.Services.Services;
 using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -22,34 +23,43 @@ namespace ExamThesis.Controllers
         }
         public IActionResult Create()
         {
-            // Λάβετε και περάστε όλες τις κατηγορίες ερωτήσεων στην προβολή
-            var questionCategories = _db.QuestionCategories.ToList();
-            ViewBag.QuestionCategories = questionCategories;
-            ViewBag.QuestionCategories = new SelectList(_db.QuestionCategories, "QuestionCategoryId", "QuestionCategoryName");
-            return View();
+            var questionCategories = _db.QuestionCategories.Select(qc => new ExamThesis.Models.QuestionCategory()
+            {
+                QuestionCategoryId=qc.QuestionCategoryId,
+                QuestionCategoryName=qc.QuestionCategoryName,
+            }).ToList();
+
+            var model = new CreateExam()
+            {
+                SelectedCategories = questionCategories
+                
+             };
+
+            return View(model);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Exam viewModel)
+        public async Task<IActionResult> Create(CreateExam model)
+        
         {
             if (ModelState.IsValid)
             {
-                var exam = new Exam
-                {
-                    ExamName = viewModel.ExamName,
-                    StartTime = viewModel.StartTime,
-                    EndTime = viewModel.EndTime,
-                    TotalPoints = viewModel.TotalPoints,
+                var examModel= new ExamThesis.Common.CreateExam(){
+                    ExamName = model.ExamName,
+                    StartTime = model.StartTime,
+                    EndTime = model.EndTime,
+                    TotalPoints = model.TotalPoints,
+                    SelectedCategories = model.SelectedCategories.Where(sc => sc.IsChecked==true).Select(sc => new Common.QuestionCategory() {
+                        QuestionCategoryId=sc.QuestionCategoryId}).ToList()
                     
                 };
-
-                _db.Exams.Add(exam);
-                _db.SaveChanges();
+             await   _examService.CreateExam(examModel);
 
                 return RedirectToAction("Index");
             }
 
-            return View(viewModel);
+            return View(model);
         }
         public IActionResult Delete(int id)
         {
@@ -70,9 +80,10 @@ namespace ExamThesis.Controllers
 
             return Index();
         }
-        public IActionResult Exam(int id)
+        public async Task<IActionResult> Exam(int id)
         {
-           return View(_examService.GetExamQuestionsByExamId);
+            var model =await _examService.GetExamQuestionsByExamId(id);
+            return base.View(model);
         }
     }
 

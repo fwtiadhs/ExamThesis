@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExamThesis.Storage", "ExamT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExamThesis.Services", "ExamThesis.Services\ExamThesis.Services.csproj", "{286FAD6F-CCD0-4A33-804F-470A66DE24B2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamThesis.Common", "ExamThesis.Common\ExamThesis.Common.csproj", "{B8A66112-2A3C-404B-B80E-0332DFCA0A95}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{286FAD6F-CCD0-4A33-804F-470A66DE24B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{286FAD6F-CCD0-4A33-804F-470A66DE24B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{286FAD6F-CCD0-4A33-804F-470A66DE24B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8A66112-2A3C-404B-B80E-0332DFCA0A95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8A66112-2A3C-404B-B80E-0332DFCA0A95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8A66112-2A3C-404B-B80E-0332DFCA0A95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8A66112-2A3C-404B-B80E-0332DFCA0A95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

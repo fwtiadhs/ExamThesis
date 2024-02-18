@@ -29,16 +29,12 @@ namespace ExamThesis.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ExamThesis.Models.QuestionCategory obj)
+        public async Task<IActionResult> Create(QuestionCategory questionCategory)
         {
             if (ModelState.IsValid)
             {
-                var model = new ExamThesis.Storage.Model.QuestionCategory()
-                {
-                    QuestionCategoryName = obj.QuestionCategoryName,
-
-                };
-                _db.QuestionCategories.Add(model);
+                
+                _db.QuestionCategories.Add(questionCategory);
                 await _db.SaveChangesAsync();
                 ViewBag.QuestionCategoryList = _db.QuestionCategories.ToList();
 

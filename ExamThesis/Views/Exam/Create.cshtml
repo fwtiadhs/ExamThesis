@@ -1,5 +1,5 @@
-﻿@model ExamThesis.Storage.Model.Exam
-
+﻿@model ExamThesis.Models.CreateExam
+@using ExamThesis.Storage.Model
 @{
     ViewData["Title"] = "Create Exam";
 }
@@ -32,9 +32,27 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="QuestionCategoryId" class="control-label">Επιλογή Κατηγοριών Ερωτήσεων:</label>
-        <select asp-items="ViewBag.QuestionCategories" asp-for="QuestionCategoryId" class="form-control"></select>
-        <span asp-validation-for="QuestionCategoryId" class="text-danger"></span>
+        <label  class="control-label">Επιλογή Κατηγοριών Ερωτήσεων:</label>
+        <div id="answers-container">
+            @for (var i = 0; i < Model.SelectedCategories.Count; i++)
+            {
+                var currentcategory =Model.SelectedCategories[i];
+
+               @*  <div class="form-group">
+                    <input type="checkbox" asp-for="SelectedCategories[]"
+                           name="@currentcategory.QuestionCategoryName"> @currentcategory.QuestionCategoryName
+
+                </div> *@
+                <div class="form-group">
+
+                    
+                        <input type="checkbox" asp-for="SelectedCategories[i].IsChecked"  />
+                        @currentcategory.QuestionCategoryName
+                        <input id="@currentcategory.QuestionCategoryId" asp-for="SelectedCategories[i].QuestionCategoryId" type="hidden" value="@currentcategory.QuestionCategoryId"/>
+                    <input id="@currentcategory.QuestionCategoryName" asp-for="SelectedCategories[i].QuestionCategoryName" type="hidden" value="@currentcategory.QuestionCategoryName" />
+                </div>
+            }
+        </div>
     </div>
 
     <button type="submit" class="btn btn-primary">Create</button>
