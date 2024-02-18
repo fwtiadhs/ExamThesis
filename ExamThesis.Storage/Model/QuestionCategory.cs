@@ -8,4 +8,6 @@ public partial class QuestionCategory
     public int QuestionCategoryId { get; set; }
 
     public string QuestionCategoryName { get; set; } = null!;
+
+    public virtual ICollection<ExamCategory> ExamCategories { get; set; } = new List<ExamCategory>();
 }

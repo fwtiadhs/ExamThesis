@@ -5,6 +5,8 @@ namespace ExamThesis.Storage.Model;
 
 public partial class ExamCategory
 {
+    public int ExamCategoryId { get; set; }
+
     public int ExamId { get; set; }
 
     public int QuestionCategoryId { get; set; }

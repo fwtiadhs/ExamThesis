@@ -62,16 +62,14 @@ public partial class ExamContext : DbContext
 
         modelBuilder.Entity<ExamCategory>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("ExamCategory");
+            entity.ToTable("ExamCategory");
 
-            entity.HasOne(d => d.Exam).WithMany()
+            entity.HasOne(d => d.Exam).WithMany(p => p.ExamCategories)
                 .HasForeignKey(d => d.ExamId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ExamCategory_Exam");
 
-            entity.HasOne(d => d.QuestionCategory).WithMany()
+            entity.HasOne(d => d.QuestionCategory).WithMany(p => p.ExamCategories)
                 .HasForeignKey(d => d.QuestionCategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ExamCategory_QuestionCategories");
