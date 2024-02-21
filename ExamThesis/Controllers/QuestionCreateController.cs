@@ -1,4 +1,5 @@
 ﻿using ExamThesis.Storage.Model;
+using ExamThesis.Services.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ExamThesis.Models;
@@ -11,10 +12,11 @@ namespace ExamThesis.Controllers
     public class QuestionCreateController : Controller
     {
         private readonly ExamContext _db;
-
-        public QuestionCreateController(ExamContext db)
+        private readonly ICreateQuestionService _createQuestionService;
+        public QuestionCreateController(ExamContext db, ICreateQuestionService createQuestionService)
         {
             _db = db;
+            _createQuestionService = createQuestionService;
         }
         public IActionResult Index()
         {
@@ -23,51 +25,56 @@ namespace ExamThesis.Controllers
         }
         public IActionResult Create()
         {
-
-            var viewModel = new CreateQuestion();
-            //viewModel.Categories = _db.QuestionCategories
-            // .Select(c => new SelectListItem
-            // {
-            //     Value = c.QuestionCategoryId.ToString(),
-            //     Text = c.QuestionCategoryName
-            // })
-            // .ToList();
-            ViewBag.QuestionCategories = new SelectList( _db.QuestionCategories, "QuestionCategoryId", "QuestionCategoryName");
+            var viewModel = new Models.CreateQuestion();
+            ViewBag.QuestionCategories = new SelectList(_db.QuestionCategories, "QuestionCategoryId", "QuestionCategoryName");
             return View(viewModel);
         }
 
         [HttpPost]
-        public IActionResult Create(CreateQuestion viewModel)
+        public async Task<IActionResult> Create(ExamThesis.Common.CreateQuestion question)
         {
-           
             if (ModelState.IsValid)
             {
-                var question = new Question
-                {
-                    QuestionText = viewModel.QuestionText,
-                    Answers = viewModel.Answers
-                        .Where(answer => !string.IsNullOrEmpty(answer.Text))
-                        .Select(answer => new Answer
-                        {
-                            Text = answer.Text,
-                            IsCorrect = answer.IsCorrect
-                            
-                        }).ToList(),
-                            QuestionPoints = viewModel.QuestionPoints,
-                            NegativePoints = viewModel.NegativePoints,
-                            QuestionCategoryId = viewModel.QuestionCategoryId
-                };
+                
+                await _createQuestionService.Create(question);
 
-                _db.Questions.Add(question);
-                _db.SaveChanges();
-
-                return RedirectToAction("Index"); // Ή οποιαδήποτε άλλη δράση που θέλετε να πάει μετά τη δημιουργία
+                return RedirectToAction("Index");
             }
 
-            // Αν υπάρχουν λάθη, επιστρέφετε στο View με τα λάθη
-            return View(viewModel);
+            return View(question);
         }
-        [HttpPost]
+    
+    //public async Task<IActionResult> Create(CreateQuestion question)
+    //{
+
+    //    if (ModelState.IsValid)
+    //    {
+    //        var model = new Question
+    //        {
+    //            QuestionText = question.QuestionText,
+    //            Answers = question.Answers
+    //                .Where(answer => !string.IsNullOrEmpty(answer.Text))
+    //                .Select(answer => new Answer
+    //                {
+    //                    Text = answer.Text,
+    //                    IsCorrect = answer.IsCorrect
+
+    //                }).ToList(),
+    //            QuestionPoints = question.QuestionPoints,
+    //            NegativePoints = question.NegativePoints,
+    //            QuestionCategoryId = question.QuestionCategoryId
+
+    //        };
+    //        await _createQuestion.Create(model);
+
+
+    //        return RedirectToAction("Index"); // Ή οποιαδήποτε άλλη δράση που θέλετε να πάει μετά τη δημιουργία
+    //    }
+
+    //    // Αν υπάρχουν λάθη, επιστρέφετε στο View με τα λάθη
+    //    return View(question);
+    //} 
+    [HttpPost]
         public IActionResult AddAnswer()
         {
             // Κώδικας για να προσθέσετε μια νέα απάντηση στο μοντέλο
@@ -111,7 +118,7 @@ namespace ExamThesis.Controllers
             }
 
             // Δημιουργούμε ένα αντικείμενο CreateQuestion για το View
-            var viewModel = new CreateQuestion
+            var viewModel = new Common.CreateQuestion
             {
                 QuestionId = questionFromDb.QuestionId,
                 QuestionText = questionFromDb.QuestionText,
@@ -130,7 +137,7 @@ namespace ExamThesis.Controllers
 
         [HttpPut]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit([FromBody] CreateQuestion viewModel)
+        public IActionResult Edit([FromBody] Common.CreateQuestion viewModel)
         {
             if (ModelState.IsValid)
             {
@@ -155,7 +162,8 @@ namespace ExamThesis.Controllers
                 question.QuestionPoints = viewModel.QuestionPoints;
                 question.NegativePoints = viewModel.NegativePoints;
                 question.QuestionCategoryId = viewModel.QuestionCategoryId;
-               
+              
+                
                 _db.Questions.Update(question);
                 _db.SaveChanges();
 
@@ -193,7 +201,7 @@ namespace ExamThesis.Controllers
 
             _db.Questions.Remove(questionToDelete);
             _db.SaveChanges();
-
+            
             return View(); 
         }
 

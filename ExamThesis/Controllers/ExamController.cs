@@ -51,10 +51,10 @@ namespace ExamThesis.Controllers
                     EndTime = model.EndTime,
                     TotalPoints = model.TotalPoints,
                     SelectedCategories = model.SelectedCategories.Where(sc => sc.IsChecked==true).Select(sc => new Common.QuestionCategory() {
-                        QuestionCategoryId=sc.QuestionCategoryId}).ToList()
+                    QuestionCategoryId=sc.QuestionCategoryId}).ToList()
                     
                 };
-             await   _examService.CreateExam(examModel);
+             await _examService.CreateExam(examModel);
 
                 return RedirectToAction("Index");
             }

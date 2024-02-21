@@ -13,7 +13,7 @@ namespace ExamThesis.Services.Services
         Task<IEnumerable<Question>> GetExamQuestionsByExamId(int examId);
         Task DeleteByExamId(int examId);
         Task CreateExam(CreateExam exam);
-       
+        
     }
 
     public class ExamService : IExamService
