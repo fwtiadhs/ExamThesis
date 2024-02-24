@@ -3,6 +3,7 @@
 <h2>Edit Question and Answers</h2>
 
 <form asp-action="Edit" id="editForm">
+    @Html.AntiForgeryToken()
     <div class="form-group">
         <label asp-for="QuestionText" class="control-label"></label>
         <input asp-for="QuestionText" class="form-control" />
@@ -42,7 +43,7 @@
     </div>
     <button type="button" class="btn btn-success" onclick="addAnswer()">Add Answer</button>
     <button type="button" class="btn btn-danger" onclick="removeAnswer(this)">Remove</button>
-    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <button type="submit" class="btn btn-primary" onclick="updateQuestion()">Save Changes</button>
 
 
 
@@ -72,7 +73,8 @@
                     url: '/QuestionCreate/Edit',
                     type: 'PUT',
                     contentType: 'application/json',
-                    data: formData,  
+                    data: JSON.stringify(formData),
+                    traditional: true,
                     headers: {
                         'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
                     },

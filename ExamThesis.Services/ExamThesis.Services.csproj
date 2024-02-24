@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ExamThesis.Storage\ExamThesis.Storage.csproj" />
     <ProjectReference Include="..\ExamThesis.Common\ExamThesis.Common.csproj" />
   </ItemGroup>

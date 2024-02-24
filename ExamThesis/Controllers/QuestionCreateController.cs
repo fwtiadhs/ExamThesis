@@ -11,18 +11,22 @@ namespace ExamThesis.Controllers
 {
     public class QuestionCreateController : Controller
     {
+
         private readonly ExamContext _db;
-        private readonly ICreateQuestionService _createQuestionService;
-        public QuestionCreateController(ExamContext db, ICreateQuestionService createQuestionService)
+        private readonly IQuestionService _questionService;
+
+        public QuestionCreateController(ExamContext db, IQuestionService createQuestionService, IQuestionService editQuestionService)
         {
             _db = db;
-            _createQuestionService = createQuestionService;
+            _questionService = createQuestionService;
         }
+
         public IActionResult Index()
         {
             var questions = _db.Questions.Include(q => q.Answers).ToList();
             return View(questions);
         }
+
         public IActionResult Create()
         {
             var viewModel = new Models.CreateQuestion();
@@ -35,46 +39,17 @@ namespace ExamThesis.Controllers
         {
             if (ModelState.IsValid)
             {
-                
-                await _createQuestionService.Create(question);
+
+                await _questionService.Create(question);
 
                 return RedirectToAction("Index");
             }
 
             return View(question);
         }
-    
-    //public async Task<IActionResult> Create(CreateQuestion question)
-    //{
-
-    //    if (ModelState.IsValid)
-    //    {
-    //        var model = new Question
-    //        {
-    //            QuestionText = question.QuestionText,
-    //            Answers = question.Answers
-    //                .Where(answer => !string.IsNullOrEmpty(answer.Text))
-    //                .Select(answer => new Answer
-    //                {
-    //                    Text = answer.Text,
-    //                    IsCorrect = answer.IsCorrect
-
-    //                }).ToList(),
-    //            QuestionPoints = question.QuestionPoints,
-    //            NegativePoints = question.NegativePoints,
-    //            QuestionCategoryId = question.QuestionCategoryId
-
-    //        };
-    //        await _createQuestion.Create(model);
 
 
-    //        return RedirectToAction("Index"); // Ή οποιαδήποτε άλλη δράση που θέλετε να πάει μετά τη δημιουργία
-    //    }
-
-    //    // Αν υπάρχουν λάθη, επιστρέφετε στο View με τα λάθη
-    //    return View(question);
-    //} 
-    [HttpPost]
+        [HttpPost]
         public IActionResult AddAnswer()
         {
             // Κώδικας για να προσθέσετε μια νέα απάντηση στο μοντέλο
@@ -83,28 +58,11 @@ namespace ExamThesis.Controllers
 
             return PartialView("_AnswerPartial", newAnswer);
         }
-        //public IActionResult Edit(int? id)
-        //{
-        //    var viewModel = new CreateQuestion();
 
-        //    ViewBag.QuestionCategories = new SelectList(_db.QuestionCategories, "QuestionCategoryId", "QuestionCategoryName");
-        //    if (id == null || id == 0)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var QCategoryFromDbFirst = _db.Questions.FirstOrDefault(u => u.QuestionId == id);
-
-        //    if (QCategoryFromDbFirst == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(QCategoryFromDbFirst);
-        //}
 
         public IActionResult Edit(int? id)
         {
+
             if (id == null || id == 0)
             {
                 return NotFound();
@@ -118,7 +76,7 @@ namespace ExamThesis.Controllers
             }
 
             // Δημιουργούμε ένα αντικείμενο CreateQuestion για το View
-            var viewModel = new Common.CreateQuestion
+            var viewModel = new CreateQuestion
             {
                 QuestionId = questionFromDb.QuestionId,
                 QuestionText = questionFromDb.QuestionText,
@@ -137,37 +95,14 @@ namespace ExamThesis.Controllers
 
         [HttpPut]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit([FromBody] Common.CreateQuestion viewModel)
+        public async Task<IActionResult> Edit([FromBody] ExamThesis.Common.CreateQuestion editQuestionService)
         {
             if (ModelState.IsValid)
             {
-                var question = _db.Questions
-                    .Include(q => q.Answers)
-                    .FirstOrDefault(q => q.QuestionId == viewModel.QuestionId);
 
-                if (question == null)
-                {
-                    return NotFound();
-                }
+                await _questionService.Edit(editQuestionService);
 
-                // Ενημέρωση των πεδίων της ερώτησης με τα δεδομένα από το viewModel
-                question.QuestionText = viewModel.QuestionText;
-                question.Answers = viewModel.Answers
-                    .Where(answer => !string.IsNullOrEmpty(answer.Text))
-                    .Select(answer => new Answer
-                    {
-                        Text = answer.Text,
-                        IsCorrect = answer.IsCorrect
-                    }).ToList();
-                question.QuestionPoints = viewModel.QuestionPoints;
-                question.NegativePoints = viewModel.NegativePoints;
-                question.QuestionCategoryId = viewModel.QuestionCategoryId;
-              
-                
-                _db.Questions.Update(question);
-                _db.SaveChanges();
-
-                return View(question);
+                return View(editQuestionService);
             }
 
             return BadRequest(ModelState);
@@ -186,27 +121,11 @@ namespace ExamThesis.Controllers
 
         [HttpDelete]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var questionToDelete = _db.Questions.Find(id);
-
-            if (questionToDelete == null)
-            {
-                return NotFound();
-            }
-
-            // Πρέπει να διαγράψουμε τις σχετικές απαντήσεις πρώτα
-            var answersToDelete = _db.Answers.Where(a => a.QuestionId == id);
-            _db.Answers.RemoveRange(answersToDelete);
-
-            _db.Questions.Remove(questionToDelete);
-            _db.SaveChanges();
-            
-            return View(); 
+            await _questionService.DeleteById(id);
+            return View();
         }
-
-
-
 
     }
 
