@@ -79,7 +79,9 @@
                         'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
                     },
                     success: function (data) {
-                        console.log('Question updated successfully');
+                        // Επιτυχία, μπορείτε να εκτελέσετε επιπλέον κώδικα αν χρειάζεται
+                        console.log('Success:', data);
+                        window.location.href = '/QuestionCreate/Index';
                     },
                     error: function (xhr, status, error) {
                         console.error('Error updating question:', error);

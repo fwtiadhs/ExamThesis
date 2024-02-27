@@ -9,7 +9,7 @@
     </div>
     <div class="mb-3">
         <label asp-for="QuestionCategoryName">Name</label>
-        <input id="editName" name="QuestionCategoryName" class="form-control" />
+        <input id="editName" asp-for="QuestionCategoryName"  class="form-control" />
         <span asp-validation-for="QuestionCategoryName" class="text-danger"></span>
     </div>
     <button type="button" onclick="submitEditForm()" class="btn btn-primary" style="width:150px">Update</button>
@@ -24,7 +24,7 @@
             var newName = $('#editName').val();
 
             $.ajax({
-                url: '/QuestionCategory/Edit/' + id,
+                url: '/QuestionCategory/Edit/' + id ,
                 type: 'PUT',
                 contentType: 'application/json',
                 data: JSON.stringify({ QuestionCategoryName: newName }),

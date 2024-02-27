@@ -20,10 +20,10 @@ namespace ExamThesis.Services.Services
         Task Edit(CreateQuestion editquestion);
         Task DeleteById(int id);
     }
-    public class CreateQuestionService : IQuestionService
+    public class QuestionService : IQuestionService
     {
         private readonly ExamContext _db;
-        public CreateQuestionService(ExamContext db)
+        public QuestionService(ExamContext db)
         {
             _db = db;
         }
@@ -60,7 +60,7 @@ namespace ExamThesis.Services.Services
             
         }
 
-        public async Task Edit([FromBody]CreateQuestion editquestion)
+        public async Task Edit(CreateQuestion editquestion)
         {
 
             var model = _db.Questions

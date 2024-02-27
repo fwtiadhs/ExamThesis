@@ -1,4 +1,5 @@
-﻿using ExamThesis.Storage.Model;
+﻿using ExamThesis.Services.Services;
+using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,9 +8,11 @@ namespace ExamThesis.Controllers
     public class QuestionCategoryController : Controller
     {
         private readonly ExamContext _db;
-        public QuestionCategoryController(ExamContext db)
+        private readonly ICategoryService _categoryService;
+        public QuestionCategoryController(ExamContext db, ICategoryService categoryService)
         {
-            _db= db;
+            _db = db;
+            _categoryService = categoryService;
         }
 
         public IActionResult Index()
@@ -29,15 +32,20 @@ namespace ExamThesis.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(QuestionCategory questionCategory)
+        public async Task<IActionResult> Create(Common.QuestionCategory questionCategory)
         {
             if (ModelState.IsValid)
             {
-                
-                _db.QuestionCategories.Add(questionCategory);
-                await _db.SaveChangesAsync();
-                ViewBag.QuestionCategoryList = _db.QuestionCategories.ToList();
+                var categoryModel = new ExamThesis.Common.QuestionCategory()
+                {
+                    QuestionCategoryName = questionCategory.QuestionCategoryName,
+                };
 
+                //_db.QuestionCategories.Add(questionCategory);
+                //await _db.SaveChangesAsync();
+                //ViewBag.QuestionCategoryList = _db.QuestionCategories.ToList();
+                await _categoryService.Create(categoryModel);
+                ViewBag.QuestionCategoryList = _db.QuestionCategories.ToList();
             }
             return View("Index");
         }
@@ -49,46 +57,34 @@ namespace ExamThesis.Controllers
                 return NotFound();
             }
 
-            var QCategoryFromDbFirst = _db.QuestionCategories.FirstOrDefault(u => u.QuestionCategoryId == id);
+            var QCategoryFromDbFirst = _db.QuestionCategories.Where(u => u.QuestionCategoryId == id).First();
 
             if (QCategoryFromDbFirst == null)
             {
                 return NotFound();
             }
-
+            
             return View(QCategoryFromDbFirst);
         }
 
 
 
         [HttpPut]
-        public IActionResult Edit(int id, [FromBody] QuestionCategory obj)
+        public async Task<IActionResult> Edit(int id,[FromBody]Common.QuestionCategory obj)
         {
+       
             if (id == 0)
-            {
-                return NotFound();
-            }
-
-            var QCategoryFromDbFirst = _db.QuestionCategories.FirstOrDefault(u => u.QuestionCategoryId == id);
-
-            if (QCategoryFromDbFirst == null)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                //QCategoryFromDbFirst.QuestionCategoryId = obj.QuestionCategoryId;
-                QCategoryFromDbFirst.QuestionCategoryName = obj.QuestionCategoryName;
+               await _categoryService.Edit(obj,id);
                
-
-                _db.QuestionCategories.Update(QCategoryFromDbFirst);
-                _db.SaveChanges();
-
-                return RedirectToAction("Index");
+                return RedirectToAction("Index"); 
             }
-
-            return View(QCategoryFromDbFirst);
+            return BadRequest(ModelState); 
         }
 
         public IActionResult Delete(int? id)
@@ -110,18 +106,12 @@ namespace ExamThesis.Controllers
 
       
         [HttpDelete]
-        public IActionResult DeletePost(int? id)
+        public async Task<IActionResult> DeletePost(int id)
         {
-            var obj = _db.QuestionCategories.Find(id);
-
-            if (obj == null)
-            {
-                return NotFound();
-            }
-
-                _db.QuestionCategories.Remove(obj);
-                _db.SaveChanges();
-                return RedirectToAction("Index");
+            
+            await _categoryService.DeleteById(id);
+            
+                return View("Index");
         }
 
     }

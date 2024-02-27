@@ -31,7 +31,9 @@ builder.Services.AddDbContext<ExamContext>(options => options.UseSqlServer(
 
 builder.Services.AddTransient<IExamService, ExamService>();
 builder.Services.AddTransient<IExamCategoryService, ExamCategoryService>();
-builder.Services.AddTransient<IQuestionService, CreateQuestionService>();
+builder.Services.AddTransient<IQuestionService, QuestionService>();
+builder.Services.AddTransient<ICategoryService, CategoryService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -23,8 +23,10 @@ namespace ExamThesis.Common
             public double NegativePoints { get; set; }
             public int QuestionCategoryId { get; set; }
         }
+
         public class CreateAnswer
         {
+
             public string Text { get; set; }
 
             public bool IsCorrect { get; set; }

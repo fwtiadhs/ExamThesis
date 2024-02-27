@@ -60,7 +60,7 @@ namespace ExamThesis.Controllers
         }
 
 
-        public IActionResult Edit(int? id)
+        public IActionResult Edit(int? id, ExamThesis.Common.CreateQuestion editQuestionService)
         {
 
             if (id == null || id == 0)
@@ -68,7 +68,7 @@ namespace ExamThesis.Controllers
                 return NotFound();
             }
 
-            var questionFromDb = _db.Questions.FirstOrDefault(q => q.QuestionId == id);
+            var questionFromDb = _db.Questions.Where(q => q.QuestionId == id).Include(q => q.Answers).First();
 
             if (questionFromDb == null)
             {
@@ -83,6 +83,11 @@ namespace ExamThesis.Controllers
                 QuestionPoints = questionFromDb.QuestionPoints,
                 NegativePoints = questionFromDb.NegativePoints,
                 QuestionCategoryId = questionFromDb.QuestionCategoryId,
+                Answers = questionFromDb.Answers.Select(answer => new CreateAnswer
+                {
+                    Text = answer.Text,
+                    IsCorrect = answer.IsCorrect ?? false
+                }).ToList()
                 // Προσθέστε τα υπόλοιπα πεδία αν υπάρχουν
             };
 
@@ -102,7 +107,7 @@ namespace ExamThesis.Controllers
 
                 await _questionService.Edit(editQuestionService);
 
-                return View(editQuestionService);
+                return RedirectToAction("Index");
             }
 
             return BadRequest(ModelState);
@@ -124,7 +129,7 @@ namespace ExamThesis.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _questionService.DeleteById(id);
-            return View();
+            return RedirectToAction("Index");
         }
 
     }
