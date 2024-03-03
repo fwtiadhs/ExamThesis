@@ -2,6 +2,7 @@
 using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Octopus.Client.Model;
 
 namespace ExamThesis.Controllers
 {
@@ -32,21 +33,26 @@ namespace ExamThesis.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Common.QuestionCategory questionCategory)
+        public async Task<IActionResult> Create(Models.QuestionCategory questionCategory)
         {
-            if (ModelState.IsValid)
+            using (var memoryStream = new MemoryStream())
             {
-                var categoryModel = new ExamThesis.Common.QuestionCategory()
+                
+                if (ModelState.IsValid)
                 {
-                    QuestionCategoryName = questionCategory.QuestionCategoryName,
-                    FileData = questionCategory.FileData
-                };
+                    await questionCategory.FileData.CopyToAsync(memoryStream);
+                    var categoryModel = new ExamThesis.Common.QuestionCategory()
+                    {
+                        QuestionCategoryName = questionCategory.QuestionCategoryName,
+                        FileData = memoryStream.ToArray()
+                    };
 
-                await _categoryService.Create(categoryModel);
-                ViewBag.QuestionCategoryList = _db.QuestionCategories.ToList();
+                    await _categoryService.Create(categoryModel);
+                    ViewBag.QuestionCategoryList = _db.QuestionCategories.ToList();
+                }
+
+                return View("Index");
             }
-
-            return View("Index");
         }
 
         public IActionResult Edit(int? id)
