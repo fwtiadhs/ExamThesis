@@ -1,4 +1,5 @@
-﻿using ExamThesis.Common;
+﻿using Azure.Core;
+using ExamThesis.Common;
 using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ namespace ExamThesis.Services.Services
         Task Create(CreateQuestion question);
         Task Edit(CreateQuestion editquestion);
         Task DeleteById(int id);
+        Task<bool> DeleteAnswer(string answerText);
     }
     public class QuestionService : IQuestionService
     {
@@ -47,6 +49,25 @@ namespace ExamThesis.Services.Services
 
             _db.Questions.Add(model);
             await _db.SaveChangesAsync();
+        }
+
+        public async Task<bool> DeleteAnswer(string answerText)
+        {
+            try
+            {
+                var answer = await _db.Answers.FirstOrDefaultAsync(a => a.Text == answerText);
+
+                if (answer == null)
+                    return false; // Η απάντηση δε βρέθηκε
+
+                _db.Answers.Remove(answer);
+                await _db.SaveChangesAsync();
+                return true; // Η απάντηση διαγράφηκε με επιτυχία
+            }
+            catch
+            {
+                return false; // Σφάλμα κατά τη διαγραφή
+            }
         }
 
         public async Task DeleteById(int id)

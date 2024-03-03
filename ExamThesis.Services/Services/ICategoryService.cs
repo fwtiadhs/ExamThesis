@@ -29,6 +29,7 @@ namespace ExamThesis.Services.Services
             var model = new Storage.Model.QuestionCategory()
             {
                 QuestionCategoryName = category.QuestionCategoryName,
+                FileData = category.FileData
             };
             _db.QuestionCategories.Add(model);
             await _db.SaveChangesAsync();
@@ -47,11 +48,14 @@ namespace ExamThesis.Services.Services
             var QCategoryFromDbFirst = _db.QuestionCategories
                 .Where(u => u.QuestionCategoryId == id).FirstOrDefault();
 
-            //QCategoryFromDbFirst.QuestionCategoryId = editCategory.QuestionCategoryId;
+            QCategoryFromDbFirst.FileData = obj.FileData;
             QCategoryFromDbFirst.QuestionCategoryName = obj.QuestionCategoryName;
 
             _db.QuestionCategories.Update(QCategoryFromDbFirst);
             await _db.SaveChangesAsync();
         }
+
+       
     }
 }
+

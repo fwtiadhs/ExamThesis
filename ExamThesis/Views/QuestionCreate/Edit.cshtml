@@ -30,7 +30,7 @@
     <div id="answers-container">
         @for (var i = 0; i < Model.Answers.Count; i++)
         {
-            <div class="form-group">
+            <div class="form-group answer-item" data-answer-id="@Model.Answers[i].Text">
                 <label asp-for="Answers[i].Text" class="control-label"></label>
                 <input asp-for="Answers[i].Text" class="form-control" />
 
@@ -62,9 +62,14 @@
 
                 // Loop through answers and add them to formData
                 $('input[name^="Answers"]').each(function () {
+                    var answerText = $(this).val();
+                    var isCorrect = $(this).closest('.form-group').find('.answer-checkbox').prop('checked');
+
+                    console.log('Answer Text:', answerText, 'IsCorrect:', isCorrect);
+
                     var answer = {
-                        Text: $(this).val(),
-                        IsCorrect: $(this).closest('.form-group').find('input[type="checkbox"]').prop('checked')
+                        Text: answerText,
+                        IsCorrect: isCorrect
                     };
                     formData.Answers.push(answer);
                 });
@@ -111,14 +116,42 @@
                 container.append(newAnswerHtml);
             }
 
-            function removeAnswer() {
+            function removeAnswer(button) {
                 var container = $('#answers-container');
-                var childrenCount = container.children().length;
+                var lastAnswer = container.children('.answer-item').last();
 
-                if (childrenCount > 1) {
-                    container.children().last().remove();
+                if (lastAnswer.length > 0) {
+                    var answerText = lastAnswer.find('input[name^="Answers"]').val();
+                    console.log('Answer Text:', answerText); // Προσθήκη αυτής της γραμμής
+
+                    if (answerText) {
+                        // Καλέστε τη συνάρτηση διαγραφής απάντησης στον διακομιστή
+                        deleteAnswer(answerText);
+                    }
+
+                    lastAnswer.remove(); // Κατάργηση του HTML
                 }
             }
+
+            function deleteAnswer(answerText) {
+                var url = '/QuestionCreate/DeleteAnswer';
+
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    data: { answerText: answerText },  // Αλλαγή εδώ
+                    success: function (data) {
+                        // Επιτυχημένος διαγραφής, μπορείτε να κάνετε επιπλέον ενέργειες αν χρειάζεται
+                        console.log('Success:', data);
+                    },
+                    error: function (error) {
+                        // Σφάλμα κατά τη διαγραφή, μπορείτε να κάνετε επιπλέον ενέργειες αν χρειάζεται
+                        console.error('Error:', error);
+                    }
+                });
+            }
+
+          
         </script>
     }
 </form>

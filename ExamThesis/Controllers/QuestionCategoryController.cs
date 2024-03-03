@@ -39,14 +39,13 @@ namespace ExamThesis.Controllers
                 var categoryModel = new ExamThesis.Common.QuestionCategory()
                 {
                     QuestionCategoryName = questionCategory.QuestionCategoryName,
+                    FileData = questionCategory.FileData
                 };
 
-                //_db.QuestionCategories.Add(questionCategory);
-                //await _db.SaveChangesAsync();
-                //ViewBag.QuestionCategoryList = _db.QuestionCategories.ToList();
                 await _categoryService.Create(categoryModel);
                 ViewBag.QuestionCategoryList = _db.QuestionCategories.ToList();
             }
+
             return View("Index");
         }
 
@@ -113,6 +112,12 @@ namespace ExamThesis.Controllers
             
                 return View("Index");
         }
+        private bool IsFileValid(IFormFile file)
+        {
+            var allowedExtensions = new[] { ".pcapng", ".pkt", ".pdf" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLower();
 
+            return allowedExtensions.Contains(fileExtension);
+        }
     }
 }

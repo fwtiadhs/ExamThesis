@@ -7,6 +7,7 @@ namespace ExamThesis.Models
         public int QuestionCategoryId { get; set; }
         [ValidateNever]
         public string QuestionCategoryName { get; set; }
+        public byte[]? FileData { get; set; }
         public bool IsChecked { get; set; }
     }
 }

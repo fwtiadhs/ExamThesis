@@ -131,6 +131,14 @@ namespace ExamThesis.Controllers
             await _questionService.DeleteById(id);
             return RedirectToAction("Index");
         }
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAnswer(string answerText)
+        {
+            if (await _questionService.DeleteAnswer(answerText))
+                return Ok(new { message = "Η απάντηση διαγράφηκε επιτυχώς." });
+
+            return BadRequest(new { message = "Σφάλμα κατά τη διαγραφή της απάντησης." });
+        }
 
     }
 
