@@ -92,6 +92,14 @@ namespace ExamThesis.Services.Services
                     earnedPoints -= question.NegativePoints;
                 }
             }
+            var examResult = new ExamResult
+            {
+                ExamId = examId,
+                Grade = earnedPoints
+            };
+
+            _db.ExamResults.Add(examResult);
+            await _db.SaveChangesAsync();
 
             return earnedPoints;
         }
