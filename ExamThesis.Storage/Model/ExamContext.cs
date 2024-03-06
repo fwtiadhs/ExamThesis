@@ -23,6 +23,8 @@ public partial class ExamContext : DbContext
 
     public virtual DbSet<ExamCategory> ExamCategories { get; set; }
 
+    public virtual DbSet<ExamResult> ExamResults { get; set; }
+
     public virtual DbSet<Question> Questions { get; set; }
 
     public virtual DbSet<QuestionCategory> QuestionCategories { get; set; }
@@ -73,6 +75,14 @@ public partial class ExamContext : DbContext
                 .HasForeignKey(d => d.QuestionCategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ExamCategory_QuestionCategories");
+        });
+
+        modelBuilder.Entity<ExamResult>(entity =>
+        {
+            entity.HasOne(d => d.Exam).WithMany(p => p.ExamResults)
+                .HasForeignKey(d => d.ExamId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ExamResults_ExamId");
         });
 
         modelBuilder.Entity<Question>(entity =>

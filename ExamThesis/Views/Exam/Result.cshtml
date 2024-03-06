@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Exam Result";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Αν έχετε δημιουργήσει layout, προσαρμόστε αναλόγως
+}
+
+<div class="container">
+    <h2 class="mt-5">Exam Result</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <p>Your earned points: <strong>@ViewBag.EarnedPoints</strong></p>
+            <p>Total points for the exam: <strong>@ViewBag.TotalPoints</strong></p>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            @if (ViewBag.Passed)
+            {
+                <div class="alert alert-success" role="alert">
+                    Congratulations! You passed the exam.
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-danger" role="alert">
+                    Unfortunately, you did not pass the exam.
+                </div>
+            }
+        </div>
+    </div>
+</div>

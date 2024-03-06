@@ -16,4 +16,6 @@ public partial class Exam
     public string? ExamName { get; set; }
 
     public virtual ICollection<ExamCategory> ExamCategories { get; set; } = new List<ExamCategory>();
+
+    public virtual ICollection<ExamResult> ExamResults { get; set; } = new List<ExamResult>();
 }

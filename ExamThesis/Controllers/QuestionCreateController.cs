@@ -60,7 +60,7 @@ namespace ExamThesis.Controllers
         }
 
 
-        public IActionResult Edit(int? id, ExamThesis.Common.CreateQuestion editQuestionService)
+        public IActionResult Edit(int? id)
         {
 
             if (id == null || id == 0)
@@ -112,6 +112,7 @@ namespace ExamThesis.Controllers
 
             return BadRequest(ModelState);
         }
+
         public IActionResult Delete(int id)
         {
             var questionFromDb = _db.Questions.Find(id);

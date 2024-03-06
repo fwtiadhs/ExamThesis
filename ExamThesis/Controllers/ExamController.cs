@@ -82,8 +82,41 @@ namespace ExamThesis.Controllers
         }
         public async Task<IActionResult> Exam(int id)
         {
+            ViewBag.ExamId = id;
             var model =await _examService.GetExamQuestionsByExamId(id);
             return base.View(model);
+        }
+        public async Task<IActionResult> Submit(int id, List<int> selectedAnswers)
+        {
+            try
+            {
+                var earnedPoints = await _examService.SubmitExam(id, selectedAnswers);
+
+                var exam = await _db.Exams.FindAsync(id);
+                if (exam == null)
+                {
+                    return NotFound();
+                }
+
+                ViewBag.EarnedPoints = earnedPoints;
+                ViewBag.TotalPoints = exam.TotalPoints;
+
+                if (earnedPoints >= exam.TotalPoints / 2)
+                {
+                    ViewBag.Passed = true;
+                }
+                else
+                {
+                    ViewBag.Passed = false;
+                }
+
+                return View("Result");
+            }
+            catch (Exception ex)
+            {
+                // Εδώ μπορείτε να χειριστείτε τυχόν εξαιρέσεις που μπορεί να προκύψουν κατά την υποβολή.
+                return BadRequest(ex.Message);
+            }
         }
     }
 
