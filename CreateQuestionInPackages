@@ -1,0 +1,31 @@
+[HttpPost]
+public async Task<IActionResult> CreateQuestion(QuestionViewModel model, int packageId)
+{
+    if (ModelState.IsValid)
+    {
+        // Δημιουργία νέας ερώτησης
+        var question = new Question
+        {
+            Text = model.Text,
+            // Αντίστοιχα μπορείτε να προσθέσετε και άλλα πεδία ερωτήσεων ανάλογα με τις ανάγκες σας
+        };
+
+        _db.Questions.Add(question);
+        await _db.SaveChangesAsync();
+
+        // Προσθήκη ερώτησης στο QuestionInPackage
+        var questionInPackage = new QuestionInPackage
+        {
+            PackageId = packageId,
+            QuestionId = question.QuestionId
+        };
+
+        _db.QuestionsInPackage.Add(questionInPackage);
+        await _db.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index)); // Επιστροφή στην αρχική σελίδα ή σε άλλη σελίδα που θέλετε
+    }
+
+    // Εάν το ModelState δεν είναι έγκυρο, επιστροφή στη φόρμα δημιουργίας με σφάλματα
+    return View(model);
+}
