@@ -1,0 +1,24 @@
+public async Task<IEnumerable<Question>> GetExamQuestionsByExamId(int examId)
+{
+    var random = new Random();
+
+    var examCategories = await _db.ExamCategories
+        .Where(ec => ec.ExamId == examId)
+        .Select(ec => ec.QuestionCategoryId)
+        .ToListAsync();
+
+    var questions = examCategories
+        .SelectMany(catId => _db.QuestionPackages
+            .Where(qp => qp.CategoryId == catId)
+            .OrderBy(qp => random.Next()) // Τυχαία επιλογή πακέτου ερωτήσεων
+            .SelectMany(qp => _db.QuestionsInPackage
+                .Where(qip => qip.PackageId == qp.PackageId)
+                .Select(qip => qip.Question)
+                .OrderBy(q => random.Next()) // Τυχαία επιλογή ερωτήσεων μέσα στο πακέτο
+            )
+        )
+        .Include(q => q.Answers)
+        .ToList();
+
+    return questions;
+}
