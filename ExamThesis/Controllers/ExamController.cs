@@ -1,4 +1,5 @@
-﻿using ExamThesis.Models;
+﻿using ClosedXML.Excel;
+using ExamThesis.Models;
 using ExamThesis.Services.Services;
 using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Mvc;
@@ -43,6 +44,14 @@ namespace ExamThesis.Controllers
         public async Task<IActionResult> Create(CreateExam model)
         
         {
+            if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine($"Model error: {error.ErrorMessage}");
+                }
+                return View(model);
+            }
             if (ModelState.IsValid)
             {
                 var examModel= new ExamThesis.Common.CreateExam(){
@@ -50,6 +59,7 @@ namespace ExamThesis.Controllers
                     StartTime = model.StartTime,
                     EndTime = model.EndTime,
                     TotalPoints = model.TotalPoints,
+                    PassGrade = model.PassGrade,
                     SelectedCategories = model.SelectedCategories.Where(sc => sc.IsChecked==true).Select(sc => new Common.QuestionCategory() {
                     QuestionCategoryId=sc.QuestionCategoryId}).ToList()
                     
@@ -100,8 +110,9 @@ namespace ExamThesis.Controllers
 
                 ViewBag.EarnedPoints = earnedPoints;
                 ViewBag.TotalPoints = exam.TotalPoints;
+                ViewBag.PassGrade = exam.PassGrade;
 
-                if (earnedPoints >= exam.TotalPoints / 2)
+                if (earnedPoints >= exam.PassGrade)
                 {
                     ViewBag.Passed = true;
                 }
@@ -117,6 +128,31 @@ namespace ExamThesis.Controllers
                 // Εδώ μπορείτε να χειριστείτε τυχόν εξαιρέσεις που μπορεί να προκύψουν κατά την υποβολή.
                 return BadRequest(ex.Message);
             }
+        }
+        public IActionResult ExportExamResultsToExcel()
+        {
+            var examResults = _db.ExamResults.ToList(); 
+            var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("ExamResults");
+
+            worksheet.Cell(1, 1).Value = "ExamResultId";
+            worksheet.Cell(1, 2).Value = "ExamId";
+            worksheet.Cell(1, 3).Value = "Grade";
+
+            for (int i = 0; i < examResults.Count; i++)
+            {
+                var examResult = examResults[i];
+                worksheet.Cell(i + 2, 1).Value = examResult.ExamResultId;
+                worksheet.Cell(i + 2, 2).Value = examResult.ExamId;
+                worksheet.Cell(i + 2, 3).Value = examResult.Grade;
+            }
+
+            var fileName = "ExamResultsExport.xlsx";
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), fileName);
+            workbook.SaveAs(filePath);
+
+            var mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            return File(filePath, mimeType, fileName);
         }
     }
 

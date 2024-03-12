@@ -22,7 +22,8 @@ namespace ExamThesis.Common
             public double QuestionPoints { get; set; }
             public double NegativePoints { get; set; }
             public int QuestionCategoryId { get; set; }
-        }
+            public int? PackageId { get; set; }
+    }
 
         public class CreateAnswer
         {

@@ -21,6 +21,7 @@ namespace ExamThesis.Services.Services
         Task Edit(CreateQuestion editquestion);
         Task DeleteById(int id);
         Task<bool> DeleteAnswer(string answerText);
+        Task CreatePackage(QuestionPackage package);
     }
     public class QuestionService : IQuestionService
     {
@@ -31,12 +32,12 @@ namespace ExamThesis.Services.Services
         }
         public async Task Create(CreateQuestion question)
         {
-            var model = new Question
+            var model = new ExamThesis.Storage.Model.Question
             {
                 QuestionText = question.QuestionText,
                 Answers = question.Answers
                     .Where(answer => !string.IsNullOrEmpty(answer.Text))
-                    .Select(answer => new Answer
+                    .Select(answer => new ExamThesis.Storage.Model.Answer
                     {
                         Text = answer.Text,
                         IsCorrect = answer.IsCorrect
@@ -44,10 +45,33 @@ namespace ExamThesis.Services.Services
                     }).ToList(),
                 QuestionPoints = question.QuestionPoints,
                 NegativePoints = question.NegativePoints,
-                QuestionCategoryId = question.QuestionCategoryId
+                QuestionCategoryId = question.QuestionCategoryId,
+                PackageId = question.PackageId
             };
 
             _db.Questions.Add(model);
+            await _db.SaveChangesAsync();
+
+            // Προσθήκη ερώτησης στο QuestionInPackage
+            var questionInPackage = new QuestionsInPackage
+            {
+                PackageId = model.PackageId,
+                QuestionId = model.QuestionId
+            };
+
+            _db.QuestionsInPackages.Add(questionInPackage);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task CreatePackage(QuestionPackage package)
+        {
+            var model = new QuestionPackage
+            {
+                PackageName = package.PackageName,
+                QuestionCategoryId = package.QuestionCategoryId
+            };
+
+            _db.QuestionPackages.Add(model);
             await _db.SaveChangesAsync();
         }
 

@@ -30,7 +30,9 @@ namespace ExamThesis.Controllers
         public IActionResult Create()
         {
             var viewModel = new Models.CreateQuestion();
+            var questionPackages = _db.QuestionPackages.ToList();
             ViewBag.QuestionCategories = new SelectList(_db.QuestionCategories, "QuestionCategoryId", "QuestionCategoryName");
+            ViewBag.QuestionPackages = new SelectList(questionPackages, "PackageId", "PackageName");
             return View(viewModel);
         }
 

@@ -19,10 +19,12 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="QuestionCategoryId" class="control-label"></label>
+        <label asp-for="QuestionCategoryId" class="control-label">QuestionCategory</label>
         <select asp-items="ViewBag.QuestionCategories" asp-for="QuestionCategoryId" class="form-control" ></select>
-      
-        
+    </div>
+    <div class="form-group">
+        <label asp-for="PackageId" class="control-label">Question Package</label>
+        <select asp-items="ViewBag.QuestionPackages" asp-for="PackageId" class="form-control"></select>
     </div>
 
     <h4>Answers</h4>

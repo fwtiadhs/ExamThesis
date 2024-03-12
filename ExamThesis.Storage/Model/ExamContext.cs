@@ -29,6 +29,10 @@ public partial class ExamContext : DbContext
 
     public virtual DbSet<QuestionCategory> QuestionCategories { get; set; }
 
+    public virtual DbSet<QuestionPackage> QuestionPackages { get; set; }
+
+    public virtual DbSet<QuestionsInPackage> QuestionsInPackages { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=.;Database=Exam;Trusted_Connection=True;TrustServerCertificate=True;");
@@ -88,6 +92,36 @@ public partial class ExamContext : DbContext
         modelBuilder.Entity<Question>(entity =>
         {
             entity.Property(e => e.QuestionText).HasDefaultValueSql("(N'')");
+
+            entity.HasOne(d => d.Package).WithMany(p => p.Questions)
+                .HasForeignKey(d => d.PackageId)
+                .HasConstraintName("FK_Question_Package");
+        });
+
+        modelBuilder.Entity<QuestionPackage>(entity =>
+        {
+            entity.HasKey(e => e.PackageId).HasName("PK__Question__322035CC548505C7");
+
+            entity.Property(e => e.PackageName).HasMaxLength(255);
+
+            entity.HasOne(d => d.QuestionCategory).WithMany(p => p.QuestionPackages)
+                .HasForeignKey(d => d.QuestionCategoryId)
+                .HasConstraintName("FK__QuestionP__Quest__0880433F");
+        });
+
+        modelBuilder.Entity<QuestionsInPackage>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Question__3214EC07BB7DED0B");
+
+            entity.ToTable("QuestionsInPackage");
+
+            entity.HasOne(d => d.Package).WithMany(p => p.QuestionsInPackages)
+                .HasForeignKey(d => d.PackageId)
+                .HasConstraintName("FK__Questions__Packa__0B5CAFEA");
+
+            entity.HasOne(d => d.Question).WithMany(p => p.QuestionsInPackages)
+                .HasForeignKey(d => d.QuestionId)
+                .HasConstraintName("FK__Questions__Quest__0A688BB1");
         });
 
         OnModelCreatingPartial(modelBuilder);

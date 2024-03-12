@@ -13,8 +13,8 @@ namespace ExamThesis.Common
         public DateTime EndTime { get; set; }
 
         public double TotalPoints { get; set; }
-
         public int ExamId { get; set; }
+        public double? PassGrade { get; set; }
 
         public string? ExamName { get; set; }
 

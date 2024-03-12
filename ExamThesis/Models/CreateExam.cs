@@ -11,7 +11,7 @@ namespace ExamThesis.Models
         public double TotalPoints { get; set; }
 
         public int ExamId { get; set; }
-
+        public double? PassGrade { get; set; }
         public string? ExamName { get; set; }
 
         public List<QuestionCategory> SelectedCategories { get; set; }

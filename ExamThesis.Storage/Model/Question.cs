@@ -15,5 +15,11 @@ public partial class Question
 
     public double QuestionPoints { get; set; }
 
+    public int? PackageId { get; set; }
+
     public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
+
+    public virtual QuestionPackage? Package { get; set; }
+
+    public virtual ICollection<QuestionsInPackage> QuestionsInPackages { get; set; } = new List<QuestionsInPackage>();
 }

@@ -12,10 +12,12 @@
                         <p class="card-text">
                             <strong>Start Time:</strong> @exam.StartTime.ToString("dd/MM/yyyy HH:mm")<br />
                             <strong>End Time:</strong> @exam.EndTime.ToString("dd/MM/yyyy HH:mm")<br />
-                            <strong>Total Points:</strong> @exam.TotalPoints
+                            <strong>Total Points:</strong> @exam.TotalPoints<br />
+                            <strong>Pass Grade:</strong> @exam.PassGrade
                         </p>
                         <a href="@Url.Action("Exam", new { id = exam.ExamId })" class="btn btn-primary">Start Exam</a>
                         <a asp-controller="Exam" asp-action="Delete" asp-route-id="@exam.ExamId" class="btn btn-danger">Delete</a>
+                        <a href="@Url.Action("ExportExamResultsToExcel", new { id = exam.ExamId })" class="btn btn-success">Export to Excel</a>
                     </div>
                 </div>
             </div>

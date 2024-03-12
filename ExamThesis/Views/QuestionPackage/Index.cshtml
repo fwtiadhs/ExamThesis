@@ -1,0 +1,45 @@
+﻿@model IEnumerable<ExamThesis.Storage.Model.QuestionPackage>
+@{
+    ViewData["Title"] = "Index";
+}
+<div class="container p-3">
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary">Question Package List</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="QuestionPackage" asp-action="Create" class="btn btn-primary">
+                <i class="bi bg-plus-circle"></i> &nbsp; Create New Question Package
+            </a>
+        </div>
+    </div>
+</div>
+<br />
+<br />
+
+<table class="table table-bordered table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th>
+                PackageId
+            </th>
+            <th>
+                PackageName
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var obj in ViewBag.QuestionPackagesList)
+        {
+            <tr>
+                <td width="50%">
+                    @obj.PackageId
+                </td>
+                <td width="30%">
+                    @obj.PackageName
+                </td>
+                
+            </tr>
+        }
+    </tbody>
+</table>
