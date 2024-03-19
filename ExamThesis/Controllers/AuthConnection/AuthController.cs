@@ -16,6 +16,8 @@ using ExamThesis.Models;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using ExamThesis.Services.Services;
+using ExamThesis.Storage.Model;
 
 namespace ExamThesis.Controllers.AuthConnection
 {
@@ -26,8 +28,7 @@ namespace ExamThesis.Controllers.AuthConnection
         private const string CLIENT_SECRET = "0yppvt1e34j5hmrd1v909zmmuhu6w4gv5bi3qhfbexmrbs7h5p";
         private const string TokenUrl = "https://login.iee.ihu.gr/token";
 
-
-
+       
 
         [HttpGet]
         public IActionResult Index()
@@ -48,13 +49,18 @@ namespace ExamThesis.Controllers.AuthConnection
             var profileResponse = await GetProfile(token.access_token);
             //Αποθήκευση των πληροφοριών του χρήστη στην συνεδρία
             ViewData.Add("Name", profileResponse.cn);
-            HttpContext.Session.SetString("Name", profileResponse.cn);
+            ViewData.Add("UserId", profileResponse.uid);
+            Response.Cookies.Append("UserId", profileResponse.uid);
+            Response.Cookies.Append("Name", profileResponse.cn);
+
             //HttpContext.Session.SetString("Email", profileResponse.mail);
             var claims = new List<Claim>
                 {
                      new Claim(ClaimTypes.Name, profileResponse.cn), // Υποθέτουμε ότι η ιδιότητα Username υπάρχει στο προφίλ
+                     new Claim(ClaimTypes.NameIdentifier, profileResponse.id),
+                     new Claim("UserId", profileResponse.uid),
                  };
-
+            
             // Εάν χρειάζεστε και άλλους ισχυρισμούς, προσθέστε τους εδώ
 
             // Δημιουργήστε έναν ClaimsIdentity με τους ισχυρισμούς
@@ -64,7 +70,7 @@ namespace ExamThesis.Controllers.AuthConnection
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(identity));
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Home", new { userId = profileResponse.uid });
         }
 
         [HttpPost]
@@ -73,6 +79,7 @@ namespace ExamThesis.Controllers.AuthConnection
         {
             // Εκκαθαρίστε τα δεδομένα του χρήστη από τη συνεδρία
             HttpContext.Session.Clear();
+            Response.Cookies.Delete("UserID");
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             // Εκτελέστε τη διαδικασία αποσύνδεσης του χρήστη από την εξωτερική πηγή αυθεντικοποίησης (εάν απαιτείται)
@@ -123,6 +130,7 @@ namespace ExamThesis.Controllers.AuthConnection
             return profile;
 
         }
+
     }
 }
 

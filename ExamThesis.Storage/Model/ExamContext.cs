@@ -83,6 +83,10 @@ public partial class ExamContext : DbContext
 
         modelBuilder.Entity<ExamResult>(entity =>
         {
+            entity.Property(e => e.StudentId)
+                .HasMaxLength(20)
+                .IsFixedLength();
+
             entity.HasOne(d => d.Exam).WithMany(p => p.ExamResults)
                 .HasForeignKey(d => d.ExamId)
                 .OnDelete(DeleteBehavior.ClientSetNull)

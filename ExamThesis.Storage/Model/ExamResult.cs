@@ -7,6 +7,8 @@ public partial class ExamResult
 {
     public int ExamResultId { get; set; }
 
+    public string? StudentId { get; set; }
+
     public int ExamId { get; set; }
 
     public double Grade { get; set; }

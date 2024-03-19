@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using ExamThesis.Storage.Model;
 using ExamThesis.Storage;
 using ExamThesis.Services.Services;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using ExamThesis.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +35,15 @@ builder.Services.AddTransient<IExamService, ExamService>();
 builder.Services.AddTransient<IExamCategoryService, ExamCategoryService>();
 builder.Services.AddTransient<IQuestionService, QuestionService>();
 builder.Services.AddTransient<ICategoryService, CategoryService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<ExamController>();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Ρυθμίστε το χρόνο λήξης της συνεδρίας εδώ
+    options.Cookie.HttpOnly = true; // Χρήση του cookie μόνο μέσω HTTP
+    options.Cookie.IsEssential = true; // Ορίζει το cookie ως απαραίτητο για την λειτουργία της εφαρμογής
+});
+
 
 var app = builder.Build();
 

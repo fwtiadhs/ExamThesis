@@ -2,9 +2,11 @@
 using ExamThesis.Models;
 using ExamThesis.Services.Services;
 using ExamThesis.Storage.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http;
 
 namespace ExamThesis.Controllers
 {
@@ -92,16 +94,45 @@ namespace ExamThesis.Controllers
         }
         public async Task<IActionResult> Exam(int id)
         {
-            ViewBag.ExamId = id;
-            var model =await _examService.GetExamQuestionsByExamId(id);
-            return base.View(model);
+            if (IsUserAlreadyParticipated(id))
+            {
+                TempData["ErrorMessage"] = "Έχετε ήδη ολοκληρώσει αυτήν την εξέταση.";
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                ViewBag.ExamId = id;
+                var model = await _examService.GetExamQuestionsByExamId(id);
+                return base.View(model);
+            }
         }
-        public async Task<IActionResult> Submit(int id, List<int> selectedAnswers)
+        public bool IsUserAlreadyParticipated(int examId)
         {
+            // Ανακτήστε το UserId του τρέχοντος χρήστη από το session
+            var userId = Request.Cookies["UserId"];
+
+            // Ελέγξτε εάν υπάρχει εγγραφή στον πίνακα ExamResults με αυτό το UserId και το examId
+            var examResult = _db.ExamResults.Any(er => er.ExamId == examId && er.StudentId == userId);
+
+            return examResult ;
+        }
+        [HttpGet]
+        public IActionResult CheckUserParticipation(int examId)
+        {
+            // Εκτελέστε τον έλεγχο για τη συμμετοχή του χρήστη
+            var isParticipated = IsUserAlreadyParticipated(examId);
+
+            // Επιστροφή αποτελέσματος σε μορφή JSON
+            return Json(new { isParticipated });
+        }
+
+        public async Task<IActionResult> Submit(int id, List<int> selectedAnswers,string studentId)
+        {
+            studentId = Request.Cookies["UserId"];
             try
             {
-                var earnedPoints = await _examService.SubmitExam(id, selectedAnswers);
-
+                var earnedPoints = await _examService.SubmitExam(id, selectedAnswers,studentId);
+                
                 var exam = await _db.Exams.FindAsync(id);
                 if (exam == null)
                 {

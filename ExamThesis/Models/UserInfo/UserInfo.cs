@@ -3,6 +3,7 @@
     public class UserInfo
     {
         public string Id { get; set; }
+        public string Uid { get; set; }
         public string Cn { get; set; }
         public string Title { get; set; }
         public string Email { get; internal set; }

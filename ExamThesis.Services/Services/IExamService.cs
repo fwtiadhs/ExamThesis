@@ -1,10 +1,12 @@
 ﻿using ExamThesis.Common;
 using ExamThesis.Storage.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 namespace ExamThesis.Services.Services
@@ -14,8 +16,9 @@ namespace ExamThesis.Services.Services
         Task<IEnumerable<Question>> GetExamQuestionsByExamId(int examId);
         Task DeleteByExamId(int examId);
         Task CreateExam(CreateExam exam);
-        Task<double> SubmitExam(int examId, List<int> selectedAnswers);
+        Task<double> SubmitExam(int examId, List<int> selectedAnswers, string studentId);
         Task <IEnumerable<ExamResult>> GetExamResultsById(int examId);
+
 
     }
 
@@ -23,10 +26,12 @@ namespace ExamThesis.Services.Services
     {
         private readonly ExamContext _db;
         private readonly IExamCategoryService _categoryService;
-        public ExamService(ExamContext db, IExamCategoryService categoryService)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public ExamService(ExamContext db, IExamCategoryService categoryService, IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
             _categoryService = categoryService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task CreateExam(CreateExam exam)
@@ -53,48 +58,108 @@ namespace ExamThesis.Services.Services
             _db.Exams.Remove(examsToDelete);
             await _db.SaveChangesAsync();
         }
-
         public async Task<IEnumerable<Question>> GetExamQuestionsByExamId(int examId)
         {
-            var random = new Random();
             var exam = await _db.Exams.FindAsync(examId);
-            var examCategories = _db.ExamCategories.Where(c => c.ExamId == examId).Select(x => x.QuestionCategoryId).ToList();
 
-            var questions = new List<Question>();
+            if (exam == null)
+            {
+                return Enumerable.Empty<Question>();
+            }
+
+            var examQuestions = new List<Question>();
+            var examCategories = await _db.ExamCategories
+                .Where(ec => ec.ExamId == examId)
+                .ToListAsync();
+
+            var random = new Random();
 
             foreach (var category in examCategories)
             {
-                var availablePackages = await _db.QuestionPackages
-                    .Where(qp => qp.QuestionCategoryId == category)
-                    .OrderBy(qp => Guid.NewGuid())
-                    .Take(1)
+                var questionPackages = await _db.QuestionPackages
+                    .Where(qp => qp.QuestionCategoryId == category.QuestionCategoryId)
+                    .Include(qp => qp.QuestionsInPackages)
+                        .ThenInclude(qip => qip.Question)
                     .ToListAsync();
 
-                if (availablePackages.Any())
+                // Ομαδοποιούμε τα πακέτα ανά κατηγορία
+                var groupedPackages = questionPackages.GroupBy(qp => qp.QuestionCategoryId);
+
+                // Επιλέγουμε τυχαίο πακέτο από κάθε ομάδα
+                var selectedPackages = groupedPackages.Select(group => group.OrderBy(qp => random.Next()).First());
+
+                foreach (var questionPackage in selectedPackages)
                 {
-                    var selectedPackage = availablePackages[0];
+                    foreach (var questionInPackage in questionPackage.QuestionsInPackages)
+                    {
+                        var question = questionInPackage.Question;
 
-                    var questionsInPackage = await _db.QuestionsInPackages
-                        .Where(qip => qip.PackageId == selectedPackage.PackageId)
-                        .Select(qip => qip.Question)
-                        .ToListAsync();
+                        // Συμπερίληψη των απαντήσεων κάθε ερώτησης
+                        question.Answers = await _db.Answers
+                            .Where(a => a.QuestionId == question.QuestionId)
+                            .ToListAsync();
 
-                    var shuffledQuestions = questionsInPackage.OrderBy(q => random.Next()).ToList();
-
-                    // Χρησιμοποιήστε Include για να φορτώσετε τις σχέσεις
-                    questions.AddRange(shuffledQuestions.Select(q => _db.Questions.Include(q => q.Answers).FirstOrDefault(x => x.QuestionId == q.QuestionId)));
+                        examQuestions.Add(question);
+                    }
                 }
             }
 
-
-
-
-
-            //var questions = _db.Questions.Where(q => examCategories.Contains(q.QuestionCategoryId)).Select(q => q).Include(q => q.Answers).ToList();
-            //var examCategories =  _db.ExamCategories.Where(q => q.ExamId == examId).Select(q => q.QuestionCategoryId).ToList();
-            // var questions = _db.Questions.Select(q => examCategories.Contains(q.QuestionCategoryId)).Include(q => q.Answers);
-            return (questions);
+            return examQuestions;
         }
+        //public async Task<IEnumerable<Question>> GetExamQuestionsByExamId(int examId)
+        //{
+        //    var exam = await _db.Exams.FindAsync(examId);
+
+        //    if (exam == null)
+        //    {
+        //        return Enumerable.Empty<Question>();
+        //    }
+
+        //    var examQuestions = new List<Question>();
+        //    var examCategories = await _db.ExamCategories
+        //        .Where(ec => ec.ExamId == examId)
+        //        .ToListAsync();
+
+        //    var random = new Random();
+
+        //    foreach (var category in examCategories)
+        //    {
+        //        var questionPackages = await _db.QuestionPackages
+        //            .Where(qp => qp.QuestionCategoryId == category.QuestionCategoryId)
+        //            .Include(qp => qp.QuestionsInPackages)
+        //                .ThenInclude(qip => qip.Question)
+        //            .ToListAsync();
+
+        //        // Ομαδοποιούμε τα πακέτα ανά κατηγορία
+        //        var groupedPackages = questionPackages.GroupBy(qp => qp.QuestionCategoryId);
+
+        //        // Επιλέγουμε τυχαίο πακέτο από κάθε ομάδα
+        //        var selectedPackages = groupedPackages.Select(group => group.OrderBy(qp => random.Next()).First());
+
+        //        foreach (var questionPackage in selectedPackages)
+        //        {
+        //            foreach (var questionInPackage in questionPackage.QuestionsInPackages)
+        //            {
+        //                var question = questionInPackage.Question;
+
+        //                // Συμπερίληψη των απαντήσεων κάθε ερώτησης
+        //                question.Answers = await _db.Answers
+        //                    .Where(a => a.QuestionId == question.QuestionId)
+        //                    .ToListAsync();
+
+
+        //            }
+        //        }
+
+
+        //    return examQuestions;
+        //}
+
+
+        //    //var questions = _db.Questions.Where(q => examCategories.Contains(q.QuestionCategoryId)).Select(q => q).Include(q => q.Answers).ToList();
+        //    //var examCategories =  _db.ExamCategories.Where(q => q.ExamId == examId).Select(q => q.QuestionCategoryId).ToList();
+        //    // var questions = _db.Questions.Select(q => examCategories.Contains(q.QuestionCategoryId)).Include(q => q.Answers);
+        //}
 
         public async Task<IEnumerable<ExamResult>> GetExamResultsById(int examId)
         {
@@ -104,43 +169,69 @@ namespace ExamThesis.Services.Services
 
        
 
-        public async Task<double> SubmitExam([FromBody] int examId, [FromBody] List<int> selectedAnswers)
+        public async Task<double> SubmitExam( int examId, List<int> selectedAnswers,string studentId )
         {
-            var exam = await _db.Exams.FindAsync(examId);
 
-            if (exam == null)
+            var examQuestions = await GetExamQuestionsByExamId(examId);
+            var exam = await _db.Exams.FindAsync(examId);
+            
+            if (exam == null || examQuestions == null)
             {
-               throw new InvalidOperationException("Exam not found.");
+                // Επιστροφή κάποιας τιμής για ανεπιτυχή αίτηση
+                return -1;
             }
 
-            var examCategories = _db.ExamCategories.Where(c => c.ExamId == examId).Select(x => x.QuestionCategoryId).ToList();
-            var questions = _db.Questions
-                .Where(q => examCategories.Contains(q.QuestionCategoryId))
-                .Include(q => q.Answers)
-                .ToList();
+            var earnedPoints = 0.0;
 
-            double earnedPoints = 0;
-
-            foreach (var question in questions)
+            foreach (var question in examQuestions)
             {
                 var correctAnswers = question.Answers.Where(a => a.IsCorrect == true).Select(a => a.Id);
-                var userSelectedCorrect = selectedAnswers.Intersect(correctAnswers).Count() == correctAnswers.Count();
-                var userSelectedIncorrect = selectedAnswers.Except(correctAnswers).Any();
+                var userAnswers = selectedAnswers.Where(sa => sa == question.QuestionId);
 
-                if (userSelectedCorrect)
+                // Υπολογισμός βαθμού μόνο για τις ερωτήσεις που έχουν επιλεγεί
+                if (correctAnswers.SequenceEqual(userAnswers))
                 {
-                    // Ο χρήστης έχει επιλέξει όλες τις σωστές απαντήσεις
                     earnedPoints += question.QuestionPoints;
                 }
-                else if (userSelectedIncorrect)
+                else
                 {
-                    // Ο χρήστης έχει επιλέξει τουλάχιστον μία λανθασμένη απάντηση
-                    earnedPoints -= question.QuestionPoints - Math.Max(0, question.NegativePoints);
+                    earnedPoints -= question.NegativePoints;
                 }
             }
 
+
+
+            //var exam = await _db.Exams.FindAsync(examId);
+            //var earnedPoints = 0.0;
+
+            //var questions = await _db.Questions
+            //    .Include(q => q.Answers)
+            //    .Where(q => selectedAnswers.Contains(q.QuestionId))
+            //    .ToListAsync();
+
+            //foreach (var question in questions)
+            //{
+            //    if (question.Answers != null)
+            //    {
+
+            //        var userAnswers = selectedAnswers.Where(answer => question.Answers.Any(a => a.Id == answer)).OrderBy(a => a).ToList();
+            //        var correctAnswers = question.Answers.Where(a => a.IsCorrect == true).Select(a => a.Id).OrderBy(a => a).ToList();
+            //        Console.WriteLine("User Answers: " + string.Join(", ", userAnswers));
+            //        Console.WriteLine("Correct Answers: " + string.Join(", ", correctAnswers));
+            //        if (userAnswers.SequenceEqual(correctAnswers))
+            //        {
+            //            earnedPoints += question.QuestionPoints;
+            //        }
+            //        else
+            //        {
+            //            earnedPoints -= question.NegativePoints;
+            //        }
+            //    }
+            //}
+            
             var examResult = new ExamResult
             {
+                StudentId = studentId,
                 ExamId = examId,
                 Grade = earnedPoints
             };
