@@ -198,36 +198,6 @@ namespace ExamThesis.Services.Services
                     earnedPoints -= question.NegativePoints;
                 }
             }
-
-
-
-            //var exam = await _db.Exams.FindAsync(examId);
-            //var earnedPoints = 0.0;
-
-            //var questions = await _db.Questions
-            //    .Include(q => q.Answers)
-            //    .Where(q => selectedAnswers.Contains(q.QuestionId))
-            //    .ToListAsync();
-
-            //foreach (var question in questions)
-            //{
-            //    if (question.Answers != null)
-            //    {
-
-            //        var userAnswers = selectedAnswers.Where(answer => question.Answers.Any(a => a.Id == answer)).OrderBy(a => a).ToList();
-            //        var correctAnswers = question.Answers.Where(a => a.IsCorrect == true).Select(a => a.Id).OrderBy(a => a).ToList();
-            //        Console.WriteLine("User Answers: " + string.Join(", ", userAnswers));
-            //        Console.WriteLine("Correct Answers: " + string.Join(", ", correctAnswers));
-            //        if (userAnswers.SequenceEqual(correctAnswers))
-            //        {
-            //            earnedPoints += question.QuestionPoints;
-            //        }
-            //        else
-            //        {
-            //            earnedPoints -= question.NegativePoints;
-            //        }
-            //    }
-            //}
             
             var examResult = new ExamResult
             {

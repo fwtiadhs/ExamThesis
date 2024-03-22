@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
+using System.Security.Claims;
 
 namespace ExamThesis.Controllers
 {
@@ -14,10 +15,12 @@ namespace ExamThesis.Controllers
     {
         private readonly ExamContext _db;
         private readonly IExamService _examService;
-        public ExamController(ExamContext db, IExamService examService)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public ExamController(ExamContext db, IExamService examService, IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
             _examService = examService;
+            _httpContextAccessor = httpContextAccessor;
         }
         public IActionResult Index()
         {
@@ -108,13 +111,20 @@ namespace ExamThesis.Controllers
         }
         public bool IsUserAlreadyParticipated(int examId)
         {
-            // Ανακτήστε το UserId του τρέχοντος χρήστη από το session
-            var userId = Request.Cookies["UserId"];
+            var claimsIdentity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+            var userIdClaim = claimsIdentity?.FindFirst("UserId");
+            if (userIdClaim != null)
+            {
+                var userId = userIdClaim.Value;
 
-            // Ελέγξτε εάν υπάρχει εγγραφή στον πίνακα ExamResults με αυτό το UserId και το examId
-            var examResult = _db.ExamResults.Any(er => er.ExamId == examId && er.StudentId == userId);
+                var examResult = _db.ExamResults.Any(er => er.ExamId == examId && er.StudentId == userId);
 
-            return examResult ;
+                return examResult;
+            }
+            else
+            {
+                return false;
+            }
         }
         [HttpGet]
         public IActionResult CheckUserParticipation(int examId)
@@ -128,7 +138,9 @@ namespace ExamThesis.Controllers
 
         public async Task<IActionResult> Submit(int id, List<int> selectedAnswers,string studentId)
         {
-            studentId = Request.Cookies["UserId"];
+            var claimsIdentity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+            var userIdClaim = claimsIdentity?.FindFirst("UserId");
+            studentId = userIdClaim.Value; 
             try
             {
                 var earnedPoints = await _examService.SubmitExam(id, selectedAnswers,studentId);

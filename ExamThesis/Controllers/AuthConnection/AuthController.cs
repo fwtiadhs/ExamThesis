@@ -40,6 +40,12 @@ namespace ExamThesis.Controllers.AuthConnection
             var url = $"https://login.iee.ihu.gr/login?client_id={CLIENT_ID}&response_type=code&scope=profile&state=12345&redirect_uri=https://localhost:7134/Auth/Callback";
             return url;
         }
+        public static class UserRoles
+        {
+            public const string Teacher = "teacher";
+            public const string Student = "student";
+            // Προσθέστε άλλους ρόλους εδώ αν χρειάζεται
+        }
 
         [HttpGet]
         public async Task<IActionResult> Callback(string code, string state)
@@ -50,19 +56,27 @@ namespace ExamThesis.Controllers.AuthConnection
             //Αποθήκευση των πληροφοριών του χρήστη στην συνεδρία
             ViewData.Add("Name", profileResponse.cn);
             ViewData.Add("UserId", profileResponse.uid);
-            Response.Cookies.Append("UserId", profileResponse.uid);
-            Response.Cookies.Append("Name", profileResponse.cn);
+            HttpContext.Session.SetString("UserId", profileResponse.uid);
+            HttpContext.Session.SetString("EduPersonAffiliation", profileResponse.eduPersonAffiliation);
+
 
             //HttpContext.Session.SetString("Email", profileResponse.mail);
             var claims = new List<Claim>
-                {
-                     new Claim(ClaimTypes.Name, profileResponse.cn), // Υποθέτουμε ότι η ιδιότητα Username υπάρχει στο προφίλ
-                     new Claim(ClaimTypes.NameIdentifier, profileResponse.id),
-                     new Claim("UserId", profileResponse.uid),
-                 };
-            
-            // Εάν χρειάζεστε και άλλους ισχυρισμούς, προσθέστε τους εδώ
+            {
+                new Claim(ClaimTypes.Name, profileResponse.cn),
+                new Claim(ClaimTypes.NameIdentifier, profileResponse.id),
+                new Claim("UserId", profileResponse.uid),
+            };
 
+            // Εάν ο χρήστης είναι καθηγητής, προσθέστε τον ρόλο καθηγητή
+            if (profileResponse.eduPersonAffiliation == "teacher")
+            {
+                claims.Add(new Claim(ClaimTypes.Role, UserRoles.Teacher));
+            }
+            else if(profileResponse.eduPersonAffiliation == "student") 
+            {
+                claims.Add(new Claim(ClaimTypes.Role, UserRoles.Student));
+            }
             // Δημιουργήστε έναν ClaimsIdentity με τους ισχυρισμούς
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
