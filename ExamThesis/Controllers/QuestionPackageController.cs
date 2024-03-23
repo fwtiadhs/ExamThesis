@@ -1,10 +1,12 @@
 ﻿using ExamThesis.Services.Services;
 using ExamThesis.Storage.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ExamThesis.Controllers
 {
+    [Authorize]
     public class QuestionPackageController : Controller
     {
         private readonly ExamContext _db;

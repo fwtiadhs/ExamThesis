@@ -4,11 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ExamThesis.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 
 
 namespace ExamThesis.Controllers
 {
+    [Authorize]
     public class QuestionCreateController : Controller
     {
 

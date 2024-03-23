@@ -57,7 +57,7 @@ namespace ExamThesis.Controllers.AuthConnection
             ViewData.Add("Name", profileResponse.cn);
             ViewData.Add("UserId", profileResponse.uid);
             HttpContext.Session.SetString("UserId", profileResponse.uid);
-            HttpContext.Session.SetString("EduPersonAffiliation", profileResponse.eduPersonAffiliation);
+           // HttpContext.Session.SetString("EduPersonAffiliation", profileResponse.eduPersonAffiliation);
 
 
             //HttpContext.Session.SetString("Email", profileResponse.mail);
@@ -66,9 +66,9 @@ namespace ExamThesis.Controllers.AuthConnection
                 new Claim(ClaimTypes.Name, profileResponse.cn),
                 new Claim(ClaimTypes.NameIdentifier, profileResponse.id),
                 new Claim("UserId", profileResponse.uid),
+                new Claim("Edu", profileResponse.eduPersonAffiliation)
             };
 
-            // Εάν ο χρήστης είναι καθηγητής, προσθέστε τον ρόλο καθηγητή
             if (profileResponse.eduPersonAffiliation == "teacher")
             {
                 claims.Add(new Claim(ClaimTypes.Role, UserRoles.Teacher));

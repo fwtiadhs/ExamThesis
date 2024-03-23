@@ -2,6 +2,7 @@
 using ExamThesis.Models;
 using ExamThesis.Services.Services;
 using ExamThesis.Storage.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,6 +12,7 @@ using System.Security.Claims;
 
 namespace ExamThesis.Controllers
 {
+    [Authorize]
     public class ExamController : Controller
     {
         private readonly ExamContext _db;
@@ -22,6 +24,7 @@ namespace ExamThesis.Controllers
             _examService = examService;
             _httpContextAccessor = httpContextAccessor;
         }
+        
         public IActionResult Index()
         {
             var exams = _db.Exams.ToList();

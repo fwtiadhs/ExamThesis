@@ -1,11 +1,14 @@
 ﻿using ExamThesis.Services.Services;
 using ExamThesis.Storage.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Octopus.Client.Model;
+using static ExamThesis.Controllers.AuthConnection.AuthController;
 
 namespace ExamThesis.Controllers
 {
+    [Authorize(Roles = UserRoles.Student)]
     public class QuestionCategoryController : Controller
     {
         private readonly ExamContext _db;
@@ -15,7 +18,7 @@ namespace ExamThesis.Controllers
             _db = db;
             _categoryService = categoryService;
         }
-
+        
         public IActionResult Index()
         {
             IEnumerable<QuestionCategory> objQuestionCategoryList = _db.QuestionCategories.ToList();
