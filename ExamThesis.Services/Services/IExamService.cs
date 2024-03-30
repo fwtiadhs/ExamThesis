@@ -1,4 +1,6 @@
-﻿using ExamThesis.Common;
+﻿
+using ExamThesis.Common;
+using ExamThesis.Storage;
 using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +15,7 @@ namespace ExamThesis.Services.Services
 {
     public interface IExamService
     {
-        Task<IEnumerable<Question>> GetExamQuestionsByExamId(int examId);
+        Task<IEnumerable<ExamQuestionViewModel>> GetExamQuestionsByExamId(int examId);
         Task DeleteByExamId(int examId);
         Task CreateExam(CreateExam exam);
         Task<double> SubmitExam(int examId, List<int> selectedAnswers, string studentId);
@@ -58,16 +60,16 @@ namespace ExamThesis.Services.Services
             _db.Exams.Remove(examsToDelete);
             await _db.SaveChangesAsync();
         }
-        public async Task<IEnumerable<Question>> GetExamQuestionsByExamId(int examId)
+        public async Task<IEnumerable<ExamQuestionViewModel>> GetExamQuestionsByExamId(int examId)
         {
             var exam = await _db.Exams.FindAsync(examId);
 
             if (exam == null)
             {
-                return Enumerable.Empty<Question>();
+                return Enumerable.Empty<ExamQuestionViewModel>();
             }
 
-            var examQuestions = new List<Question>();
+            var examQuestionViewModels = new List<ExamQuestionViewModel>();
             var examCategories = await _db.ExamCategories
                 .Where(ec => ec.ExamId == examId)
                 .ToListAsync();
@@ -93,73 +95,35 @@ namespace ExamThesis.Services.Services
                     foreach (var questionInPackage in questionPackage.QuestionsInPackages)
                     {
                         var question = questionInPackage.Question;
+                         question.Answers = await _db.Answers
+                        .Where(a => a.QuestionId == question.QuestionId)
+                        .ToListAsync();
 
-                        // Συμπερίληψη των απαντήσεων κάθε ερώτησης
-                        question.Answers = await _db.Answers
-                            .Where(a => a.QuestionId == question.QuestionId)
-                            .ToListAsync();
+                        var examQuestionViewModel = new ExamQuestionViewModel
+                        {
+                            StartTime = exam.StartTime,
+                            EndTime = exam.EndTime,
+                            TotalPoints = exam.TotalPoints,
+                            ExamId = exam.ExamId,
+                            ExamName = exam.ExamName,
+                            PassGrade = (double)exam.PassGrade,
+                            QuestionId = question.QuestionId,
+                            QuestionCategoryId = question.QuestionCategoryId,
+                            NegativePoints = question.NegativePoints,
+                            QuestionText = question.QuestionText,
+                            QuestionPoints = question.QuestionPoints,
+                            PackageId = question.PackageId,
+                            Answers = question.Answers,
+                            QuestionsInPackages = question.QuestionsInPackages
+                        };
 
-                        examQuestions.Add(question);
+                        examQuestionViewModels.Add(examQuestionViewModel); // Προσθήκη του αντικειμένου στη λίστα
                     }
                 }
             }
 
-            return examQuestions;
+            return examQuestionViewModels;
         }
-        //public async Task<IEnumerable<Question>> GetExamQuestionsByExamId(int examId)
-        //{
-        //    var exam = await _db.Exams.FindAsync(examId);
-
-        //    if (exam == null)
-        //    {
-        //        return Enumerable.Empty<Question>();
-        //    }
-
-        //    var examQuestions = new List<Question>();
-        //    var examCategories = await _db.ExamCategories
-        //        .Where(ec => ec.ExamId == examId)
-        //        .ToListAsync();
-
-        //    var random = new Random();
-
-        //    foreach (var category in examCategories)
-        //    {
-        //        var questionPackages = await _db.QuestionPackages
-        //            .Where(qp => qp.QuestionCategoryId == category.QuestionCategoryId)
-        //            .Include(qp => qp.QuestionsInPackages)
-        //                .ThenInclude(qip => qip.Question)
-        //            .ToListAsync();
-
-        //        // Ομαδοποιούμε τα πακέτα ανά κατηγορία
-        //        var groupedPackages = questionPackages.GroupBy(qp => qp.QuestionCategoryId);
-
-        //        // Επιλέγουμε τυχαίο πακέτο από κάθε ομάδα
-        //        var selectedPackages = groupedPackages.Select(group => group.OrderBy(qp => random.Next()).First());
-
-        //        foreach (var questionPackage in selectedPackages)
-        //        {
-        //            foreach (var questionInPackage in questionPackage.QuestionsInPackages)
-        //            {
-        //                var question = questionInPackage.Question;
-
-        //                // Συμπερίληψη των απαντήσεων κάθε ερώτησης
-        //                question.Answers = await _db.Answers
-        //                    .Where(a => a.QuestionId == question.QuestionId)
-        //                    .ToListAsync();
-
-
-        //            }
-        //        }
-
-
-        //    return examQuestions;
-        //}
-
-
-        //    //var questions = _db.Questions.Where(q => examCategories.Contains(q.QuestionCategoryId)).Select(q => q).Include(q => q.Answers).ToList();
-        //    //var examCategories =  _db.ExamCategories.Where(q => q.ExamId == examId).Select(q => q.QuestionCategoryId).ToList();
-        //    // var questions = _db.Questions.Select(q => examCategories.Contains(q.QuestionCategoryId)).Include(q => q.Answers);
-        //}
 
         public async Task<IEnumerable<ExamResult>> GetExamResultsById(int examId)
         {

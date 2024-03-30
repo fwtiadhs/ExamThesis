@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ExamThesis.Storage.Model.Question>
+﻿@model IEnumerable<ExamThesis.Storage.ExamQuestionViewModel>
 
 <div class="container">
 <h2>Exam Questions</h2>
@@ -32,3 +32,51 @@
     <button type="submit" class="btn btn-primary">Submit Answers</button>
     </form>
 </div>
+
+<script>
+    // Ορίζουμε την ώρα εκκίνησης και λήξης
+    var firstItem = Model[0]; // Παίρνουμε το πρώτο στοιχείο από τον πίνακα Model
+    if (firstItem != null && firstItem.StartTime != null && firstItem.EndTime != null) {
+        var startTime = new Date(firstItem.StartTime);
+        var endTime = new Date(firstItem.EndTime);
+    }
+
+    // Συνάρτηση για να ενημερώνει τον χρόνο στο UI
+    function updateTimer() {
+        var currentTime = new Date();
+        var timeDifference = endTime - currentTime;
+
+        if (timeDifference <= 0) {
+            clearInterval(timerInterval);
+            document.getElementById('timer').innerText = 'Ο χρόνος έχει λήξει!';
+            return;
+        }
+
+        var minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+        document.getElementById('timer').innerText = minutes + "m " + seconds + "s ";
+    }
+
+    // Καλούμε τη συνάρτηση κάθε δευτερόλεπτο
+    var timerInterval = setInterval(updateTimer, 1000);
+
+    // Αποθηκεύει τα δεδομένα στον τοπικό αποθηκευτικό χώρο για ένα συγκεκριμένο UserId
+    function saveDataToLocalStorage(userId, data) {
+        const existingData = loadDataFromLocalStorage(userId) || {};
+        existingData.examData = data;
+        localStorage.setItem(userId, JSON.stringify(existingData));
+    }
+
+    // Φορτώνει τα δεδομένα από τον τοπικό αποθηκευτικό χώρο για ένα συγκεκριμένο UserId
+    function loadDataFromLocalStorage(userId) {
+        const data = localStorage.getItem(userId);
+        return data ? JSON.parse(data).examData : null;
+    }
+
+    // Διαγράφει τα δεδομένα από τον τοπικό αποθηκευτικό χώρο για ένα συγκεκριμένο UserId
+    function clearLocalStorage(userId) {
+        localStorage.removeItem(userId);
+    }
+
+</script>
