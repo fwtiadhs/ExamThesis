@@ -5,6 +5,8 @@ using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,7 +18,7 @@ namespace ExamThesis.Services.Services
 {
     public interface IExamService
     {
-        Task<IEnumerable<ExamQuestionViewModel>> GetExamQuestionsByExamId(int examId);
+        Task<IEnumerable<ExamQuestionViewModel>> GetExamQuestionsByExamId(int examId, string studentId);
         Task DeleteByExamId(int examId);
         Task CreateExam(CreateExam exam);
         Task<double> SubmitExam(int examId, List<int> selectedAnswers, string studentId, List<int> selectedQuestions);
@@ -29,10 +31,12 @@ namespace ExamThesis.Services.Services
     {
         private readonly ExamContext _db;
         private readonly IExamCategoryService _categoryService;
-        public ExamService(ExamContext db, IExamCategoryService categoryService)
+        private readonly IMemoryCache _memoryCache;
+        public ExamService(ExamContext db, IExamCategoryService categoryService, IMemoryCache memoryCache)
         {
             _db = db;
             _categoryService = categoryService;
+            _memoryCache = memoryCache;
         }
 
         public async Task CreateExam(CreateExam exam)
@@ -59,72 +63,88 @@ namespace ExamThesis.Services.Services
             _db.Exams.Remove(examsToDelete);
             await _db.SaveChangesAsync();
         }
-        public async Task<IEnumerable<ExamQuestionViewModel>> GetExamQuestionsByExamId(int examId)
+        public async Task<IEnumerable<ExamQuestionViewModel>> GetExamQuestionsByExamId(int examId, string studentId)
         {
-            var exam = await _db.Exams.FindAsync(examId);
+            ExamQuestionViewModel examQuestionViewModel = null;
+            var cacheKey = $"{studentId}_examId_questions";
 
-            if (exam == null)
+            if (_memoryCache.TryGetValue<string>(cacheKey, out var examJson))
             {
-                return Enumerable.Empty<ExamQuestionViewModel>();
+               return JsonConvert.DeserializeObject<List<ExamQuestionViewModel>>(examJson);
             }
-
-            var examQuestionViewModels = new List<ExamQuestionViewModel>();
-            var examCategories = await _db.ExamCategories
-                .Where(ec => ec.ExamId == examId)
-                .ToListAsync();
-
-            var random = new Random();
-
-            foreach (var category in examCategories)
+            else
             {
-                var questionPackages = await _db.QuestionPackages
-                    .Where(qp => qp.QuestionCategoryId == category.QuestionCategoryId)
-                    .Include(qp => qp.QuestionsInPackages)
-                        .ThenInclude(qip => qip.Question)
+                var exam = await _db.Exams.FindAsync(examId);
+
+                if (exam == null)
+                {
+                    return Enumerable.Empty<ExamQuestionViewModel>();
+                }
+
+                var examQuestionViewModels = new List<ExamQuestionViewModel>();
+                var examCategories = await _db.ExamCategories
+                    .Where(ec => ec.ExamId == examId)
                     .ToListAsync();
 
-                // Ομαδοποιούμε τα πακέτα ανά κατηγορία
-                var groupedPackages = questionPackages.GroupBy(qp => qp.QuestionCategoryId);
+                var random = new Random();
 
-                // Επιλέγουμε τυχαίο πακέτο από κάθε ομάδα
-                var selectedPackages = groupedPackages.Select(group => group.OrderBy(qp => random.Next()).First());
-
-                foreach (var questionPackage in selectedPackages)
+                foreach (var category in examCategories)
                 {
-                    foreach (var questionInPackage in questionPackage.QuestionsInPackages)
-                    {
-                        var question = questionInPackage.Question;
-                         question.Answers = await _db.Answers
-                        .Where(a => a.QuestionId == question.QuestionId)
+                    var questionPackages = await _db.QuestionPackages
+                        .Where(qp => qp.QuestionCategoryId == category.QuestionCategoryId)
+                        .Include(qp => qp.QuestionsInPackages)
+                            .ThenInclude(qip => qip.Question)
                         .ToListAsync();
 
-                        var examQuestionViewModel = new ExamQuestionViewModel
-                        {
-                            StartTime = exam.StartTime,
-                            EndTime = exam.EndTime,
-                            TotalPoints = exam.TotalPoints,
-                            ExamId = exam.ExamId,
-                            ExamName = exam.ExamName,
-                            PassGrade = (double)exam.PassGrade,
-                            QuestionId = question.QuestionId,
-                            QuestionCategoryId = question.QuestionCategoryId,
-                            NegativePoints = question.NegativePoints,
-                            QuestionText = question.QuestionText,
-                            QuestionPoints = question.QuestionPoints,
-                            PackageId = question.PackageId,
-                            Answers = question.Answers,
-                            QuestionsInPackages = question.QuestionsInPackages
-                        };
+                    // Ομαδοποιούμε τα πακέτα ανά κατηγορία
+                    var groupedPackages = questionPackages.GroupBy(qp => qp.QuestionCategoryId);
 
-                        examQuestionViewModels.Add(examQuestionViewModel); 
+                    // Επιλέγουμε τυχαίο πακέτο από κάθε ομάδα
+                    var selectedPackages = groupedPackages.Select(group => group.OrderBy(qp => random.Next()).First());
+
+                    foreach (var questionPackage in selectedPackages)
+                    {
+                        foreach (var questionInPackage in questionPackage.QuestionsInPackages)
+                        {
+                            var question = questionInPackage.Question;
+                            question.Answers = await _db.Answers
+                           .Where(a => a.QuestionId == question.QuestionId)
+                           .ToListAsync();
+
+                            examQuestionViewModel = new ExamQuestionViewModel
+                            {
+                                StartTime = exam.StartTime,
+                                EndTime = exam.EndTime,
+                                TotalPoints = exam.TotalPoints,
+                                ExamId = exam.ExamId,
+                                ExamName = exam.ExamName,
+                                PassGrade = (double)exam.PassGrade,
+                                QuestionId = question.QuestionId,
+                                QuestionCategoryId = question.QuestionCategoryId,
+                                NegativePoints = question.NegativePoints,
+                                QuestionText = question.QuestionText,
+                                QuestionPoints = question.QuestionPoints,
+                                PackageId = question.PackageId,
+                                Answers = question.Answers,
+                                QuestionsInPackages = question.QuestionsInPackages
+                            };
+
+                            examQuestionViewModels.Add(examQuestionViewModel);
+                        }
                     }
                 }
+
+                var json = JsonConvert.SerializeObject(examQuestionViewModels,Formatting.Indented,new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+
+                if (!_memoryCache.TryGetValue<string>(cacheKey, out var x))
+                {
+                    //πως θα σεταρω το ποσο θα κραταει το model στην cache
+                    _memoryCache.Set(cacheKey, json);
+                }
+
+                return examQuestionViewModels;
             }
-
-            return examQuestionViewModels;
         }
-
-
 
 
         public async Task<double> SubmitExam(int examId, List<int> selectedAnswers, string studentId, List<int> selectedQuestions)

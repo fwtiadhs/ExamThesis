@@ -12,12 +12,12 @@ namespace ExamThesis.Services.Tests
         private ExamContext _examContext;
         private IExamCategoryService _categoryService;
 
-        public ExamServiceShould()
-        {
-            _categoryService = A.Fake<IExamCategoryService>();
-            _examContext = A.Fake<ExamContext>();
-            _sut = new ExamService(_examContext, _categoryService);
-        }
+        //public ExamServiceShould()
+        //{
+        //    _categoryService = A.Fake<IExamCategoryService>();
+        //    _examContext = A.Fake<ExamContext>();
+        //    _sut = new ExamService(_examContext, _categoryService);
+        //}
 
         [Fact]
         public async void CreateExam()

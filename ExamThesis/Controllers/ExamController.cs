@@ -108,7 +108,9 @@ namespace ExamThesis.Controllers
             else
             {
                 ViewBag.ExamId = id;
-                var model = await _examService.GetExamQuestionsByExamId(id);
+                var claimsIdentity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+                var userIdClaim = claimsIdentity?.FindFirst("UserId").Value;
+                var model = await _examService.GetExamQuestionsByExamId(id, userIdClaim);
                 return base.View(model);
             }
         }
