@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -18,8 +19,8 @@ namespace ExamThesis.Services.Services
         Task<IEnumerable<ExamQuestionViewModel>> GetExamQuestionsByExamId(int examId);
         Task DeleteByExamId(int examId);
         Task CreateExam(CreateExam exam);
-        Task<double> SubmitExam(int examId, List<int> selectedAnswers, string studentId);
-        Task <IEnumerable<ExamResult>> GetExamResultsById(int examId);
+        Task<double> SubmitExam(int examId, List<int> selectedAnswers, string studentId, List<int> selectedQuestions);
+       // Task <IEnumerable<ExamResult>> GetExamResultsById(int examId);
 
 
     }
@@ -123,18 +124,13 @@ namespace ExamThesis.Services.Services
             return examQuestionViewModels;
         }
 
-        public async Task<IEnumerable<ExamResult>> GetExamResultsById(int examId)
-        {
-           var result =  _db.ExamResults.Where(e => e.ExamId == examId).ToList();
-            return (result);
-        }
 
 
 
-        public async Task<double> SubmitExam(int examId, List<int> selectedAnswers, string studentId)
+        public async Task<double> SubmitExam(int examId, List<int> selectedAnswers, string studentId, List<int> selectedQuestions)
         {
 
-            var examQuestions = await GetExamQuestionsByExamId(examId);
+            var examQuestions = await _db.Questions.Where(x => selectedQuestions.Contains(x.QuestionId)).Include(x => x.Answers).ToListAsync();
             var exam = await _db.Exams.FindAsync(examId);
 
             if (exam == null || examQuestions == null)
@@ -147,19 +143,25 @@ namespace ExamThesis.Services.Services
 
             foreach (var question in examQuestions)
             {
-                var correctAnswers = question.Answers.Where(a => a.IsCorrect == true).Select(a => a.Id);
-                var userAnswers = selectedAnswers.Where(sa => sa == question.QuestionId);
-                
-                    // Υπολογισμός βαθμού μόνο για τις ερωτήσεις που έχουν επιλεγεί
-                    if (correctAnswers.SequenceEqual(userAnswers))
-                    {
-                        earnedPoints += question.QuestionPoints;
-                    }
-                    else
-                    {
-                        earnedPoints -= question.NegativePoints;
-                    }
+                var correctAnswer = question.Answers.Where(a => a.IsCorrect == true).First();
+                Debug.WriteLine($"question: {question.QuestionText} ");
+
+               
+                Debug.WriteLine(correctAnswer);
+
+                var userAnswers = selectedAnswers.ToList();
+
+                // Υπολογισμός βαθμού μόνο για τις ερωτήσεις που έχουν επιλεγεί
+                if (userAnswers.Contains(correctAnswer.Id))
+                {
+                    earnedPoints += question.QuestionPoints;
                 }
+                else
+                {
+                    earnedPoints -= question.NegativePoints;
+                }
+                Debug.WriteLine($"points: {earnedPoints} ");
+            }
 
                 var examResult = new ExamResult
                 {

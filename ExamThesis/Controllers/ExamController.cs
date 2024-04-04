@@ -139,14 +139,14 @@ namespace ExamThesis.Controllers
             return Json(new { isParticipated });
         }
 
-        public async Task<IActionResult> Submit(int id, List<int> selectedAnswers,string studentId)
+        public async Task<IActionResult> Submit(int id, List<int> selectedAnswers,List<int> selectedQuestions,string studentId)
         {
             var claimsIdentity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
             var userIdClaim = claimsIdentity?.FindFirst("UserId");
             studentId = userIdClaim.Value; 
             try
             {
-                var earnedPoints = await _examService.SubmitExam(id, selectedAnswers,studentId);
+                var earnedPoints = await _examService.SubmitExam(id, selectedAnswers,studentId,selectedQuestions);
                 
                 var exam = await _db.Exams.FindAsync(id);
                 if (exam == null)
