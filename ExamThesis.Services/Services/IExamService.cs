@@ -86,7 +86,6 @@ namespace ExamThesis.Services.Services
                     .Where(ec => ec.ExamId == examId)
                     .ToListAsync();
 
-                var random = new Random();
 
                 foreach (var category in examCategories)
                 {
@@ -97,14 +96,13 @@ namespace ExamThesis.Services.Services
                         .ToListAsync();
 
                     // Ομαδοποιούμε τα πακέτα ανά κατηγορία
-                    var groupedPackages = questionPackages.GroupBy(qp => qp.QuestionCategoryId);
+                    // var groupedPackages = questionPackages.GroupBy(qp => qp.QuestionCategoryId);
 
                     // Επιλέγουμε τυχαίο πακέτο από κάθε ομάδα
-                    var selectedPackages = groupedPackages.Select(group => group.OrderBy(qp => random.Next()).First());
-
-                    foreach (var questionPackage in selectedPackages)
-                    {
-                        foreach (var questionInPackage in questionPackage.QuestionsInPackages)
+                    var random = new Random().Next(0, questionPackages.Count() -1);
+                    var selectedPackage = questionPackages[random];
+                    
+                        foreach (var questionInPackage in selectedPackage.QuestionsInPackages)
                         {
                             var question = questionInPackage.Question;
                             question.Answers = await _db.Answers
@@ -132,7 +130,7 @@ namespace ExamThesis.Services.Services
                             examQuestionViewModels.Add(examQuestionViewModel);
                         }
                     }
-                }
+                
 
                 var json = JsonConvert.SerializeObject(examQuestionViewModels,Formatting.Indented,new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
 

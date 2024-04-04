@@ -43,11 +43,11 @@ namespace ExamThesis.Controllers
                 
                 if (ModelState.IsValid)
                 {
-                    await questionCategory.FileData.CopyToAsync(memoryStream);
+                    //await questionCategory.FileData.CopyToAsync(memoryStream);
                     var categoryModel = new ExamThesis.Common.QuestionCategory()
                     {
                         QuestionCategoryName = questionCategory.QuestionCategoryName,
-                        FileData = memoryStream.ToArray()
+                        //FileData = memoryStream.ToArray()
                     };
 
                     await _categoryService.Create(categoryModel);

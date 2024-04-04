@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using ExamThesis.Models;
 using ExamThesis.Services.Services;
 using ExamThesis.Storage.Model;
@@ -105,6 +106,11 @@ namespace ExamThesis.Controllers
                 TempData["ErrorMessage"] = "Έχετε ήδη ολοκληρώσει αυτήν την εξέταση.";
                 return RedirectToAction("Index");
             }
+            //else if (!CanStartExam(id))
+            //{
+            //    TempData["ErrorMessage"] = "Δεν έχει ξεκινήσει η εξέταση!";
+            //    return RedirectToAction("Index");
+            //}
             else
             {
                 ViewBag.ExamId = id;
@@ -114,7 +120,7 @@ namespace ExamThesis.Controllers
                 return base.View(model);
             }
         }
-        public bool IsUserAlreadyParticipated(int examId)
+        private bool IsUserAlreadyParticipated(int examId)
         {
             var claimsIdentity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
             var userIdClaim = claimsIdentity?.FindFirst("UserId");
@@ -130,6 +136,12 @@ namespace ExamThesis.Controllers
             {
                 return false;
             }
+
+        }
+        private bool CanStartExam(int examId)
+        {
+            var exam = _db.Exams.First(er => er.ExamId == examId);
+            return DateTime.Now >= exam.StartTime;
         }
         [HttpGet]
         public IActionResult CheckUserParticipation(int examId)
@@ -179,28 +191,35 @@ namespace ExamThesis.Controllers
         }
         public IActionResult ExportExamResultsToExcel()
         {
-            var examResults = _db.ExamResults.ToList(); 
-            var workbook = new XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("ExamResults");
-
-            worksheet.Cell(1, 1).Value = "ExamResultId";
-            worksheet.Cell(1, 2).Value = "ExamId";
-            worksheet.Cell(1, 3).Value = "Grade";
-
-            for (int i = 0; i < examResults.Count; i++)
+            var examResults = _db.ExamResults.ToList();
+            using (var workbook = new XLWorkbook())
             {
-                var examResult = examResults[i];
-                worksheet.Cell(i + 2, 1).Value = examResult.ExamResultId;
-                worksheet.Cell(i + 2, 2).Value = examResult.ExamId;
-                worksheet.Cell(i + 2, 3).Value = examResult.Grade;
+
+
+                var worksheet = workbook.Worksheets.Add("ExamResults");
+
+                worksheet.Cell(1, 1).Value = "StudentId";
+                worksheet.Cell(1, 2).Value = "ExamId";
+                worksheet.Cell(1, 3).Value = "Grade";
+
+                for (int i = 0; i < examResults.Count; i++)
+                {
+                    var examResult = examResults[i];
+                    worksheet.Cell(i + 2, 1).Value = examResult.StudentId;
+                    worksheet.Cell(i + 2, 2).Value = examResult.ExamId;
+                    worksheet.Cell(i + 2, 3).Value = examResult.Grade;
+                }
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+                    var mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    var fileName = "ExamResultsExport.xlsx";
+                    return File(content, mimeType, fileName);
+                }
+
             }
-
-            var fileName = "ExamResultsExport.xlsx";
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), fileName);
-            workbook.SaveAs(filePath);
-
-            var mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            return File(filePath, mimeType, fileName);
         }
     }
 

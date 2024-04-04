@@ -7,7 +7,7 @@ namespace ExamThesis.Models
         public int QuestionCategoryId { get; set; }
         [ValidateNever]
         public string QuestionCategoryName { get; set; }
-        public IFormFile FileData { get; set; }
+       // public IFormFile FileData { get; set; }
         public bool IsChecked { get; set; }
     }
 }
