@@ -28,12 +28,10 @@ namespace ExamThesis.Services.Services
     {
         private readonly ExamContext _db;
         private readonly IExamCategoryService _categoryService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        public ExamService(ExamContext db, IExamCategoryService categoryService, IHttpContextAccessor httpContextAccessor)
+        public ExamService(ExamContext db, IExamCategoryService categoryService)
         {
             _db = db;
             _categoryService = categoryService;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task CreateExam(CreateExam exam)
@@ -117,7 +115,7 @@ namespace ExamThesis.Services.Services
                             QuestionsInPackages = question.QuestionsInPackages
                         };
 
-                        examQuestionViewModels.Add(examQuestionViewModel); // Προσθήκη του αντικειμένου στη λίστα
+                        examQuestionViewModels.Add(examQuestionViewModel); 
                     }
                 }
             }
@@ -131,14 +129,14 @@ namespace ExamThesis.Services.Services
             return (result);
         }
 
-       
 
-        public async Task<double> SubmitExam( int examId, List<int> selectedAnswers,string studentId )
+
+        public async Task<double> SubmitExam(int examId, List<int> selectedAnswers, string studentId)
         {
 
             var examQuestions = await GetExamQuestionsByExamId(examId);
             var exam = await _db.Exams.FindAsync(examId);
-            
+
             if (exam == null || examQuestions == null)
             {
                 // Επιστροφή κάποιας τιμής για ανεπιτυχή αίτηση
@@ -151,29 +149,30 @@ namespace ExamThesis.Services.Services
             {
                 var correctAnswers = question.Answers.Where(a => a.IsCorrect == true).Select(a => a.Id);
                 var userAnswers = selectedAnswers.Where(sa => sa == question.QuestionId);
+                
+                    // Υπολογισμός βαθμού μόνο για τις ερωτήσεις που έχουν επιλεγεί
+                    if (correctAnswers.SequenceEqual(userAnswers))
+                    {
+                        earnedPoints += question.QuestionPoints;
+                    }
+                    else
+                    {
+                        earnedPoints -= question.NegativePoints;
+                    }
+                }
 
-                // Υπολογισμός βαθμού μόνο για τις ερωτήσεις που έχουν επιλεγεί
-                if (correctAnswers.SequenceEqual(userAnswers))
+                var examResult = new ExamResult
                 {
-                    earnedPoints += question.QuestionPoints;
-                }
-                else
-                {
-                    earnedPoints -= question.NegativePoints;
-                }
-            }
+                    StudentId = studentId,
+                    ExamId = examId,
+                    Grade = earnedPoints
+                };
+
+                _db.ExamResults.Add(examResult);
+                await _db.SaveChangesAsync();
+
+                return earnedPoints;
             
-            var examResult = new ExamResult
-            {
-                StudentId = studentId,
-                ExamId = examId,
-                Grade = earnedPoints
-            };
-
-            _db.ExamResults.Add(examResult);
-            await _db.SaveChangesAsync();
-
-            return earnedPoints;
         }
     }
 }
