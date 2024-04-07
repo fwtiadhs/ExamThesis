@@ -58,6 +58,13 @@ namespace ExamThesis.Controllers
             }
             
         }
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _questionService.DeletePackage(id);
+            return RedirectToAction("Index");
+        }
+
         private bool IsFileValid(IFormFile file)
         {
             var allowedExtensions = new[] { ".pcapng", ".pkt", ".pdf" };
