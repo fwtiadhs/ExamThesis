@@ -39,12 +39,27 @@ namespace ExamThesis.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ExamThesis.Common.CreateQuestion question)
+        public async Task<IActionResult> Create(CreateQuestion question)
         {
             if (ModelState.IsValid)
             {
+                var createModel = new ExamThesis.Common.CreateQuestion()
+                {
+                    QuestionText = question.QuestionText,
+                    Answers = question.Answers
+                    .Where(answer => !string.IsNullOrEmpty(answer.Text))
+                    .Select(answer => new ExamThesis.Common.CreateAnswer
+                    {
+                        Text = answer.Text,
+                        IsCorrect = answer.IsCorrect
 
-                await _questionService.Create(question);
+                    }).ToList(),
+                    QuestionPoints = question.QuestionPoints,
+                    NegativePoints = question.NegativePoints,
+                    QuestionCategoryId = question.QuestionCategoryId,
+                    PackageId = question.PackageId
+                };
+                await _questionService.Create(createModel);
 
                 return RedirectToAction("Index");
             }
