@@ -31,18 +31,39 @@ namespace ExamThesis.Controllers
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> Create(QuestionPackage package)
+        public async Task<IActionResult> Create(Models.QuestionPackage package)
         {
 
-            if (ModelState.IsValid)
+            using (var memoryStream = new MemoryStream())
             {
+                
+                if (ModelState.IsValid)
+                {
+                    await package.FileData.CopyToAsync(memoryStream);
+                    var pacageModel = new QuestionPackage()
+                    {
+                        PackageName = package.PackageName,
+                        QuestionCategoryId = package.QuestionCategoryId,
+                        FileData = memoryStream.ToArray()
+                    };
 
-                await _questionService.CreatePackage(package);
+                    await _questionService.CreatePackage(pacageModel);
+                    ViewBag.QuestionCategoryList = _db.QuestionCategories.ToList();
+                    return RedirectToAction("Index");
+                }
+
+
+               
                 return RedirectToAction("Index");
             }
-            //ViewBag.QuestionCategories = new SelectList(_db.QuestionCategories, "QuestionCategoryId", "QuestionCategoryName");
+            
+        }
+        private bool IsFileValid(IFormFile file)
+        {
+            var allowedExtensions = new[] { ".pcapng", ".pkt", ".pdf" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLower();
 
-            return View();
+            return allowedExtensions.Contains(fileExtension);
         }
     }
 }

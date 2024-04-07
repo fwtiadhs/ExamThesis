@@ -21,5 +21,7 @@ namespace ExamThesis.Storage
         public int? PackageId { get; set; }
         public ICollection<Answer> Answers { get; set; }
         public ICollection<QuestionsInPackage> QuestionsInPackages { get; set; }
+        public byte[]? FileData { get; set; }
+        public string PackageName { get; set; }
     }
 }

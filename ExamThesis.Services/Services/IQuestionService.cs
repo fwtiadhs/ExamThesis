@@ -68,7 +68,8 @@ namespace ExamThesis.Services.Services
             var model = new QuestionPackage
             {
                 PackageName = package.PackageName,
-                QuestionCategoryId = package.QuestionCategoryId
+                QuestionCategoryId = package.QuestionCategoryId,
+                FileData = package.FileData
             };
 
             _db.QuestionPackages.Add(model);

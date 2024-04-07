@@ -9,8 +9,6 @@ public partial class QuestionCategory
 
     public string QuestionCategoryName { get; set; } = null!;
 
-    public byte[]? FileData { get; set; }
-
     public virtual ICollection<ExamCategory> ExamCategories { get; set; } = new List<ExamCategory>();
 
     public virtual ICollection<QuestionPackage> QuestionPackages { get; set; } = new List<QuestionPackage>();

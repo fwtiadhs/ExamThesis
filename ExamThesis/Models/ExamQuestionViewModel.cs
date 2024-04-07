@@ -13,6 +13,8 @@ namespace ExamThesis.Models
         public string ExamName { get; set; }
         public double PassGrade { get; set; }
 
+
+
         public int QuestionId { get; set; }
         public int QuestionCategoryId { get; set; }
         public double NegativePoints { get; set; }
@@ -21,5 +23,9 @@ namespace ExamThesis.Models
         public int? PackageId { get; set; }
         public ICollection<Answer> Answers { get; set; }
         public ICollection<QuestionsInPackage> QuestionsInPackages { get; set; }
+        public IFormFile FileData { get; set; }
+        public string PackageName { get; set; }
+
     }
+    
 }

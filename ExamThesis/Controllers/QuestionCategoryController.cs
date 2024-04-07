@@ -121,12 +121,6 @@ namespace ExamThesis.Controllers
             
                 return View("Index");
         }
-        private bool IsFileValid(IFormFile file)
-        {
-            var allowedExtensions = new[] { ".pcapng", ".pkt", ".pdf" };
-            var fileExtension = Path.GetExtension(file.FileName).ToLower();
-
-            return allowedExtensions.Contains(fileExtension);
-        }
+       
     }
 }

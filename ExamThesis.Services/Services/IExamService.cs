@@ -124,8 +124,11 @@ namespace ExamThesis.Services.Services
                                 QuestionPoints = question.QuestionPoints,
                                 PackageId = question.PackageId,
                                 Answers = question.Answers,
-                                QuestionsInPackages = question.QuestionsInPackages
+                                QuestionsInPackages = question.QuestionsInPackages,
+                                FileData = selectedPackage.FileData, 
+                                PackageName = selectedPackage.PackageName
                             };
+
 
                             examQuestionViewModels.Add(examQuestionViewModel);
                         }
