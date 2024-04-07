@@ -183,6 +183,10 @@ namespace ExamThesis.Services.Services
                 }
                 Debug.WriteLine($"points: {earnedPoints} ");
             }
+            if(earnedPoints < 0)
+            {
+                earnedPoints = 0.0;
+            }
 
                 var examResult = new ExamResult
                 {

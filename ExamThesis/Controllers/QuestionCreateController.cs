@@ -78,60 +78,6 @@ namespace ExamThesis.Controllers
             return PartialView("_AnswerPartial", newAnswer);
         }
 
-
-        public IActionResult Edit(int? id)
-        {
-
-            if (id == null || id == 0)
-            {
-                return NotFound();
-            }
-
-            var questionFromDb = _db.Questions.Where(q => q.QuestionId == id).Include(q => q.Answers).First();
-
-            if (questionFromDb == null)
-            {
-                return NotFound();
-            }
-
-            // Δημιουργούμε ένα αντικείμενο CreateQuestion για το View
-            var viewModel = new CreateQuestion
-            {
-                QuestionId = questionFromDb.QuestionId,
-                QuestionText = questionFromDb.QuestionText,
-                QuestionPoints = questionFromDb.QuestionPoints,
-                NegativePoints = questionFromDb.NegativePoints,
-                QuestionCategoryId = questionFromDb.QuestionCategoryId,
-                Answers = questionFromDb.Answers.Select(answer => new CreateAnswer
-                {
-                    Text = answer.Text,
-                    IsCorrect = answer.IsCorrect ?? false
-                }).ToList()
-                // Προσθέστε τα υπόλοιπα πεδία αν υπάρχουν
-            };
-
-            // Προσθέτουμε τα επιλέξιμα QuestionCategories στο ViewBag
-            ViewBag.QuestionCategories = new SelectList(_db.QuestionCategories, "QuestionCategoryId", "QuestionCategoryName");
-
-            return View(viewModel);
-        }
-
-
-        [HttpPut]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromBody] ExamThesis.Common.CreateQuestion editQuestionService)
-        {
-            if (ModelState.IsValid)
-            {
-
-                await _questionService.Edit(editQuestionService);
-
-                return RedirectToAction("Index");
-            }
-
-            return BadRequest(ModelState);
-        }
-
         public IActionResult Delete(int id)
         {
             var questionFromDb = _db.Questions.Find(id);

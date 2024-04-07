@@ -32,8 +32,6 @@
                     @question.QuestionCategoryId
                 </td>
                 <td>
-                    <!-- Σύνδεσμος για το Edit -->
-                    <a asp-controller="QuestionCreate" asp-action="Edit" asp-route-id="@question.QuestionId" class="btn btn-primary">Edit</a>
                     <a asp-controller="QuestionCreate" asp-action="Delete" asp-route-id="@question.QuestionId" class="btn btn-danger">Delete</a>
                 </td>
             </tr>

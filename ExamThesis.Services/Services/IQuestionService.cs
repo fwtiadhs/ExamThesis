@@ -18,7 +18,6 @@ namespace ExamThesis.Services.Services
     public interface IQuestionService
     {
         Task Create(CreateQuestion question);
-        Task Edit(CreateQuestion editquestion);
         Task DeleteById(int id);
         Task<bool> DeleteAnswer(string answerText);
         Task CreatePackage(QuestionPackage package);
@@ -117,34 +116,6 @@ namespace ExamThesis.Services.Services
                 await _db.SaveChangesAsync();
             }
         }
-
-        public async Task Edit(CreateQuestion editquestion)
-        {
-
-            var model = _db.Questions
-                .Where(q => q.QuestionId == editquestion.QuestionId).Include(q => q.Answers).First();
-
-
-            // Ενημέρωση των πεδίων της ερώτησης με τα δεδομένα από το model
-            model.QuestionText = editquestion.QuestionText;
-            model.Answers = editquestion.Answers
-                .Where(answer => !string.IsNullOrEmpty(answer.Text))
-                .Select(answer => new Answer
-                {
-                    Text = answer.Text,
-                    IsCorrect = answer.IsCorrect
-                }).ToList();
-            model.QuestionPoints = editquestion.QuestionPoints;
-            model.NegativePoints = editquestion.NegativePoints;
-            model.QuestionCategoryId = editquestion.QuestionCategoryId;
-
-
-            _db.Questions.Update(model);
-            await _db.SaveChangesAsync();
-
-
-        }
-
     }
 }
 
