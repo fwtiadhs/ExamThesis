@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using ExamThesis.Models;
 using ExamThesis.Services.Services;
@@ -189,9 +190,9 @@ namespace ExamThesis.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        public IActionResult ExportExamResultsToExcel()
+        public IActionResult ExportExamResultsToExcel(int id)
         {
-            var examResults = _db.ExamResults.ToList();
+            var examResults = _db.ExamResults.Where(er => er.ExamId == id).ToList();
             using (var workbook = new XLWorkbook())
             {
 
