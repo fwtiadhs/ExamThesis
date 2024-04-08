@@ -2,6 +2,7 @@
 
 <div class="container">
 <h2>Exam Questions</h2>
+
     <form method="post" action="@Url.Action("Submit", new { id = ViewBag.ExamId })">
         <input type="hidden" name="userId" value="@ViewBag.UserId" />
         <div class="p-3">
@@ -10,78 +11,44 @@
         <input type="hidden" name="examId" value="@ViewBag.ExamId" />
         @foreach (var question in Model)
         {
+            <div>@question.FileData</div>
              <div class="card mb-3">
                  <div class="card-body">
                      <h6 class="card-title">@question.QuestionText</h6>
+                    <button type="button" class="btn btn-sm btn-secondary clear-radio">Clear</button>
                      <br />
                      <div class="row">
                          @foreach (var answer in question.Answers)
                          {
                              <div class="col-md-4 mb-3">
-                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="answer_@answer.Id" name="selectedAnswers" value="@answer.Id">
-                                             <label class="form-check-label" for="answer_@answer.Id">@answer.Text</label>
+                                <div class="form-check ">
+                                    <input class="form-check-input answer-checkbox" type="checkbox" id="answer_@answer.Id" name="selectedAnswers" value="@answer.Id" data-question-id="@question.QuestionId">
+                                    <label class="form-check-label" for="answer_@answer.Id">@answer.Text</label>
+                                   
                                  </div>
                              </div>
                          }
                      </div>
                  </div>
              </div>
-             <div>@question.PackageName</div>
-             <div>@question.FileData</div>
+            
              <input type="hidden" name="selectedQuestions" value="@question.QuestionId"/>
         }
     <div style="clear:both"></div>
          <button type="submit" class="btn btn-primary">Submit Answers</button>
      </form>
      </div>
-
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.answer-checkbox').change(function () {
+            // Απενεργοποίηση όλων των άλλων checkboxes με το ίδιο data-question-id
+            var questionId = $(this).data('question-id');
+            $('.answer-checkbox[data-question-id="' + questionId + '"]').not(this).prop('checked', false);
+        });
+    });
+</script>
+</script>
     
 
-<script>
-    // Ορίζουμε την ώρα εκκίνησης και λήξης
-    var firstItem = Model[0]; // Παίρνουμε το πρώτο στοιχείο από τον πίνακα Model
-    if (firstItem != null && firstItem.StartTime != null && firstItem.EndTime != null) {
-        var startTime = new Date(firstItem.StartTime);
-        var endTime = new Date(firstItem.EndTime);
-    }
 
-    // Συνάρτηση για να ενημερώνει τον χρόνο στο UI
-    function updateTimer() {
-        var currentTime = new Date();
-        var timeDifference = endTime - currentTime;
-
-        if (timeDifference <= 0) {
-            clearInterval(timerInterval);
-            document.getElementById('timer').innerText = 'Ο χρόνος έχει λήξει!';
-            return;
-        }
-
-        var minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-        var seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
-
-        document.getElementById('timer').innerText = minutes + "m " + seconds + "s ";
-    }
-
-    // Καλούμε τη συνάρτηση κάθε δευτερόλεπτο
-    var timerInterval = setInterval(updateTimer, 1000);
-
-    // Αποθηκεύει τα δεδομένα στον τοπικό αποθηκευτικό χώρο για ένα συγκεκριμένο UserId
-    function saveDataToLocalStorage(userId, data) {
-        const existingData = loadDataFromLocalStorage(userId) || {};
-        existingData.examData = data;
-        localStorage.setItem(userId, JSON.stringify(existingData));
-    }
-
-    // Φορτώνει τα δεδομένα από τον τοπικό αποθηκευτικό χώρο για ένα συγκεκριμένο UserId
-    function loadDataFromLocalStorage(userId) {
-        const data = localStorage.getItem(userId);
-        return data ? JSON.parse(data).examData : null;
-    }
-
-    // Διαγράφει τα δεδομένα από τον τοπικό αποθηκευτικό χώρο για ένα συγκεκριμένο UserId
-    function clearLocalStorage(userId) {
-        localStorage.removeItem(userId);
-    }
-
-</script>

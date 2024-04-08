@@ -139,8 +139,11 @@ namespace ExamThesis.Services.Services
 
                 if (!_memoryCache.TryGetValue<string>(cacheKey, out var x))
                 {
-                    //πως θα σεταρω το ποσο θα κραταει το model στην cache
-                    _memoryCache.Set(cacheKey, json);
+                    var cacheOptions = new MemoryCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(120) 
+                    };
+                    _memoryCache.Set(cacheKey, json, cacheOptions);
                 }
 
                 return examQuestionViewModels;
