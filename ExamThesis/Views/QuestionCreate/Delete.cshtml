@@ -12,30 +12,34 @@
 
 <form id="deleteForm">
      @Html.AntiForgeryToken() 
-    <button type="button" class="btn btn-danger" onclick="deleteQuestion(@Model.QuestionId)">Delete</button>
+    <button type="button" id="deleteButton" class="btn btn-danger" data-question-id="@Model.QuestionId">Delete</button>
+
     <a asp-action="Index" class="btn btn-secondary">Back to List</a>
 </form>
 
 @section Scripts {
     <script>
-        function deleteQuestion() {
-            if (confirm('Are you sure you want to delete this question?')) {
-                $.ajax({
-                    url: '/QuestionCreate/DeleteConfirmed/' + @Model.QuestionId,
-                    type: 'DELETE',
-                    headers: {
-                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (data) {
-                        console.log('Question deleted successfully');
-                        // Προαιρετικά μπορείτε να κάνετε κάποια ενέργεια μετά τη διαγραφή
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error deleting question:', error);
-                    }
-                });
-            }
-        }
+        $(function () {
+            $('#deleteButton').click(function () {
+                var questionId = $(this).data('question-id');
+                if (confirm("Are you sure you want to delete this category?")) {
+                    $.ajax({
+                        url: '/QuestionCreate/DeleteConfirmed/' + questionId,
+                        type: 'DELETE',
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (data) {
+                            console.log('Success:', data);
+                            window.location.href = '/QuestionCreate/Index';
+                        },
+                        error: function (error) {
+                            console.error('Error:', error);
+                        }
+                    });
+                }
+            });
+        });
 
     </script>
 }

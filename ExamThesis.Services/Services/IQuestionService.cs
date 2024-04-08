@@ -99,6 +99,11 @@ namespace ExamThesis.Services.Services
         {
             var questionToDelete = _db.Questions.Find(id);
             var answersToDelete = _db.Answers.Where(a => a.QuestionId == id);
+
+            // Προσθέστε κώδικα για τη διαγραφή των εγγραφών από τον πίνακα QuestionsInPackage
+            var questionsInPackageToDelete = _db.QuestionsInPackages.Where(qip => qip.QuestionId == id);
+            _db.QuestionsInPackages.RemoveRange(questionsInPackageToDelete);
+
             _db.Answers.RemoveRange(answersToDelete);
 
             _db.Questions.Remove(questionToDelete);
