@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ExamThesis.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
+using ExamThesis.Common.Model;
 
 
 
@@ -36,6 +37,16 @@ namespace ExamThesis.Controllers
             ViewBag.QuestionCategories = new SelectList(_db.QuestionCategories, "QuestionCategoryId", "QuestionCategoryName");
             ViewBag.QuestionPackages = new SelectList(questionPackages, "PackageId", "PackageName");
             return View(viewModel);
+        }
+        public IActionResult Details(int id)
+        {
+            var model = _db.Questions
+            .Where(q => q.QuestionId == id)
+            .Include(q => q.Answers)
+            .FirstOrDefault();
+
+
+            return View(model);
         }
 
         [HttpPost]

@@ -1,0 +1,49 @@
+﻿@model ExamThesis.Storage.Model.Question
+
+<div class="container">
+    <h2>Question Details</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Question Text:</h5>
+            <p class="card-text">@Model.QuestionText</p>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Answers:</h5>
+            @foreach (var answer in Model.Answers)
+            {
+                <li>@answer.Text (Correct: @answer.IsCorrect)</li>
+            }
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Question Points:</h5>
+            <p class="card-text">@Model.QuestionPoints</p>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Negative Points:</h5>
+            <p class="card-text">@Model.NegativePoints</p>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Question Category ID:</h5>
+            <p class="card-text">@Model.QuestionCategoryId</p>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">Package ID:</h5>
+            <p class="card-text">@Model.PackageId</p>
+        </div>
+    </div>
+</div>

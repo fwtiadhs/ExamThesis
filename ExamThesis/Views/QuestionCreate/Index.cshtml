@@ -32,6 +32,9 @@
                     @question.QuestionCategoryId
                 </td>
                 <td>
+                    <a asp-controller="QuestionCreate" asp-action="Details" asp-route-id="@question.QuestionId" class="btn btn-info">Details</a>
+                </td>
+                <td>
                     <a asp-controller="QuestionCreate" asp-action="Delete" asp-route-id="@question.QuestionId" class="btn btn-danger">Delete</a>
                 </td>
             </tr>
