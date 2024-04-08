@@ -11,7 +11,9 @@
         <input type="hidden" name="examId" value="@ViewBag.ExamId" />
         @foreach (var question in Model)
         {
-            <div>@question.FileData</div>
+            <div>
+                <a href="@Url.Action("Download", "QuestionPackage", new { id = question.PackageId })">Download File</a>
+            </div>
              <div class="card mb-3">
                  <div class="card-body">
                      <h6 class="card-title">@question.QuestionText</h6>

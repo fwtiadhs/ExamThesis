@@ -22,6 +22,7 @@ namespace ExamThesis.Services.Services
         Task<bool> DeleteAnswer(string answerText);
         Task CreatePackage(QuestionPackage package);
         Task DeletePackage(int packageId);
+        Task<QuestionPackage> GetPackageById(int id);
     }
     public class QuestionService : IQuestionService
     {
@@ -120,6 +121,11 @@ namespace ExamThesis.Services.Services
                 _db.QuestionPackages.Remove(package);
                 await _db.SaveChangesAsync();
             }
+        }
+
+        public async Task<QuestionPackage> GetPackageById(int id)
+        {
+            return await _db.QuestionPackages.FindAsync(id);
         }
     }
 }

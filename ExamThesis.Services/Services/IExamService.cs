@@ -97,12 +97,15 @@ namespace ExamThesis.Services.Services
 
                     // Ομαδοποιούμε τα πακέτα ανά κατηγορία
                     // var groupedPackages = questionPackages.GroupBy(qp => qp.QuestionCategoryId);
-
+                    if (questionPackages.Count == 0)
+                    {
+                        continue; // Προσπερνάμε την επανάληψη αν η λίστα είναι άδεια
+                    }
                     // Επιλέγουμε τυχαίο πακέτο από κάθε ομάδα
-                    var random = new Random().Next(0, questionPackages.Count() -1);
+                    var random = new Random().Next(0, questionPackages.Count);
                     var selectedPackage = questionPackages[random];
-                    
-                        foreach (var questionInPackage in selectedPackage.QuestionsInPackages)
+
+                    foreach (var questionInPackage in selectedPackage.QuestionsInPackages)
                         {
                             var question = questionInPackage.Question;
                             question.Answers = await _db.Answers

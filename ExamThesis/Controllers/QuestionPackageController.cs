@@ -36,15 +36,17 @@ namespace ExamThesis.Controllers
 
             using (var memoryStream = new MemoryStream())
             {
-                
+
                 if (ModelState.IsValid)
                 {
                     await package.FileData.CopyToAsync(memoryStream);
+                    byte[] fileBytes = memoryStream.ToArray();
+
                     var pacageModel = new QuestionPackage()
                     {
                         PackageName = package.PackageName,
                         QuestionCategoryId = package.QuestionCategoryId,
-                        FileData = memoryStream.ToArray()
+                        FileData = fileBytes,
                     };
 
                     await _questionService.CreatePackage(pacageModel);
@@ -53,11 +55,40 @@ namespace ExamThesis.Controllers
                 }
 
 
-               
+
                 return RedirectToAction("Index");
             }
-            
+
         }
+        public async Task<IActionResult> Download(int id)
+        {
+            // Βρείτε το αντικείμενο QuestionPackage στη βάση δεδομένων με βάση το Id
+            var package = await _questionService.GetPackageById(id);
+
+            // Εάν το αντικείμενο δε βρεθεί, επιστρέψτε μια κατάλληλη απόκριση
+            if (package == null)
+            {
+                return NotFound();
+            }
+
+            byte[] fileData = package.FileData;
+
+            // Καθορίστε τη σωστή επέκταση ανάλογα με τον τύπο του αρχείου
+            string fileExtension = ".pdf"; // Για παράδειγμα, για PDF αρχεία
+
+            // Δημιουργία του ονόματος αρχείου με τη σωστή επέκταση
+            string fileName = package.PackageName + fileExtension;
+
+            // Δημιουργήστε έναν FileContentResult
+            var fileContentResult = new FileContentResult(fileData, "application/octet-stream")
+            {
+                FileDownloadName = fileName
+            };
+
+            // Επιστρέψτε το αρχείο ως απόκριση
+            return fileContentResult;
+        }
+    
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
