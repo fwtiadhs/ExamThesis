@@ -69,6 +69,7 @@ namespace ExamThesis.Services.Services
                 _db.Exams.Remove(examToDelete);
 
                 await _db.SaveChangesAsync();
+
             }
         }
         public async Task<IEnumerable<ExamQuestionViewModel>> GetExamQuestionsByExamId(int examId, string studentId)

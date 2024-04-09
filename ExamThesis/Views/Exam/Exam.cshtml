@@ -12,7 +12,9 @@
         @foreach (var question in Model)
         {
             <div>
-                <a href="@Url.Action("Download", "QuestionPackage", new { id = question.PackageId })">Download File</a>
+                <a href="@Url.Action("Download", "QuestionPackage", new { id = question.PackageId })">
+                    <button type="button" class="btn btn-primary">Download File</button>
+                </a>
             </div>
              <div class="card mb-3">
                  <div class="card-body">
