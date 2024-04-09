@@ -92,14 +92,16 @@ namespace ExamThesis.Controllers
 
             return View(examFromDb);
         }
+
         [HttpDelete]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult>  DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-           await _examService.DeleteByExamId(id);
-
-            return Index();
+            await _examService.DeleteByExamId(id);
+            TempData["SuccessMessage"] = "Exam deleted successfully.";
+            return RedirectToAction("Index");
         }
+
         public async Task<IActionResult> Exam(int id)
         {
             if (IsUserAlreadyParticipated(id))
@@ -145,6 +147,7 @@ namespace ExamThesis.Controllers
             return DateTime.Now >= exam.StartTime;
         }
         [HttpGet]
+
         public IActionResult CheckUserParticipation(int examId)
         {
             // Εκτελέστε τον έλεγχο για τη συμμετοχή του χρήστη

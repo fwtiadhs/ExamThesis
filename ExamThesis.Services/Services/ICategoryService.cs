@@ -29,7 +29,6 @@ namespace ExamThesis.Services.Services
             var model = new Storage.Model.QuestionCategory()
             {
                 QuestionCategoryName = category.QuestionCategoryName,
-               // FileData = category.FileData
             };
             _db.QuestionCategories.Add(model);
             await _db.SaveChangesAsync();

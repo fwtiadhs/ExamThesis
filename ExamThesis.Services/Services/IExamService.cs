@@ -58,10 +58,18 @@ namespace ExamThesis.Services.Services
 
         public async Task DeleteByExamId(int examId)
         {
-            var examsToDelete = await _db.Exams.FindAsync(examId);
+            var examToDelete = await _db.Exams.FindAsync(examId);
+            if (examToDelete != null)
+            {
+                // Διαγράψτε πρώτα τις εγγραφές από τον πίνακα ExamCategories που αναφέρονται στο συγκεκριμένο examId
+                var examCategoriesToDelete = await _db.ExamCategories.Where(ec => ec.ExamId == examId).ToListAsync();
+                _db.ExamCategories.RemoveRange(examCategoriesToDelete);
 
-            _db.Exams.Remove(examsToDelete);
-            await _db.SaveChangesAsync();
+                // Στη συνέχεια, διαγράψτε την εξέταση από τον πίνακα Exams
+                _db.Exams.Remove(examToDelete);
+
+                await _db.SaveChangesAsync();
+            }
         }
         public async Task<IEnumerable<ExamQuestionViewModel>> GetExamQuestionsByExamId(int examId, string studentId)
         {
