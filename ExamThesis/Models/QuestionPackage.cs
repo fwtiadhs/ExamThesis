@@ -10,6 +10,6 @@ public partial class QuestionPackage
     public string? PackageName { get; set; }
     public IFormFile FileData { get; set; }
     public int? QuestionCategoryId { get; set; }
-
+    public string? FileType { get; set; }
     public virtual QuestionCategory? QuestionCategory { get; set; }
 }

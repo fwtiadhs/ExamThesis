@@ -47,6 +47,7 @@ namespace ExamThesis.Controllers
                         PackageName = package.PackageName,
                         QuestionCategoryId = package.QuestionCategoryId,
                         FileData = fileBytes,
+                        FileType = package.FileType,
                     };
 
                     await _questionService.CreatePackage(pacageModel);
@@ -72,10 +73,23 @@ namespace ExamThesis.Controllers
             }
 
             byte[] fileData = package.FileData;
+            string fileExtension = string.Empty;
 
-            // Καθορίστε τη σωστή επέκταση ανάλογα με τον τύπο του αρχείου
-            string fileExtension = ".pdf"; // Για παράδειγμα, για PDF αρχεία
-
+            // Έλεγχος του τύπου αρχείου
+            switch (package.FileType)
+            {
+                case ".pdf":
+                    fileExtension = ".pdf";
+                    break;
+                case ".pcapng":
+                    fileExtension = ".pcapng";
+                    break;
+                case ".pkt":
+                    fileExtension = ".pkt";
+                    break;
+                default:
+                    return BadRequest("Unsupported file type.");
+            }
             // Δημιουργία του ονόματος αρχείου με τη σωστή επέκταση
             string fileName = package.PackageName + fileExtension;
 

@@ -129,7 +129,8 @@ namespace ExamThesis.Services.Services
                                 Answers = question.Answers,
                                 QuestionsInPackages = question.QuestionsInPackages,
                                 FileData = selectedPackage.FileData, 
-                                PackageName = selectedPackage.PackageName
+                                PackageName = selectedPackage.PackageName,
+                                FileType = selectedPackage.FileType
                             };
 
 

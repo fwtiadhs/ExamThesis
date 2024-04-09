@@ -13,6 +13,8 @@ public partial class QuestionPackage
 
     public byte[]? FileData { get; set; }
 
+    public string? FileType { get; set; }
+
     public virtual QuestionCategory? QuestionCategory { get; set; }
 
     public virtual ICollection<Question> Questions { get; set; } = new List<Question>();

@@ -15,7 +15,15 @@
          <div class="mb-3">
             <label asp-for="FileData" class="form-label">Choose a file</label>
             <input type="file" asp-for="FileData" class="form-control">
-        </div> 
+        </div>
+        <div class="form-group">
+            <label for="FileType">File Type</label>
+            <select class="form-control" id="FileType" name="FileType">
+                <option value=".pdf">PDF</option>
+                <option value=".pcapng">PCAPNG</option>
+                <option value=".pkt">PKT</option>
+            </select>
+        </div>
 
         <button type="submit" class="btn btn-primary" style="width:150px">Create</button>
         <a asp-controller="QuestionCategory" asp-action="Index" class="btn btn-secondary" style="width:150px">Back to List</a>

@@ -106,6 +106,7 @@ public partial class ExamContext : DbContext
         {
             entity.HasKey(e => e.PackageId).HasName("PK__Question__322035CC548505C7");
 
+            entity.Property(e => e.FileType).HasMaxLength(50);
             entity.Property(e => e.PackageName).HasMaxLength(255);
 
             entity.HasOne(d => d.QuestionCategory).WithMany(p => p.QuestionPackages)
