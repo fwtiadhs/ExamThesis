@@ -21,10 +21,16 @@ namespace ExamThesis.Controllers
         
         public IActionResult Index()
         {
-            IEnumerable<QuestionCategory> objQuestionCategoryList = _db.QuestionCategories.ToList();
-            ViewBag.QuestionCategoryList = _db.QuestionCategories.ToList();
+            var questionCategories = _db.QuestionCategories.ToList();
 
-            return View() ;
+            if (questionCategories == null)
+            {
+                // Εάν δεν υπάρχουν κατηγορίες ερωτήσεων, επιστρέφουμε κατάλληλο μήνυμα
+                ViewBag.ErrorMessage = "No question categories found.";
+                return View();
+            }
+
+            return View(questionCategories);
         }
 
         [HttpGet]
@@ -38,24 +44,22 @@ namespace ExamThesis.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Models.QuestionCategory questionCategory)
         {
-            using (var memoryStream = new MemoryStream())
+            if (ModelState.IsValid)
             {
-                
-                if (ModelState.IsValid)
+                var categoryModel = new ExamThesis.Common.QuestionCategory()
                 {
-                    //await questionCategory.FileData.CopyToAsync(memoryStream);
-                    var categoryModel = new ExamThesis.Common.QuestionCategory()
-                    {
-                        QuestionCategoryName = questionCategory.QuestionCategoryName,
-                        //FileData = memoryStream.ToArray()
-                    };
+                    QuestionCategoryName = questionCategory.QuestionCategoryName,
+                };
 
-                    await _categoryService.Create(categoryModel);
-                    ViewBag.QuestionCategoryList = _db.QuestionCategories.ToList();
-                }
+                await _categoryService.Create(categoryModel);
 
-                return View("Index");
+                // Επιτυχής δημιουργία - μετάβαση στο Index με μήνυμα επιτυχίας
+                TempData["SuccessMessage"] = "Question category created successfully.";
+                return RedirectToAction("Index");
             }
+
+            // Αν η κατηγορία δεν είναι έγκυρη, επιστρέψτε τη φόρμα δημιουργίας για νέα εισαγωγή
+            return View(questionCategory);
         }
 
         public IActionResult Edit(int? id)
@@ -112,15 +116,16 @@ namespace ExamThesis.Controllers
             return View(QCategoryFromDb);
         }
 
-      
+
         [HttpDelete]
         public async Task<IActionResult> DeletePost(int id)
         {
-            
             await _categoryService.DeleteById(id);
-            
-                return View("Index");
+
+            TempData["SuccessMessage"] = "Category deleted successfully.";
+
+            return RedirectToAction("Index");
         }
-       
+
     }
 }
