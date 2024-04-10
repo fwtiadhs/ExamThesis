@@ -29,6 +29,7 @@ namespace ExamThesis.Services.Services
 
     public class ExamService : IExamService
     {
+
         private readonly ExamContext _db;
         private readonly IExamCategoryService _categoryService;
         private readonly IMemoryCache _memoryCache;
@@ -76,6 +77,7 @@ namespace ExamThesis.Services.Services
 
             }
         }
+        private readonly Random _random = new Random();
         public async Task<IEnumerable<ExamQuestionViewModel>> GetExamQuestionsByExamId(int examId, string studentId)
         {
             ExamQuestionViewModel examQuestionViewModel = null;
@@ -115,8 +117,8 @@ namespace ExamThesis.Services.Services
                         continue; // Προσπερνάμε την επανάληψη αν η λίστα είναι άδεια
                     }
                     // Επιλέγουμε τυχαίο πακέτο από κάθε ομάδα
-                    var random = new Random().Next(0, questionPackages.Count);
-                    var selectedPackage = questionPackages[random];
+                    var randomIndex = _random.Next(0, questionPackages.Count -1);
+                    var selectedPackage = questionPackages[randomIndex];
 
                     foreach (var questionInPackage in selectedPackage.QuestionsInPackages)
                         {

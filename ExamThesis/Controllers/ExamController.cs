@@ -121,7 +121,6 @@ namespace ExamThesis.Controllers
                 {
                     ViewBag.EndTime = exam.EndTime.ToString("HH:mm:ss");
                     ViewBag.StartTime = exam.StartTime.ToString("HH:mm:ss");
-                    // Άλλος κώδικας...
                 }
                 ViewBag.ExamId = id;
                 var claimsIdentity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
