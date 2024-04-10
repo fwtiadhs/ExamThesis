@@ -139,8 +139,9 @@ namespace ExamThesis.Services.Services
                                 QuestionsInPackages = question.QuestionsInPackages,
                                 FileData = selectedPackage.FileData, 
                                 PackageName = selectedPackage.PackageName,
-                                FileType = selectedPackage.FileType
-                            };
+                                FileType = selectedPackage.FileType,
+                               
+                    };
 
 
                             examQuestionViewModels.Add(examQuestionViewModel);

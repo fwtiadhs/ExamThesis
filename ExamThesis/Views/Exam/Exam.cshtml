@@ -9,13 +9,21 @@
             <p>Χρόνος απομένων: <span id="timer"></span></p>
         </div>
         <input type="hidden" name="examId" value="@ViewBag.ExamId" />
-        @foreach (var question in Model)
+        @foreach(var file in Model)
         {
             <div>
-                <a href="@Url.Action("Download", "QuestionPackage", new { id = question.PackageId })">
+                <a href="@Url.Action("Download", "QuestionPackage", new { id = file.PackageId })">
                     <button type="button" class="btn btn-primary">Download File</button>
                 </a>
             </div>
+        }
+        @foreach (var question in Model)
+        {
+            @* <div>
+                <a href="@Url.Action("Download", "QuestionPackage", new { id = question.PackageId })">
+                    <button type="button" class="btn btn-primary">Download File</button>
+                </a>
+            </div> *@
              <div class="card mb-3">
                  <div class="card-body">
                      <h6 class="card-title">@question.QuestionText</h6>
@@ -42,17 +50,44 @@
          <button type="submit" class="btn btn-primary">Submit Answers</button>
      </form>
      </div>
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+
     $(document).ready(function () {
-        $('.answer-checkbox').change(function () {
-            // Απενεργοποίηση όλων των άλλων checkboxes με το ίδιο data-question-id
-            var questionId = $(this).data('question-id');
-            $('.answer-checkbox[data-question-id="' + questionId + '"]').not(this).prop('checked', false);
-        });
+        var endTime = "@ViewBag.EndTime";
+        // Προσθέτουμε την ημερομηνία της σημερινής ημέρας
+        endTime = new Date(new Date().toDateString() + ' ' + endTime);
+
+        function formatTime(milliseconds) {
+            var hours = Math.floor(milliseconds / (1000 * 60 * 60));
+            var minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((milliseconds % (1000 * 60)) / 1000);
+
+            // Προσθήκη μηδέν μπροστά αν η τιμή είναι μικρότερη από 10
+            var formattedHours = hours < 10 ? '0' + hours : hours;
+            var formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+            var formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+
+            return formattedHours + ":" + formattedMinutes + ":" + formattedSeconds;
+        }
+
+        // Υπολογίζουμε τον εναπομείναντα χρόνο
+        var remainingTime = endTime - new Date();
+
+        // Εμφανίζουμε τον εναπομείναντα χρόνο στο στοιχείο HTML με id "timer"
+        $("#timer").text(formatTime(remainingTime));
+
+        // Κάθε δευτερόλεπτο ενημερώνουμε τον εναπομείναντα χρόνο
+        setInterval(function () {
+            remainingTime = endTime - new Date(); // Υπολογίζουμε ξανά τον εναπομείναντα χρόνο
+            $("#timer").text(formatTime(remainingTime)); // Εμφανίζουμε τον εναπομείναντα χρόνο
+            if (remainingTime <= 0) {
+                $("form").submit(); // Υποβολή της φόρμας
+            }
+
+        }, 1000); // Κάθε 1000 ms (1 δευτερόλεπτο) ενημερώνουμε τον χρόνο
     });
 </script>
 </script>
-    
 
 
