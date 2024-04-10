@@ -61,6 +61,10 @@ namespace ExamThesis.Services.Services
             var examToDelete = await _db.Exams.FindAsync(examId);
             if (examToDelete != null)
             {
+                // Πρώτα διαγράψτε τα αποτελέσματα εξετάσεων που σχετίζονται με το συγκεκριμένο ExamId
+                var examResultsToDelete = await _db.ExamResults.Where(er => er.ExamId == examId).ToListAsync();
+                _db.ExamResults.RemoveRange(examResultsToDelete);
+
                 // Διαγράψτε πρώτα τις εγγραφές από τον πίνακα ExamCategories που αναφέρονται στο συγκεκριμένο examId
                 var examCategoriesToDelete = await _db.ExamCategories.Where(ec => ec.ExamId == examId).ToListAsync();
                 _db.ExamCategories.RemoveRange(examCategoriesToDelete);
