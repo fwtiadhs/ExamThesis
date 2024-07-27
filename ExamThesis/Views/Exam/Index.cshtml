@@ -19,8 +19,11 @@
 
 
                         <a href="@Url.Action("Exam", new { id = exam.ExamId })" class="btn btn-primary">Start Exam</a>
-                        <a asp-controller="Exam" asp-action="Delete" asp-route-id="@exam.ExamId" class="btn btn-danger">Delete</a>
-                        <a href="@Url.Action("ExportExamResultsToExcel", new { id = exam.ExamId })" class="btn btn-success">Export to Excel</a>
+                        @if (User.IsInRole("teacher"))
+                        {
+                            <a asp-controller="Exam" asp-action="Delete" asp-route-id="@exam.ExamId" class="btn btn-danger">Delete</a>
+                            <a href="@Url.Action("ExportExamResultsToExcel", new { id = exam.ExamId })" class="btn btn-success">Export to Excel</a>
+                        }
                     </div>
                 </div>
             </div>
@@ -31,11 +34,14 @@ else
 {
     <p>No exams available.</p>
 }
-
+@if (User.IsInRole("teacher"))
+ {
 <a href="@Url.Action("Create")" class="btn btn-success">Create Exam</a>
+}
 @if (TempData["ErrorMessage"] != null)
 {
     <div class="alert alert-danger" role="alert">
         @TempData["ErrorMessage"]
     </div>
 }
+ 

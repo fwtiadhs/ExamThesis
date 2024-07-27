@@ -45,6 +45,10 @@ public partial class ExamContext : DbContext
 
             entity.HasIndex(e => e.QuestionId, "IX_Answer_QuestionId");
 
+            entity.HasIndex(e => e.Id, "idx_answer_id");
+
+            entity.HasIndex(e => e.QuestionId, "idx_question_id");
+
             entity.Property(e => e.IsCorrect).HasColumnName("isCorrect");
 
             entity.HasOne(d => d.Question).WithMany(p => p.Answers).HasForeignKey(d => d.QuestionId);
@@ -95,6 +99,12 @@ public partial class ExamContext : DbContext
 
         modelBuilder.Entity<Question>(entity =>
         {
+            entity.HasIndex(e => e.PackageId, "idx_package_id");
+
+            entity.HasIndex(e => e.QuestionCategoryId, "idx_question_category_id");
+
+            entity.HasIndex(e => e.QuestionId, "idx_question_id");
+
             entity.Property(e => e.QuestionText).HasDefaultValueSql("(N'')");
 
             entity.HasOne(d => d.Package).WithMany(p => p.Questions)
@@ -102,9 +112,18 @@ public partial class ExamContext : DbContext
                 .HasConstraintName("FK_Question_Package");
         });
 
+        modelBuilder.Entity<QuestionCategory>(entity =>
+        {
+            entity.HasIndex(e => e.QuestionCategoryId, "idx_question_category_id");
+        });
+
         modelBuilder.Entity<QuestionPackage>(entity =>
         {
             entity.HasKey(e => e.PackageId).HasName("PK__Question__322035CC548505C7");
+
+            entity.HasIndex(e => e.QuestionCategoryId, "idx_question_category_id");
+
+            entity.HasIndex(e => e.PackageId, "idx_question_package_id");
 
             entity.Property(e => e.FileType).HasMaxLength(50);
             entity.Property(e => e.PackageName).HasMaxLength(255);
@@ -119,6 +138,12 @@ public partial class ExamContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__Question__3214EC07BB7DED0B");
 
             entity.ToTable("QuestionsInPackage");
+
+            entity.HasIndex(e => e.PackageId, "idx_package_id");
+
+            entity.HasIndex(e => e.QuestionId, "idx_question_id");
+
+            entity.HasIndex(e => e.Id, "idx_question_in_package_id");
 
             entity.HasOne(d => d.Package).WithMany(p => p.QuestionsInPackages)
                 .HasForeignKey(d => d.PackageId)

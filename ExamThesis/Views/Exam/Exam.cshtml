@@ -1,57 +1,81 @@
 ﻿@model IEnumerable<ExamThesis.Storage.ExamQuestionViewModel>
 
 <div class="container">
-<h2>Exam Questions</h2>
 
     <form method="post" action="@Url.Action("Submit", new { id = ViewBag.ExamId })">
         <input type="hidden" name="userId" value="@ViewBag.UserId" />
-        <div class="p-3">
-            <p>Χρόνος απομένων: <span id="timer"></span></p>
+        <h2 class="text-center">Εξέταση Εργαστηρίου</h2>
+        <div class="p-3 text-center">
+            <p>Χρόνος: <span id="timer" class="badge bg-primary"></span></p>
         </div>
         <input type="hidden" name="examId" value="@ViewBag.ExamId" />
-        @foreach(var file in Model)
-        {
-            <div>
-                <a href="@Url.Action("Download", "QuestionPackage", new { id = file.PackageId })">
-                    <button type="button" class="btn btn-primary">Download File</button>
-                </a>
+         <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="card border-light">
+                    <div class="card-body">
+                        <h6 class ="card-title"> Αρχεία </h6>
+                        @{
+                            var displayedPackageIds = new HashSet<string>(); // Χρησιμοποιούμε string αντί για int
+                        }
+                        @foreach (var file in Model)
+                        {
+                            if (!displayedPackageIds.Contains(file.PackageId.ToString()))
+                            {
+                                displayedPackageIds.Add(file.PackageId.ToString());
+                                <a href="@Url.Action("Download", "QuestionPackage", new { id = file.PackageId })">
+                                    <button type="button" class="btn btn-outline-primary btn-sm">@file.PackageName</button>
+                                </a>
+                            }
+                        }
+                    </div>
+                </div>
             </div>
+        </div>
+        @{
+            int questionCounter = 1;
+            char[] answerLetters = "abcdefghijklmnopqrstuvwxyz".ToCharArray();
         }
         @foreach (var question in Model)
         {
-            @* <div>
-                <a href="@Url.Action("Download", "QuestionPackage", new { id = question.PackageId })">
-                    <button type="button" class="btn btn-primary">Download File</button>
-                </a>
-            </div> *@
-             <div class="card mb-3">
-                 <div class="card-body">
-                     <h6 class="card-title">@question.QuestionText</h6>
-                    <button type="button" class="btn btn-sm btn-secondary clear-radio">Clear</button>
-                     <br />
-                     <div class="row">
-                         @foreach (var answer in question.Answers)
-                         {
-                             <div class="col-md-4 mb-3">
-                                <div class="form-check ">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h6 class="card-title">@questionCounter) @question.QuestionText</h6>
+                    <br />
+                    <div class="row">
+                        @{
+                            int answerCounter = 0;
+                        }
+                        @foreach (var answer in question.Answers)
+                        {
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check">
                                     <input class="form-check-input answer-checkbox" type="checkbox" id="answer_@answer.Id" name="selectedAnswers" value="@answer.Id" data-question-id="@question.QuestionId">
-                                    <label class="form-check-label" for="answer_@answer.Id">@answer.Text</label>
-                                   
-                                 </div>
-                             </div>
-                         }
-                     </div>
-                 </div>
-             </div>
-            
-             <input type="hidden" name="selectedQuestions" value="@question.QuestionId"/>
+                                    <label class="form-check-label" for="answer_@answer.Id">@answerLetters[answerCounter]) @answer.Text</label>
+                                </div>
+                            </div>
+                            answerCounter++;
+                        }
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="selectedQuestions" value="@question.QuestionId" />
+            questionCounter++;
         }
-    <div style="clear:both"></div>
-         <button type="submit" class="btn btn-primary">Submit Answers</button>
-     </form>
-     </div>
+        <div style="clear:both"></div>
+        <button type="submit" class="btn btn-primary">Submit Answers</button>
+    </form>
+</div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-@* <script>
+<script>
+    $(document).ready(function () {
+        $('.answer-checkbox').change(function () {
+            // Απενεργοποίηση όλων των άλλων checkboxes με το ίδιο data-question-id
+            var questionId = $(this).data('question-id');
+            $('.answer-checkbox[data-question-id="' + questionId + '"]').not(this).prop('checked', false);
+        });
+    });
+</script>
+<script>
 
     $(document).ready(function () {
         var endTime = "@ViewBag.EndTime";
@@ -88,6 +112,6 @@
         }, 1000); // Κάθε 1000 ms (1 δευτερόλεπτο) ενημερώνουμε τον χρόνο
     });
 </script>
-</script> *@
+</script> 
 
 

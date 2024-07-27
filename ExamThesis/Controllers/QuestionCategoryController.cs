@@ -53,12 +53,10 @@ namespace ExamThesis.Controllers
 
                 await _categoryService.Create(categoryModel);
 
-                // Επιτυχής δημιουργία - μετάβαση στο Index με μήνυμα επιτυχίας
                 TempData["SuccessMessage"] = "Question category created successfully.";
                 return RedirectToAction("Index");
             }
-
-            // Αν η κατηγορία δεν είναι έγκυρη, επιστρέψτε τη φόρμα δημιουργίας για νέα εισαγωγή
+            TempData["FailMessage"] = "Question category created failed.";
             return View(questionCategory);
         }
 

@@ -195,7 +195,6 @@ namespace ExamThesis.Controllers
             }
             catch (Exception ex)
             {
-                // Εδώ μπορείτε να χειριστείτε τυχόν εξαιρέσεις που μπορεί να προκύψουν κατά την υποβολή.
                 return BadRequest(ex.Message);
             }
         }

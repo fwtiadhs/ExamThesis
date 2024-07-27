@@ -71,9 +71,10 @@ namespace ExamThesis.Controllers
                     PackageId = question.PackageId
                 };
                 await _questionService.Create(createModel);
-
+                TempData["SuccessMessage"] = "Questions and Answers created successfully.";
                 return RedirectToAction("Index");
             }
+            TempData["FailMessage"] = "Questions and Answers created failed.";
 
             return View(question);
         }

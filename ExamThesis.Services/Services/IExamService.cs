@@ -62,22 +62,19 @@ namespace ExamThesis.Services.Services
             var examToDelete = await _db.Exams.FindAsync(examId);
             if (examToDelete != null)
             {
-                // Πρώτα διαγράψτε τα αποτελέσματα εξετάσεων που σχετίζονται με το συγκεκριμένο ExamId
                 var examResultsToDelete = await _db.ExamResults.Where(er => er.ExamId == examId).ToListAsync();
                 _db.ExamResults.RemoveRange(examResultsToDelete);
 
-                // Διαγράψτε πρώτα τις εγγραφές από τον πίνακα ExamCategories που αναφέρονται στο συγκεκριμένο examId
                 var examCategoriesToDelete = await _db.ExamCategories.Where(ec => ec.ExamId == examId).ToListAsync();
                 _db.ExamCategories.RemoveRange(examCategoriesToDelete);
 
-                // Στη συνέχεια, διαγράψτε την εξέταση από τον πίνακα Exams
                 _db.Exams.Remove(examToDelete);
 
                 await _db.SaveChangesAsync();
 
             }
         }
-        private readonly Random _random = new Random();
+        //private readonly Random _random = new Random();
         public async Task<IEnumerable<ExamQuestionViewModel>> GetExamQuestionsByExamId(int examId, string studentId)
         {
             ExamQuestionViewModel examQuestionViewModel = null;
@@ -104,11 +101,12 @@ namespace ExamThesis.Services.Services
 
                 foreach (var category in examCategories)
                 {
-                    var questionPackages = await _db.QuestionPackages
+                    var questionPackages =  _db.QuestionPackages
                         .Where(qp => qp.QuestionCategoryId == category.QuestionCategoryId)
+                        .AsSplitQuery()
                         .Include(qp => qp.QuestionsInPackages)
                             .ThenInclude(qip => qip.Question)
-                        .ToListAsync();
+                        .ToList();
 
                     // Ομαδοποιούμε τα πακέτα ανά κατηγορία
                     // var groupedPackages = questionPackages.GroupBy(qp => qp.QuestionCategoryId);
@@ -117,8 +115,19 @@ namespace ExamThesis.Services.Services
                         continue; // Προσπερνάμε την επανάληψη αν η λίστα είναι άδεια
                     }
                     // Επιλέγουμε τυχαίο πακέτο από κάθε ομάδα
-                    var randomIndex = _random.Next(0, questionPackages.Count -1);
-                    var selectedPackage = questionPackages[randomIndex];
+                    var random = new Random().Next(0, questionPackages.Count() -1);
+                    var selectedPackage = questionPackages[random];
+                    //var questionPackagesCopy = new List<QuestionPackage>(questionPackages);
+                    //var random = new Random();
+                    //for (int i = questionPackagesCopy.Count - 1; i > 0; i--)
+                    //{
+                    //    int j = random.Next(0, i + 1);
+                    //    var temp = questionPackagesCopy[i];
+                    //    questionPackagesCopy[i] = questionPackagesCopy[j];
+                    //    questionPackagesCopy[j] = temp;
+                    //}
+
+                    //var selectedPackage = questionPackagesCopy.FirstOrDefault();
 
                     foreach (var questionInPackage in selectedPackage.QuestionsInPackages)
                         {

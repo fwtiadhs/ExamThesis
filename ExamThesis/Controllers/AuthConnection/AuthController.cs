@@ -57,10 +57,8 @@ namespace ExamThesis.Controllers.AuthConnection
             ViewData.Add("Name", profileResponse.cn);
             ViewData.Add("UserId", profileResponse.uid);
             HttpContext.Session.SetString("UserId", profileResponse.uid);
-           // HttpContext.Session.SetString("EduPersonAffiliation", profileResponse.eduPersonAffiliation);
 
 
-            //HttpContext.Session.SetString("Email", profileResponse.mail);
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, profileResponse.cn),
@@ -69,7 +67,7 @@ namespace ExamThesis.Controllers.AuthConnection
                 new Claim("Edu", profileResponse.eduPersonAffiliation)
             };
 
-            if (profileResponse.eduPersonAffiliation == "teacher")
+            if (profileResponse.eduPersonAffiliation == "staff")
             {
                 claims.Add(new Claim(ClaimTypes.Role, UserRoles.Teacher));
             }

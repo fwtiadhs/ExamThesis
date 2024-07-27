@@ -102,7 +102,6 @@ namespace ExamThesis.Services.Services
             var questionToDelete = _db.Questions.Find(id);
             var answersToDelete = _db.Answers.Where(a => a.QuestionId == id);
 
-            // Προσθέστε κώδικα για τη διαγραφή των εγγραφών από τον πίνακα QuestionsInPackage
             var questionsInPackageToDelete = _db.QuestionsInPackages.Where(qip => qip.QuestionId == id);
             _db.QuestionsInPackages.RemoveRange(questionsInPackageToDelete);
 
@@ -115,26 +114,24 @@ namespace ExamThesis.Services.Services
 
         public async Task DeletePackage(int packageId)
         {
-            // Πρώτα, διαγράψτε τις εγγραφές στον πίνακα QuestionsInPackage που αναφέρονται στο πακέτο ερωτήσεων
+            // Delete QuestionsInPackage 
             var questionsInPackage = await _db.QuestionsInPackages.Where(qip => qip.PackageId == packageId).ToListAsync();
             _db.QuestionsInPackages.RemoveRange(questionsInPackage);
 
-            // Διαγράψτε τις ερωτήσεις που σχετίζονται με το πακέτο
+            // Delete Questions
             var questions = await _db.Questions.Where(q => q.PackageId == packageId).ToListAsync();
             _db.Questions.RemoveRange(questions);
 
-            // Βρείτε όλες τις απαντήσεις που ανήκουν σε ερωτήσεις που σχετίζονται με το πακέτο
+            // Delete Answers of Question
             var answers = await _db.Answers.Where(a => a.Question.PackageId == packageId).ToListAsync();
             _db.Answers.RemoveRange(answers);
 
-            // Στη συνέχεια, διαγράψτε το πακέτο ερωτήσεων από τον πίνακα QuestionPackage
+            // Delete QuestionPackage
             var package = await _db.QuestionPackages.FindAsync(packageId);
             _db.QuestionPackages.Remove(package);
 
             await _db.SaveChangesAsync();
 
-
-            await _db.SaveChangesAsync();
         }
 
         public async Task<QuestionPackage> GetPackageById(int id)
