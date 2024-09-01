@@ -15,7 +15,7 @@
 
     <div class="form-group">
         <label asp-for="StartTime" class="control-label">Έναρξη:</label>
-        <input asp-for="StartTime" class="form-control" />
+        <input asp-for="StartTime" class="form-control" type="datetime-local" />
         <span asp-validation-for="StartTime" class="text-danger"></span>
     </div>
 
@@ -54,7 +54,7 @@
                     
                         <input type="checkbox" asp-for="SelectedCategories[i].IsChecked"  />
                         @currentcategory.QuestionCategoryName
-                        <input id="@currentcategory.QuestionCategoryId" asp-for="SelectedCategories[i].QuestionCategoryId" type="hidden" value="@currentcategory.QuestionCategoryId"/>
+                        <input id="@currentcategory.QuestionCategoryId" asp-for="SelectedCategories[i].QuestionCategoryId" type="hidden"  value="@currentcategory.QuestionCategoryId"/>
                     <input id="@currentcategory.QuestionCategoryName" asp-for="SelectedCategories[i].QuestionCategoryName" type="hidden" value="@currentcategory.QuestionCategoryName" />
                 </div>
             }
@@ -63,3 +63,8 @@
 
     <button type="submit" class="btn btn-primary">Create</button>
 </form>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

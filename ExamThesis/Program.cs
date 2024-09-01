@@ -11,6 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages()
+        .AddMvcOptions(options =>
+        {
+            options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(_ => "Το πεδίο είναι υποχρεωτικό.");
+        });
 builder.Services.AddMemoryCache();
 builder.Services.AddSession();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

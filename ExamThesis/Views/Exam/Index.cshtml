@@ -19,7 +19,7 @@
 
 
                         <a href="@Url.Action("Exam", new { id = exam.ExamId })" class="btn btn-primary">Start Exam</a>
-                        @if (User.IsInRole("teacher"))
+                        @if (User.IsInRole("student"))
                         {
                             <a asp-controller="Exam" asp-action="Delete" asp-route-id="@exam.ExamId" class="btn btn-danger">Delete</a>
                             <a href="@Url.Action("ExportExamResultsToExcel", new { id = exam.ExamId })" class="btn btn-success">Export to Excel</a>
@@ -34,7 +34,7 @@ else
 {
     <p>No exams available.</p>
 }
-@if (User.IsInRole("teacher"))
+@if (User.IsInRole("student"))
  {
 <a href="@Url.Action("Create")" class="btn btn-success">Create Exam</a>
 }

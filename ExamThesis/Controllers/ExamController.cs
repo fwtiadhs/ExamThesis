@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using ExamThesis.Models;
@@ -34,6 +35,7 @@ namespace ExamThesis.Controllers
         }
         public IActionResult Create()
         {
+
             var questionCategories = _db.QuestionCategories.Select(qc => new ExamThesis.Models.QuestionCategory()
             {
                 QuestionCategoryId=qc.QuestionCategoryId,
@@ -54,6 +56,16 @@ namespace ExamThesis.Controllers
         public async Task<IActionResult> Create(CreateExam model)
         
         {
+            var existingExam = _db.Exams.FirstOrDefault(e => e.ExamName == model.ExamName);
+            if (existingExam != null)
+            {
+                ModelState.AddModelError("ExamName", "Υπάρχει ήδη εξέταση με αυτό το όνομα.");
+                return View(model);
+            }
+            if (model.EndTime <= model.StartTime)
+            {
+                ModelState.AddModelError("EndTime", "Η ώρα λήξης πρέπει να είναι μεταγενέστερη της ώρας έναρξης.");
+            }
             if (!ModelState.IsValid)
             {
                 foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
@@ -81,6 +93,7 @@ namespace ExamThesis.Controllers
 
             return View(model);
         }
+        [HttpGet]
         public IActionResult Delete(int id)
         {
             var examFromDb = _db.Exams.Find(id);

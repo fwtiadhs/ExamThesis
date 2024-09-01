@@ -42,6 +42,7 @@ namespace ExamThesis.Services.Services
 
         public async Task CreateExam(CreateExam exam)
         {
+
             var model = new Exam
             {
                 ExamName = exam.ExamName,
@@ -109,7 +110,6 @@ namespace ExamThesis.Services.Services
                         .ToList();
 
                     // Ομαδοποιούμε τα πακέτα ανά κατηγορία
-                    // var groupedPackages = questionPackages.GroupBy(qp => qp.QuestionCategoryId);
                     if (questionPackages.Count == 0)
                     {
                         continue; // Προσπερνάμε την επανάληψη αν η λίστα είναι άδεια
@@ -117,17 +117,6 @@ namespace ExamThesis.Services.Services
                     // Επιλέγουμε τυχαίο πακέτο από κάθε ομάδα
                     var random = new Random().Next(0, questionPackages.Count() -1);
                     var selectedPackage = questionPackages[random];
-                    //var questionPackagesCopy = new List<QuestionPackage>(questionPackages);
-                    //var random = new Random();
-                    //for (int i = questionPackagesCopy.Count - 1; i > 0; i--)
-                    //{
-                    //    int j = random.Next(0, i + 1);
-                    //    var temp = questionPackagesCopy[i];
-                    //    questionPackagesCopy[i] = questionPackagesCopy[j];
-                    //    questionPackagesCopy[j] = temp;
-                    //}
-
-                    //var selectedPackage = questionPackagesCopy.FirstOrDefault();
 
                     foreach (var questionInPackage in selectedPackage.QuestionsInPackages)
                         {
@@ -197,11 +186,6 @@ namespace ExamThesis.Services.Services
             foreach (var question in examQuestions)
             {
                 var correctAnswer = question.Answers.Where(a => a.IsCorrect == true).First();
-                Debug.WriteLine($"question: {question.QuestionText} ");
-
-               
-                Debug.WriteLine(correctAnswer);
-
                 var userAnswers = selectedAnswers.ToList();
 
                 // Υπολογισμός βαθμού μόνο για τις ερωτήσεις που έχουν επιλεγεί
@@ -213,7 +197,6 @@ namespace ExamThesis.Services.Services
                 {
                     earnedPoints -= question.NegativePoints;
                 }
-                Debug.WriteLine($"points: {earnedPoints} ");
             }
             if(earnedPoints < 0)
             {
