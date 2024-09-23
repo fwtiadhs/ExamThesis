@@ -17,6 +17,8 @@ public partial class Exam
 
     public double? PassGrade { get; set; }
 
+    public bool? ShowGrade { get; set; }
+
     public virtual ICollection<ExamCategory> ExamCategories { get; set; } = new List<ExamCategory>();
 
     public virtual ICollection<ExamResult> ExamResults { get; set; } = new List<ExamResult>();

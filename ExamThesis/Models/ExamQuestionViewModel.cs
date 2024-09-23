@@ -12,6 +12,7 @@ namespace ExamThesis.Models
         public int ExamId { get; set; }
         public string ExamName { get; set; }
         public double PassGrade { get; set; }
+        public bool? ShowGrade { get; set; }
 
 
 

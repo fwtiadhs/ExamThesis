@@ -38,6 +38,13 @@
     </div>
 
     <div class="form-group">
+        <label class="control-label">Εμφάνιση Βαθμού Στο Τέλος:</label>
+        <input type="checkbox" asp-for="ShowGrade" />
+        <label for="ShowGrade">Εμφάνιση Βαθμού</label>
+        <span asp-validation-for="ShowGrade" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
         <label  class="control-label">Επιλογή Κατηγοριών Ερωτήσεων:</label>
         <div id="answers-container">
             @for (var i = 0; i < Model.SelectedCategories.Count; i++)

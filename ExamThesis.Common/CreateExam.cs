@@ -23,6 +23,7 @@ namespace ExamThesis.Common
         public string? ExamName { get; set; }
         [Required(ErrorMessage = "Πρέπει να επιλέξετε τουλάχιστον μία κατηγορία.")]
         public List<QuestionCategory> SelectedCategories { get; set; }
+        public bool? ShowGrade { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (EndTime <= StartTime)

@@ -12,6 +12,7 @@ namespace ExamThesis.Storage
         public int ExamId { get; set; }
         public string ExamName { get; set; }
         public double PassGrade { get; set; }
+        public bool? ShowGrade { get; set; }
 
         public int QuestionId { get; set; }
         public int QuestionCategoryId { get; set; }

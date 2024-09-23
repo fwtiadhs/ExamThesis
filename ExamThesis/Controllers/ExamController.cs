@@ -74,6 +74,7 @@ namespace ExamThesis.Controllers
                 }
                 return View(model);
             }
+            ViewBag.ShowGrade = model.ShowGrade;
             if (ModelState.IsValid)
             {
                 var examModel= new ExamThesis.Common.CreateExam(){
@@ -82,6 +83,7 @@ namespace ExamThesis.Controllers
                     EndTime = model.EndTime,
                     TotalPoints = model.TotalPoints,
                     PassGrade = model.PassGrade,
+                    ShowGrade = model.ShowGrade,
                     SelectedCategories = model.SelectedCategories.Where(sc => sc.IsChecked==true).Select(sc => new Common.QuestionCategory() {
                     QuestionCategoryId=sc.QuestionCategoryId}).ToList()
                     
@@ -137,7 +139,7 @@ namespace ExamThesis.Controllers
                 }
                 ViewBag.ExamId = id;
                 var claimsIdentity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
-                var userIdClaim = claimsIdentity?.FindFirst("UserId").Value;
+                var userIdClaim = claimsIdentity?.FindFirst("UserId")?.Value;
                 var model = await _examService.GetExamQuestionsByExamId(id, userIdClaim);
                 return base.View(model);
             }
@@ -190,7 +192,7 @@ namespace ExamThesis.Controllers
                 {
                     return NotFound();
                 }
-
+                ViewBag.ShowGrade = exam.ShowGrade;
                 ViewBag.EarnedPoints = earnedPoints;
                 ViewBag.TotalPoints = exam.TotalPoints;
                 ViewBag.PassGrade = exam.PassGrade;

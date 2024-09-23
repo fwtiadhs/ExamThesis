@@ -8,8 +8,11 @@
 
     <div class="row mt-4">
         <div class="col-md-6">
-            <p>Your earned points: <strong>@ViewBag.EarnedPoints</strong></p>
-            <p>Total points for the exam: <strong>@ViewBag.TotalPoints</strong></p>
+            @if (ViewBag.ShowGrade)
+            {
+                <p>Your earned points: <strong>@ViewBag.EarnedPoints</strong></p>
+                <p>Total points for the exam: <strong>@ViewBag.TotalPoints</strong></p>
+            }
         </div>
     </div>
 

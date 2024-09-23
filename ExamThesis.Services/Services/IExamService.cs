@@ -50,6 +50,7 @@ namespace ExamThesis.Services.Services
                 EndTime = exam.EndTime,
                 TotalPoints = exam.TotalPoints,
                 PassGrade = exam.PassGrade,
+                ShowGrade = exam.ShowGrade,
 
             };
 
@@ -99,7 +100,7 @@ namespace ExamThesis.Services.Services
                     .Where(ec => ec.ExamId == examId)
                     .ToListAsync();
 
-
+                //var randomGenerator = new Random();
                 foreach (var category in examCategories)
                 {
                     var questionPackages =  _db.QuestionPackages
@@ -112,11 +113,13 @@ namespace ExamThesis.Services.Services
                     // Ομαδοποιούμε τα πακέτα ανά κατηγορία
                     if (questionPackages.Count == 0)
                     {
+                        Console.WriteLine($"No question packages found for category ID: {category.QuestionCategoryId}");
                         continue; // Προσπερνάμε την επανάληψη αν η λίστα είναι άδεια
                     }
                     // Επιλέγουμε τυχαίο πακέτο από κάθε ομάδα
-                    var random = new Random().Next(0, questionPackages.Count() -1);
+                    var random = new Random().Next(0, questionPackages.Count() - 1);
                     var selectedPackage = questionPackages[random];
+
 
                     foreach (var questionInPackage in selectedPackage.QuestionsInPackages)
                         {
@@ -133,6 +136,7 @@ namespace ExamThesis.Services.Services
                                 ExamId = exam.ExamId,
                                 ExamName = exam.ExamName,
                                 PassGrade = (double)exam.PassGrade,
+                                ShowGrade = (bool)exam.ShowGrade,
                                 QuestionId = question.QuestionId,
                                 QuestionCategoryId = question.QuestionCategoryId,
                                 NegativePoints = question.NegativePoints,
@@ -144,6 +148,7 @@ namespace ExamThesis.Services.Services
                                 FileData = selectedPackage.FileData, 
                                 PackageName = selectedPackage.PackageName,
                                 FileType = selectedPackage.FileType,
+                                
                                
                     };
 
