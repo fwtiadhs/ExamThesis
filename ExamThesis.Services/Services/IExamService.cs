@@ -108,7 +108,7 @@ namespace ExamThesis.Services.Services
                         .AsSplitQuery()
                         .Include(qp => qp.QuestionsInPackages)
                             .ThenInclude(qip => qip.Question)
-                        .ToList();
+                            .ToList();
 
                     // Ομαδοποιούμε τα πακέτα ανά κατηγορία
                     if (questionPackages.Count == 0)
