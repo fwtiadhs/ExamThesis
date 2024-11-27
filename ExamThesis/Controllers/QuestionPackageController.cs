@@ -3,10 +3,11 @@ using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using static ExamThesis.Controllers.AuthConnection.AuthController;
 
 namespace ExamThesis.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = UserRoles.Teacher)]
     public class QuestionPackageController : Controller
     {
         private readonly ExamContext _db;

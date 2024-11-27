@@ -6,12 +6,13 @@ using ExamThesis.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
 using ExamThesis.Common.Model;
+using static ExamThesis.Controllers.AuthConnection.AuthController;
 
 
 
 namespace ExamThesis.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = UserRoles.Teacher)]
     public class QuestionCreateController : Controller
     {
 

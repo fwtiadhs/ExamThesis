@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
 using System.Security.Claims;
+using static ExamThesis.Controllers.AuthConnection.AuthController;
 
 namespace ExamThesis.Controllers
 {
@@ -33,6 +34,7 @@ namespace ExamThesis.Controllers
             var exams = _db.Exams.ToList();
             return View(exams);
         }
+        [Authorize(Roles = UserRoles.Teacher)]
         public IActionResult Create()
         {
 
@@ -50,7 +52,7 @@ namespace ExamThesis.Controllers
 
             return View(model);
         }
-
+        [Authorize(Roles = UserRoles.Teacher)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateExam model)
@@ -95,6 +97,7 @@ namespace ExamThesis.Controllers
 
             return View(model);
         }
+        [Authorize(Roles = UserRoles.Teacher)]
         [HttpGet]
         public IActionResult Delete(int id)
         {
@@ -107,7 +110,7 @@ namespace ExamThesis.Controllers
 
             return View(examFromDb);
         }
-
+        [Authorize(Roles = UserRoles.Teacher)]
         [HttpDelete]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -213,6 +216,7 @@ namespace ExamThesis.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [Authorize(Roles = UserRoles.Teacher)]
         public IActionResult ExportExamResultsToExcel(int id)
         {
             var examResults = _db.ExamResults.Where(er => er.ExamId == id).ToList();
