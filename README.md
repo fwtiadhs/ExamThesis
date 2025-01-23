@@ -13,30 +13,37 @@ Authorization ensures that different roles (students and teachers) have access t
 
 Student Features:
 
-View and participate in exams.
-Submit answers and view results if enabled by the teacher.
+   -View and participate in exams.
+ 
+   -Submit answers and view results if enabled by the teacher.
+
 Teacher Features:
 
-Create and manage exams.
-Add categories and organize questions into packages.
-Review and grade exams.
-Admin Features:
+   -Create and manage exams.
+ 
+   -Add categories and organize questions into packages.
+ 
+   -Review and grade exams.
 
-Manage users and roles.
-Monitor system activities.
 Authorization:
 
-Role-based access control ensures only authorized users can access certain features.
+  -Role-based access control ensures only authorized users can access certain features.
+
 Caching:
 
-Exam questions are cached for performance optimization.
+  -Exam questions are cached for performance optimization.
 
 ### Technical Stack
 
 Backend: ASP.NET Core
+
 Frontend: Razor Pages,Bootstrap
+
 Database: Microsoft SQL Server
+
 ORM: Entity Framework Core
+
 Caching: MemoryCache
+
 Authentication/Authorization: Custom claims-based roles (Teacher, Student)
 
