@@ -61,3 +61,13 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+###############################################################################
+*.html linguist-vendored
+*.htm linguist-vendored
+*.css linguist-vendored
+*.scss linguist-vendored
+*.js linguist-vendored
+*.ts linguist-vendored
+wwwroot/* linguist-vendored
+assets/* linguist-vendored
+
