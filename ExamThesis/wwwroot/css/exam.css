@@ -1,0 +1,21 @@
+.exam-header { background: linear-gradient(135deg,var(--bs-primary), var(--bs-info)); color:#fff; border-radius:1rem; padding:1.75rem 2rem; box-shadow:0 8px 25px -8px rgba(0,0,0,.3); }
+.exam-header h2 { font-weight:600; }
+.files-card { border:1px solid var(--bs-border-color); border-radius:.85rem; }
+.files-card .card-body { display:flex; flex-wrap:wrap; gap:.5rem; }
+.files-card a button { border-radius:50px; }
+.question-wrapper { margin-top:2rem; }
+.question-card { border:1px solid var(--bs-border-color); border-radius:1rem; overflow:hidden; box-shadow:0 4px 18px -6px rgba(0,0,0,.18); transition: box-shadow .2s, transform .15s; }
+.question-card:hover { box-shadow:0 6px 26px -6px rgba(0,0,0,.25); }
+.question-card .card-body { padding:1.4rem 1.5rem 1.2rem; }
+.question-card h6 { font-weight:600; line-height:1.4; }
+.answer-group .form-check { background: var(--bs-light); border:1px solid var(--bs-border-color); padding:.6rem .7rem .55rem 2.25rem; border-radius:.75rem; position:relative; transition:background .15s, border-color .15s, box-shadow .15s; }
+.answer-group .form-check:not(.active):hover { background:#fff; }
+.answer-group .form-check-input { position:absolute; left:.85rem; top:50%; transform:translateY(-50%); cursor:pointer; }
+.answer-group .form-check-label { pointer-events:none; cursor:default; width:100%; }
+.answer-group .form-check.active { border-color: var(--bs-primary); background:#fff; box-shadow:0 0 0 .15rem rgba(var(--bs-primary-rgb), .25); }
+.answer-group .form-check.active .form-check-label { font-weight:600; color: var(--bs-primary); }
+.submit-zone { position:sticky; bottom:0; background:rgba(255,255,255,.92); padding:1rem 0 1.25rem; backdrop-filter:blur(4px); }
+.timer-display { font-size:1.05rem; letter-spacing:.5px; font-weight:600; }
+.timer-progress { height:.55rem; border-radius:1rem; overflow:hidden; background: var(--bs-gray-300); margin-top:.35rem; }
+#timerBar { transition:width .9s linear; }
+.negative-note { font-size:.75rem; color: var(--bs-danger); font-style:italic; }
