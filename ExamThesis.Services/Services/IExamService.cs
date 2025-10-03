@@ -18,7 +18,7 @@ namespace ExamThesis.Services.Services
         Task DeleteByExamId(int examId);
         Task CreateExam(CreateExam exam);
         Task<double> SubmitExam(int examId, List<int> selectedAnswers, string studentId, List<int> selectedQuestions);
-    }       
+    }
 
     public class ExamService : IExamService
     {
@@ -70,71 +70,75 @@ namespace ExamThesis.Services.Services
 
         public async Task<IEnumerable<ExamQuestionViewModel>> GetExamQuestionsByExamId(int examId, string studentId)
         {
-            // FIX: include actual examId value so different exams do not collide
-            var cacheKey = $"{studentId}_{examId}_questions";
+            var cacheKey = $"{studentId}_{examId}_questions_v2";
 
             if (_memoryCache.TryGetValue<string>(cacheKey, out var examJson))
             {
-                return JsonConvert.DeserializeObject<List<ExamQuestionViewModel>>(examJson) 
+                return JsonConvert.DeserializeObject<List<ExamQuestionViewModel>>(examJson)
                        ?? Enumerable.Empty<ExamQuestionViewModel>();
             }
 
-            var exam = await _db.Exams.FindAsync(examId);
+            var exam = await _db.Exams.AsNoTracking().FirstOrDefaultAsync(e => e.ExamId == examId);
             if (exam == null)
                 return Enumerable.Empty<ExamQuestionViewModel>();
 
-            var examQuestionViewModels = new List<ExamQuestionViewModel>();
-            var examCategories = await _db.ExamCategories
+            var result = new List<ExamQuestionViewModel>();
+
+            var categoryIds = await _db.ExamCategories
+                .AsNoTracking()
                 .Where(ec => ec.ExamId == examId)
+                .Select(ec => ec.QuestionCategoryId)
                 .ToListAsync();
 
-            foreach (var category in examCategories)
+            foreach (var categoryId in categoryIds)
             {
-                var questionPackages = _db.QuestionPackages
-                    .Where(qp => qp.QuestionCategoryId == category.QuestionCategoryId)
+                var questionPackages = await _db.QuestionPackages
+                    .AsNoTracking()
+                    .Where(qp => qp.QuestionCategoryId == categoryId)
                     .Include(qp => qp.QuestionsInPackages)
                         .ThenInclude(qip => qip.Question)
-                    .ToList();
+                    .ToListAsync();
 
                 if (questionPackages.Count == 0)
                     continue;
 
                 var viablePackages = questionPackages
-                    .Where(p => p != null && p.QuestionsInPackages.Any(qip => qip.Question != null))
+                    .Where(p => p != null && p.QuestionsInPackages != null && p.QuestionsInPackages.Any(qip => qip != null && qip.Question != null))
                     .ToList();
 
                 if (viablePackages.Count == 0)
                     continue;
 
+                // Select exactly one random package for this category
                 var selectedPackage = viablePackages[_rng.Value!.Next(viablePackages.Count)];
-                if (!selectedPackage.QuestionsInPackages.Any(qip => qip.Question != null))
-                    selectedPackage = viablePackages.First();
+                if (selectedPackage?.QuestionsInPackages == null)
+                    continue;
 
-                foreach (var qip in selectedPackage.QuestionsInPackages)
+                foreach (var qip in selectedPackage.QuestionsInPackages.Where(x => x != null && x.Question != null))
                 {
-                    var question = qip.Question;
-                    if (question == null) continue;
+                    var question = qip!.Question!;
 
-                    question.Answers = await _db.Answers
+                    var answers = await _db.Answers
+                        .AsNoTracking()
                         .Where(a => a.QuestionId == question.QuestionId)
                         .ToListAsync();
 
-                    examQuestionViewModels.Add(new ExamQuestionViewModel
+                    result.Add(new ExamQuestionViewModel
                     {
                         StartTime = exam.StartTime,
                         EndTime = exam.EndTime,
                         TotalPoints = exam.TotalPoints,
                         ExamId = exam.ExamId,
-                        ExamName = exam.ExamName,
-                        PassGrade = (double)exam.PassGrade,
-                        ShowGrade = (bool)exam.ShowGrade,
+                        ExamName = exam.ExamName ?? string.Empty,
+                        PassGrade = exam.PassGrade ?? 0,
+                        ShowGrade = exam.ShowGrade,
                         QuestionId = question.QuestionId,
                         QuestionCategoryId = question.QuestionCategoryId,
                         NegativePoints = question.NegativePoints,
                         QuestionText = question.QuestionText,
                         QuestionPoints = question.QuestionPoints,
-                        PackageId = question.PackageId,
-                        Answers = question.Answers,
+                        PackageId = selectedPackage.PackageId,
+                        Answers = answers,
                         QuestionsInPackages = question.QuestionsInPackages,
                         FileData = selectedPackage.FileData,
                         PackageName = selectedPackage.PackageName,
@@ -146,7 +150,7 @@ namespace ExamThesis.Services.Services
             }
 
             var json = JsonConvert.SerializeObject(
-                examQuestionViewModels,
+                result,
                 Formatting.Indented,
                 new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
 
@@ -156,7 +160,7 @@ namespace ExamThesis.Services.Services
             };
             _memoryCache.Set(cacheKey, json, cacheOptions);
 
-            return examQuestionViewModels;
+            return result;
         }
 
         public async Task<double> SubmitExam(int examId, List<int> selectedAnswers, string studentId, List<int> selectedQuestions)
@@ -199,8 +203,7 @@ namespace ExamThesis.Services.Services
             _db.ExamResults.Add(examResult);
             await _db.SaveChangesAsync();
 
-            // Optional: invalidate cached questions after submit so a retake re-randomizes
-            _memoryCache.Remove($"{studentId}_{examId}_questions");
+            _memoryCache.Remove($"{studentId}_{examId}_questions_v2");
 
             return earnedPoints;
         }

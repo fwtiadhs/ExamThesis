@@ -25,9 +25,45 @@ namespace ExamThesis.Controllers
             _questionService = createQuestionService;
         }
 
-        public IActionResult Index()
+        // GET: /QuestionCreate?categoryId=123&page=1&pageSize=10
+        public async Task<IActionResult> Index(int? categoryId, int page = 1, int pageSize = 10)
         {
-            var questions = _db.Questions.Include(q => q.Answers).ToList();
+            if (pageSize <= 0) pageSize = 10;
+
+            var query = _db.Questions
+                .AsNoTracking()
+                .Include(q => q.Answers)
+                .AsQueryable();
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(q => q.QuestionCategoryId == categoryId.Value);
+            }
+
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            if (totalPages == 0) totalPages = 1;
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+
+            var questions = await query
+                .OrderBy(q => q.QuestionId)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var categories = await _db.QuestionCategories
+                .AsNoTracking()
+                .OrderBy(c => c.QuestionCategoryName)
+                .ToListAsync();
+
+            ViewBag.Categories = new SelectList(categories, "QuestionCategoryId", "QuestionCategoryName", categoryId);
+            ViewBag.SelectedCategoryId = categoryId;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalItems = totalItems;
+
             return View(questions);
         }
 

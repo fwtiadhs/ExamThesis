@@ -1,44 +1,103 @@
 ﻿@model IEnumerable<ExamThesis.Storage.Model.Question>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Questions";
 }
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/litera/bootstrap.min.css" />
 
-<h2>Questions and Answers</h2>
-<a asp-controller="QuestionCreate" asp-action="Create" class="btn btn-primary">Create Questions and Answers</a>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Questions and Answers</h2>
+    <a asp-controller="QuestionCreate" asp-action="Create" class="btn btn-success">Create Questions and Answers</a>
+</div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Question</th>
-            <th>Answers</th>
-            <th>Category</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
+<form method="get" asp-controller="QuestionCreate" asp-action="Index" class="row g-2 mb-3">
+    <div class="col-sm-6 col-md-4">
+        <select class="form-select" name="categoryId" asp-items="ViewBag.Categories">
+            <option value="">All Categories</option>
+        </select>
+    </div>
+    <div class="col-sm-3 col-md-2">
+        <select class="form-select" name="pageSize">
+            @{ var ps = (int?)ViewBag.PageSize ?? 10; }
+            <option value="5" selected="@(ps == 5)">5</option>
+            <option value="10" selected="@(ps == 10)">10</option>
+            <option value="20" selected="@(ps == 20)">20</option>
+            <option value="50" selected="@(ps == 50)">50</option>
+        </select>
+    </div>
+    <div class="col-sm-3 col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+</form>
+
+@if (Model != null && Model.Any())
+{
+    <ul class="list-group">
         @foreach (var question in Model)
         {
-            <tr>
-                <td>@question.QuestionText</td>
-                <td>
-                    <ul>
-                        @foreach (var answer in question.Answers)
+            <li class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">@question.QuestionText</h5>
+                    <small class="text-muted">ID: @question.QuestionId</small>
+                </div>
+                <p class="mb-2">
+                    <span class="badge bg-info text-dark me-1">Category: @question.QuestionCategoryId</span>
+                    <span class="badge bg-primary me-1">Points: @question.QuestionPoints</span>
+                    @if (question.NegativePoints > 0)
+                    {
+                        <span class="badge bg-warning text-dark">Negative: @question.NegativePoints</span>
+                    }
+                </p>
+
+                <div>
+                    <strong>Answers (@(question.Answers?.Count ?? 0))</strong>
+                    <ul class="list-unstyled mt-2 mb-2">
+                        @if (question.Answers != null && question.Answers.Any())
                         {
-                            <li>@answer.Text (Correct: @answer.IsCorrect)</li>
+                            foreach (var answer in question.Answers)
+                            {
+                                <li class="mb-1">
+                                    <span class="badge @((answer.IsCorrect ?? false) ? "bg-success" : "bg-secondary") me-1">
+                                        @((answer.IsCorrect ?? false) ? "Correct" : "Option")
+                                    </span>
+                                    @answer.Text
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="text-muted">No answers</li>
                         }
                     </ul>
-                </td>
-                <td>
-                    @question.QuestionCategoryId
-                </td>
-                <td>
-                    <a asp-controller="QuestionCreate" asp-action="Details" asp-route-id="@question.QuestionId" class="btn btn-info">Details</a>
-                </td>
-                <td>
-                    <a asp-controller="QuestionCreate" asp-action="Delete" asp-route-id="@question.QuestionId" class="btn btn-danger">Delete</a>
-                </td>
-            </tr>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a asp-controller="QuestionCreate" asp-action="Details" asp-route-id="@question.QuestionId" class="btn btn-outline-primary btn-sm">Details</a>
+                    <a asp-controller="QuestionCreate" asp-action="Delete" asp-route-id="@question.QuestionId" class="btn btn-outline-danger btn-sm">Delete</a>
+                </div>
+            </li>
         }
-    </tbody>
-</table>
+    </ul>
+
+    <nav class="mt-3">
+        @{ var current = (int?)ViewBag.CurrentPage ?? 1; var total = (int?)ViewBag.TotalPages ?? 1; var selectedCat = (int?)ViewBag.SelectedCategoryId; var pageSize = (int?)ViewBag.PageSize ?? 10; }
+        <ul class="pagination">
+            <li class="page-item @(current <= 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-categoryId="@selectedCat" asp-route-page="@(current - 1)" asp-route-pageSize="@pageSize">Previous</a>
+            </li>
+            @for (int i = 1; i <= total; i++)
+            {
+                <li class="page-item @(i == current ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-categoryId="@selectedCat" asp-route-page="@i" asp-route-pageSize="@pageSize">@i</a>
+                </li>
+            }
+            <li class="page-item @(current >= total ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-categoryId="@selectedCat" asp-route-page="@(current + 1)" asp-route-pageSize="@pageSize">Next</a>
+            </li>
+        </ul>
+    </nav>
+}
+else
+{
+    <div class="alert alert-info">No questions available.</div>
+}

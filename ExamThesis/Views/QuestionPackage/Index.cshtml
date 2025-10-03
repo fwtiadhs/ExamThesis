@@ -1,51 +1,64 @@
 ﻿@model IEnumerable<ExamThesis.Storage.Model.QuestionPackage>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Question Packages";
 }
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/litera/bootstrap.min.css" />
+
 <div class="container p-3">
-    <div class="row pt-4">
+    <div class="row pt-2 align-items-center">
         <div class="col-6">
-            <h2 class="text-primary">Question Package List</h2>
+            <h2 class="text-primary mb-0">Question Package List</h2>
         </div>
         <div class="col-6 text-end">
-            <a asp-controller="QuestionPackage" asp-action="Create" class="btn btn-primary">
+            <a asp-controller="QuestionPackage" asp-action="Create" class="btn btn-success">
                 <i class="bi bg-plus-circle"></i> &nbsp; Create New Question Package
             </a>
         </div>
     </div>
 </div>
-<br />
-<br />
 
-<table class="table table-bordered table-striped" style="width:100%">
-    <thead>
-        <tr>
-            <th>
-                PackageId
-            </th>
-            <th>
-                PackageName
-            </th>
-        </tr>
-    </thead>
-    <tbody>
+@if (ViewBag.QuestionPackagesList != null && ((IEnumerable<dynamic>)ViewBag.QuestionPackagesList).Any())
+{
+    <ul class="list-group">
         @foreach (var obj in ViewBag.QuestionPackagesList)
         {
-            <tr>
-                <td width="50%">
-                    @obj.PackageId
-                </td>
-                <td width="30%">
-                    @obj.PackageName
-                </td>
-
-                <td width="20%">
-                    <form asp-controller="QuestionPackage" asp-action="Delete" method="post" onsubmit="return confirm('Are you sure you want to delete this package?');">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">@obj.PackageName</h6>
+                    <small class="text-muted">ID: @obj.PackageId</small>
+                </div>
+                <div>
+                    <form asp-controller="QuestionPackage" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this package?');">
                         <input type="hidden" name="id" value="@obj.PackageId" />
-                        <button type="submit" class="btn btn-danger">Delete</button>
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
                     </form>
-                </td>
-            </tr>
+                </div>
+            </li>
         }
-    </tbody>
-</table>
+    </ul>
+}
+else if (Model != null && Model.Any())
+{
+    <ul class="list-group">
+        @foreach (var obj in Model)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">@obj.PackageName</h6>
+                    <small class="text-muted">ID: @obj.PackageId</small>
+                </div>
+                <div>
+                    <form asp-controller="QuestionPackage" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this package?');">
+                        <input type="hidden" name="id" value="@obj.PackageId" />
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                    </form>
+                </div>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <div class="alert alert-info m-3">No question packages available.</div>
+}

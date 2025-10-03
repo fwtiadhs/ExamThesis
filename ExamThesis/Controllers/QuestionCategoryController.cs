@@ -116,13 +116,11 @@ namespace ExamThesis.Controllers
 
 
         [HttpDelete]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePost(int id)
         {
             await _categoryService.DeleteById(id);
-
-            TempData["SuccessMessage"] = "Category deleted successfully.";
-
-            return RedirectToAction("Index");
+            return Ok(new { success = true });
         }
 
     }

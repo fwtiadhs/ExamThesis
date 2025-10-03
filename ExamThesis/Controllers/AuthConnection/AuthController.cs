@@ -53,11 +53,10 @@ namespace ExamThesis.Controllers.AuthConnection
 
             var token = await GetAccessToken(code);
             var profileResponse = await GetProfile(token.access_token);
-            //Αποθήκευση των πληροφοριών του χρήστη στην συνεδρία
-            ViewData.Add("Name", profileResponse.cn);
-            ViewData.Add("UserId", profileResponse.uid);
-            HttpContext.Session.SetString("UserId", profileResponse.uid);
 
+            ViewData["Name"] = profileResponse.cn;
+            ViewData["UserId"] = profileResponse.uid;
+            HttpContext.Session.SetString("UserId", profileResponse.uid);
 
             var claims = new List<Claim>
             {
