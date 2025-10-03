@@ -2,7 +2,7 @@
 
 <h2>Create Question and Answers</h2>
 
-<form asp-action="Create" method="post">
+<form asp-action="Create" method="post" enctype="multipart/form-data">
     <div class="form-group">
         <label asp-for="QuestionText" class="control-label"></label>
         <input asp-for="QuestionText" class="form-control" />
@@ -41,6 +41,19 @@
                 </label>
             </div>
         } 
+    </div>
+    <div class="form-group">
+        <label>Upload Image</label>
+        <input type="file" name="imageFile" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="ImageType">File Type</label>
+        <select asp-for="ImageType" class="form-control" id="ImageType" name="ImageType">
+            <option value=".jpg">JPG</option>
+            <option value=".png">PNG</option>
+            <option value=".gif">GIF</option>
+            <option value=".bmp">BMP</option>
+        </select>
     </div>
     
     <button type="button" class="btn btn-secondary" onclick="addAnswer()">Add Answer</button>
@@ -94,7 +107,7 @@
                             </div>
                         `;
 
-                // Προσθήκη της νέας απάντησης στο container
+                // Προσθήκη της νέα απάντησης στο container
                 container.append(newAnswerHtml);
             }
 

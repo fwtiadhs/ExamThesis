@@ -25,6 +25,9 @@ namespace ExamThesis.Models
         public double NegativePoints { get;  set; }
         public int QuestionCategoryId { get;  set; }
         public int? PackageId { get; set; }
+        public byte[]? ImageData { get; set; }
+
+        public string? ImageType { get; set; }
 
     }
     public class CreateAnswer

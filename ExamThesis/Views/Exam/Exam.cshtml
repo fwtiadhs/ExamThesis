@@ -1,19 +1,58 @@
 ﻿@model IEnumerable<ExamThesis.Storage.ExamQuestionViewModel>
 
-<div class="container">
+@section Styles {
+    <!-- Optional theme (Bootswatch) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/litera/bootstrap.min.css" />
+    <style>
+        .exam-header { background: linear-gradient(135deg,var(--bs-primary), var(--bs-info)); color:#fff; border-radius:1rem; padding:1.75rem 2rem; box-shadow:0 8px 25px -8px rgba(0,0,0,.3); }
+        .exam-header h2 { font-weight:600; }
+        .files-card { border:1px solid var(--bs-border-color); border-radius:.85rem; }
+        .files-card .card-body { display:flex; flex-wrap:wrap; gap:.5rem; }
+        .files-card a button { border-radius: 50px; }
+        .question-wrapper { margin-top:2rem; }
+        .question-card { border:1px solid var(--bs-border-color); border-radius:1rem; overflow:hidden; box-shadow:0 4px 18px -6px rgba(0,0,0,.18); transition: box-shadow .2s, transform .15s; }
+        .question-card:hover { box-shadow:0 6px 26px -6px rgba(0,0,0,.25); }
+        .question-card .card-body { padding:1.4rem 1.5rem 1.2rem; }
+        .question-card h6 { font-weight:600; line-height:1.4; }
+        .answer-group .form-check { background: var(--bs-light); border:1px solid var(--bs-border-color); padding:.6rem .7rem .55rem 2.25rem; border-radius:.75rem; position:relative; transition:background .15s, border-color .15s, box-shadow .15s; }
+        .answer-group .form-check:not(.active):hover { background: #fff; }
+        .answer-group .form-check-input { position:absolute; left:.85rem; top:50%; transform:translateY(-50%); cursor:pointer; }
+        /* Make label non-interactive so only checkbox toggles selection */
+        .answer-group .form-check-label { pointer-events:none; cursor:default; width:100%; }
+        .answer-group .form-check.active { border-color: var(--bs-primary); background: #fff; box-shadow:0 0 0 .15rem rgba(var(--bs-primary-rgb), .25); }
+        .answer-group .form-check.active .form-check-label { font-weight:600; color: var(--bs-primary); }
+        .submit-zone { position:sticky; bottom:0; background:rgba(255,255,255,.92); padding:1rem 0 1.25rem; backdrop-filter:blur(4px); }
+        .timer-display { font-size:1.05rem; letter-spacing:.5px; font-weight:600; }
+        .timer-progress { height:.55rem; border-radius:1rem; overflow:hidden; background: var(--bs-gray-300); margin-top:.35rem; }
+        #timerBar { transition: width .9s linear; }
+        .negative-note { font-size:.75rem; color: var(--bs-danger); font-style:italic; }
+    </style>
+}
 
-    <form method="post" action="@Url.Action("Submit", new { id = ViewBag.ExamId })">
-        <input type="hidden" name="userId" value="@ViewBag.UserId" />
-        <h2 class="text-center">Εξέταση Εργαστηρίου</h2>
-        <div class="p-3 text-center">
-            <p>Χρόνος: <span id="timer" class="badge bg-primary"></span></p>
+<div class="container py-4">
+
+    <div class="exam-header mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4">
+            <div>
+                <h2 class="mb-2">Εξέταση Εργαστηρίου</h2>
+                <div class="opacity-75">@ViewBag.ExamName</div>
+            </div>
+            <div class="text-md-end w-100" style="max-width:320px;">
+                <div class="timer-display">Χρόνος: <span id="timer">--:--:--</span></div>
+                <div class="timer-progress"><div id="timerBar" class="bg-success" style="width:0%"></div></div>
+            </div>
         </div>
+    </div>
+
+    <form method="post" action="@Url.Action("Submit", new { id = ViewBag.ExamId })" id="examForm">
+        <input type="hidden" name="userId" value="@ViewBag.UserId" />
         <input type="hidden" name="examId" value="@ViewBag.ExamId" />
-         <div class="row">
-            <div class="col-md-6 mb-3">
-                <div class="card border-light">
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-xl-3">
+                <div class="files-card card mb-4">
+                    <div class="card-header bg-transparent fw-semibold">Αρχεία</div>
                     <div class="card-body">
-                        <h6 class ="card-title"> Αρχεία </h6>
                         @{
                             var displayedPackageIds = new HashSet<string>(); // Χρησιμοποιούμε string αντί για int
                         }
@@ -23,95 +62,135 @@
                             {
                                 displayedPackageIds.Add(file.PackageId.ToString());
                                 <a href="@Url.Action("Download", "QuestionPackage", new { id = file.PackageId })">
-                                    <button type="button" class="btn btn-outline-primary btn-sm">@file.PackageName</button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm px-3">@file.PackageName</button>
                                 </a>
                             }
                         }
                     </div>
                 </div>
-            </div>
-        </div>
-        @{
-            int questionCounter = 1;
-            char[] answerLetters = "abcdefghijklmnopqrstuvwxyz".ToCharArray();
-        }
-        @foreach (var question in Model)
-        {
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h6 class="card-title">@questionCounter) @question.QuestionText</h6>
-                    <br />
-                    <div class="row">
-                        @{
-                            int answerCounter = 0;
-                        }
-                        @foreach (var answer in question.Answers)
-                        {
-                            <div class="col-md-4 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input answer-checkbox" type="checkbox" id="answer_@answer.Id" name="selectedAnswers" value="@answer.Id" data-question-id="@question.QuestionId">
-                                    <label class="form-check-label" for="answer_@answer.Id">@answerLetters[answerCounter]) @answer.Text</label>
-                                </div>
-                            </div>
-                            answerCounter++;
-                        }
+                <div class="card">
+                    <div class="card-body d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Submit Answers</button>
+                        <button type="button" class="btn btn-outline-danger" id="finalSubmitBtn">Οριστική Υποβολή</button>
                     </div>
                 </div>
             </div>
-            <input type="hidden" name="selectedQuestions" value="@question.QuestionId" />
-            questionCounter++;
-        }
-        <div style="clear:both"></div>
-        <button type="submit" class="btn btn-primary">Submit Answers</button>
+
+            <div class="col-lg-8 col-xl-9 question-wrapper">
+                @{
+                    int questionCounter = 1;
+                    char[] answerLetters = "abcdefghijklmnopqrstuvwxyz".ToCharArray();
+                }
+                @foreach (var question in Model)
+                {
+                    <div class="card question-card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
+                                <h6 class="card-title mb-0"><span class="badge bg-secondary me-2">Q@questionCounter</span>@question.QuestionText</h6>
+                                <span class="badge bg-info text-dark align-self-start">@question.QuestionPoints βαθμοί</span>
+                            </div>
+
+                            @if (question.ImageData != null && question.ImageData.Length > 0)
+                            {
+                                var ext = (question.ImageType ?? "").ToLower();
+                                var mime = ext switch
+                                {
+                                    ".jpg" or ".jpeg" => "image/jpeg",
+                                    ".png" => "image/png",
+                                    ".gif" => "image/gif",
+                                    ".bmp" => "image/bmp",
+                                    _ => "application/octet-stream"
+                                };
+                                var b64 = Convert.ToBase64String(question.ImageData);
+                                <div class="text-center mb-3">
+                                    <img src="data:@mime;base64,@b64" alt="Question image" class="img-fluid rounded border" style="max-height:240px;object-fit:contain;" />
+                                </div>
+                            }
+
+                            <div class="row g-3 answer-group mt-1">
+                                @{
+                                    int answerCounter = 0;
+                                    char[] letters = "abcdefghijklmnopqrstuvwxyz".ToCharArray();
+                                }
+                                @foreach (var answer in question.Answers)
+                                {
+                                    <div class="col-md-6 col-xl-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input answer-checkbox" type="checkbox" id="q@question.QuestionId_a@answer.Id" name="selectedAnswers" value="@answer.Id" data-question-id="@question.QuestionId" />
+                                            <label class="form-check-label" for="q@question.QuestionId_a@answer.Id">
+                                                <span class="me-1 text-primary fw-semibold">@letters[answerCounter])</span>@answer.Text
+                                            </label>
+                                        </div>
+                                    </div>
+                                    answerCounter++;
+                                }
+                            </div>
+                            <div class="negative-note mt-3">Αρνητική βαθμολογία: @question.NegativePoints</div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="selectedQuestions" value="@question.QuestionId" />
+                    questionCounter++;
+                }
+
+                <div class="submit-zone text-end mt-4">
+                    <button type="submit" class="btn btn-lg btn-primary px-5">Submit Answers</button>
+                </div>
+            </div>
+        </div>
     </form>
 </div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
+        // Original single-selection logic (unchanged)
         $('.answer-checkbox').change(function () {
-            // Απενεργοποίηση όλων των άλλων checkboxes με το ίδιο data-question-id
             var questionId = $(this).data('question-id');
             $('.answer-checkbox[data-question-id="' + questionId + '"]').not(this).prop('checked', false);
+            // Toggle active class for styling only
+            $('.answer-checkbox[data-question-id="' + questionId + '"]').each(function(){
+                var parent = $(this).closest('.form-check');
+                if($(this).is(':checked')) parent.addClass('active'); else parent.removeClass('active');
+            });
         });
-    });
-</script>
-<script>
 
-    $(document).ready(function () {
-        var endTime = "@ViewBag.EndTime";
-        // Προσθέτουμε την ημερομηνία της σημερινής ημέρας
+        // Optional confirmation (does not change submit logic)
+        $('#finalSubmitBtn').on('click', function(){
+            if(confirm('Οριστική υποβολή;')) { $(this).closest('form').submit(); }
+        });
+
+        // Timer logic (same base, added progress bar only)
+        var endTime = "@ViewBag.EndTime"; // Existing format
         endTime = new Date(new Date().toDateString() + ' ' + endTime);
 
         function formatTime(milliseconds) {
             var hours = Math.floor(milliseconds / (1000 * 60 * 60));
             var minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
             var seconds = Math.floor((milliseconds % (1000 * 60)) / 1000);
-
-            // Προσθήκη μηδέν μπροστά αν η τιμή είναι μικρότερη από 10
             var formattedHours = hours < 10 ? '0' + hours : hours;
             var formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
             var formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
-
             return formattedHours + ":" + formattedMinutes + ":" + formattedSeconds;
         }
 
-        // Υπολογίζουμε τον εναπομείναντα χρόνο
         var remainingTime = endTime - new Date();
+        var initialTotalTime = remainingTime; // For progress calculation only
+        if (initialTotalTime < 1) initialTotalTime = 1; // avoid divide by zero
 
-        // Εμφανίζουμε τον εναπομείναντα χρόνο στο στοιχείο HTML με id "timer"
-        $("#timer").text(formatTime(remainingTime));
+        $('#timer').text(formatTime(remainingTime));
 
-        // Κάθε δευτερόλεπτο ενημερώνουμε τον εναπομείναντα χρόνο
         setInterval(function () {
-            remainingTime = endTime - new Date(); // Υπολογίζουμε ξανά τον εναπομείναντα χρόνο
-            $("#timer").text(formatTime(remainingTime)); // Εμφανίζουμε τον εναπομείναντα χρόνο
+            remainingTime = endTime - new Date();
+            $('#timer').text(formatTime(remainingTime));
+            var elapsed = initialTotalTime - remainingTime;
+            var pct = (elapsed / initialTotalTime) * 100;
+            if (pct < 0) pct = 0; if (pct > 100) pct = 100;
+            $('#timerBar').css('width', pct + '%');
             if (remainingTime <= 0) {
-                $("form").submit(); // Υποβολή της φόρμας
+                $("form").submit();
             }
-
-        }, 1000); // Κάθε 1000 ms (1 δευτερόλεπτο) ενημερώνουμε τον χρόνο
+        }, 1000);
     });
 </script>
-</script> 
 
 

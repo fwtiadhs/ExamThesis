@@ -8,7 +8,7 @@ using static ExamThesis.Controllers.AuthConnection.AuthController;
 
 namespace ExamThesis.Controllers
 {
-    [Authorize(Roles = UserRoles.Teacher)]
+    [Authorize(Roles = UserRoles.Student)]
     public class QuestionCategoryController : Controller
     {
         private readonly ExamContext _db;

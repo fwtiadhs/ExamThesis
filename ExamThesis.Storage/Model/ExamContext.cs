@@ -105,6 +105,7 @@ public partial class ExamContext : DbContext
 
             entity.HasIndex(e => e.QuestionId, "idx_question_id");
 
+            entity.Property(e => e.ImageType).HasMaxLength(50);
             entity.Property(e => e.QuestionText).HasDefaultValueSql("(N'')");
 
             entity.HasOne(d => d.Package).WithMany(p => p.Questions)

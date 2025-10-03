@@ -22,6 +22,7 @@ namespace ExamThesis.Models
         public string QuestionText { get; set; }
         public double QuestionPoints { get; set; }
         public int? PackageId { get; set; }
+        public IFormFile ImageData { get; set; }
         public ICollection<Answer> Answers { get; set; }
         public QuestionPackage Package { get; set; }
         public ICollection<QuestionsInPackage> QuestionsInPackages { get; set; }

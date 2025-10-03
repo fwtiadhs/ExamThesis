@@ -12,7 +12,7 @@ using static ExamThesis.Controllers.AuthConnection.AuthController;
 
 namespace ExamThesis.Controllers
 {
-    [Authorize(Roles = UserRoles.Teacher)]
+    [Authorize(Roles = UserRoles.Student)]
     public class QuestionCreateController : Controller
     {
 
@@ -51,33 +51,42 @@ namespace ExamThesis.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateQuestion question)
+        public async Task<IActionResult> Create(CreateQuestion question, IFormFile? imageFile)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(question);
+
+            var createModel = new ExamThesis.Common.CreateQuestion
             {
-                var createModel = new ExamThesis.Common.CreateQuestion()
-                {
-                    QuestionText = question.QuestionText,
-                    Answers = question.Answers
-                    .Where(answer => !string.IsNullOrEmpty(answer.Text))
-                    .Select(answer => new ExamThesis.Common.CreateAnswer
-                    {
-                        Text = answer.Text,
-                        IsCorrect = answer.IsCorrect
+                QuestionText = question.QuestionText,
+                Answers = question.Answers
+                    .Where(a => !string.IsNullOrWhiteSpace(a.Text))
+                    .Select(a => new ExamThesis.Common.CreateAnswer { Text = a.Text, IsCorrect = a.IsCorrect })
+                    .ToList(),
+                QuestionPoints = question.QuestionPoints,
+                NegativePoints = question.NegativePoints,
+                QuestionCategoryId = question.QuestionCategoryId,
+                PackageId = question.PackageId,
+                ImageType = question.ImageType // set early
+            };
 
-                    }).ToList(),
-                    QuestionPoints = question.QuestionPoints,
-                    NegativePoints = question.NegativePoints,
-                    QuestionCategoryId = question.QuestionCategoryId,
-                    PackageId = question.PackageId
-                };
-                await _questionService.Create(createModel);
-                TempData["SuccessMessage"] = "Questions and Answers created successfully.";
-                return RedirectToAction("Index");
+            if (imageFile is { Length: > 0 })
+            {
+                using var ms = new MemoryStream();
+                await imageFile.CopyToAsync(ms);
+                createModel.ImageData = ms.ToArray();
+
+                // If you want to trust the actual file instead of the dropdown, uncomment:
+                // var ext = Path.GetExtension(imageFile.FileName);
+                // createModel.ImageType = ext;
             }
-            TempData["FailMessage"] = "Questions and Answers created failed.";
 
-            return View(question);
+            Console.WriteLine($"DEBUG Posted ImageType: '{question.ImageType}'");
+            Console.WriteLine($"DEBUG Final createModel.ImageType: '{createModel.ImageType}'");
+
+            await _questionService.Create(createModel, imageFile);
+            TempData["SuccessMessage"] = "Questions and Answers created successfully.";
+            return RedirectToAction("Index");
         }
 
 

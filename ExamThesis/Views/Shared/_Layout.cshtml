@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="~/css/test.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ExamThesis.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
@@ -27,7 +28,7 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Exam" asp-action="Index">Exam</a>
                             </li>
-                            @if (User.IsInRole("staff"))
+                            @if (User.IsInRole("student"))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-controller="QuestionCategory" asp-action="Index">Categories</a>

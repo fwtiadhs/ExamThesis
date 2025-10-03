@@ -17,6 +17,10 @@ public partial class Question
 
     public int? PackageId { get; set; }
 
+    public byte[]? ImageData { get; set; }
+
+    public string? ImageType { get; set; }
+
     public virtual ICollection<Answer> Answers { get; set; } = new List<Answer>();
 
     public virtual QuestionPackage? Package { get; set; }

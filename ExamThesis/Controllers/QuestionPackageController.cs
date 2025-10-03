@@ -7,7 +7,7 @@ using static ExamThesis.Controllers.AuthConnection.AuthController;
 
 namespace ExamThesis.Controllers
 {
-    [Authorize(Roles = UserRoles.Teacher)]
+    [Authorize(Roles = UserRoles.Student)]
     public class QuestionPackageController : Controller
     {
         private readonly ExamContext _db;
@@ -40,15 +40,32 @@ namespace ExamThesis.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    await package.FileData.CopyToAsync(memoryStream);
-                    byte[] fileBytes = memoryStream.ToArray();
+                    byte[]? fileBytes = null;
+                    string? fileType = null;
+
+                    // Only process file if one was actually uploaded
+                    if (package.FileData != null && package.FileData.Length > 0)
+                    {
+                        await package.FileData.CopyToAsync(memoryStream);
+                        fileBytes = memoryStream.ToArray();
+
+                        // Keep your existing variable usage; infer extension if FileType not bound
+                        if (string.IsNullOrWhiteSpace(package.FileType))
+                        {
+                            fileType = Path.GetExtension(package.FileData.FileName)?.ToLowerInvariant();
+                        }
+                        else
+                        {
+                            fileType = package.FileType;
+                        }
+                    }
 
                     var pacageModel = new QuestionPackage()
                     {
                         PackageName = package.PackageName,
                         QuestionCategoryId = package.QuestionCategoryId,
-                        FileData = fileBytes,
-                        FileType = package.FileType,
+                        FileData = fileBytes,   // null when no file uploaded
+                        FileType = fileType     // null when no file uploaded
                     };
 
                     await _questionService.CreatePackage(pacageModel);

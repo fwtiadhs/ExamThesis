@@ -25,5 +25,8 @@ namespace ExamThesis.Storage
         public byte[]? FileData { get; set; }
         public string PackageName { get; set; }
         public string FileType { get; set; }
+        public byte[]? ImageData { get; set; }
+
+        public string? ImageType { get; set; }
     }
 }

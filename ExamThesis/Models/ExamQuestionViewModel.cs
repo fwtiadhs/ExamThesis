@@ -26,6 +26,8 @@ namespace ExamThesis.Models
         public ICollection<QuestionsInPackage> QuestionsInPackages { get; set; }
         public IFormFile FileData { get; set; }
         public string PackageName { get; set; }
+        public IFormFile ImageData { get; set; }
+        
 
     }
     

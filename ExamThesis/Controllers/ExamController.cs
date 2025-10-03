@@ -34,7 +34,7 @@ namespace ExamThesis.Controllers
             var exams = _db.Exams.ToList();
             return View(exams);
         }
-        [Authorize(Roles = UserRoles.Teacher)]
+        [Authorize(Roles = UserRoles.Student)]
         public IActionResult Create()
         {
 
@@ -52,7 +52,7 @@ namespace ExamThesis.Controllers
 
             return View(model);
         }
-        [Authorize(Roles = UserRoles.Teacher)]
+        [Authorize(Roles = UserRoles.Student)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateExam model)
@@ -97,7 +97,7 @@ namespace ExamThesis.Controllers
 
             return View(model);
         }
-        [Authorize(Roles = UserRoles.Teacher)]
+        [Authorize(Roles = UserRoles.Student)]
         [HttpGet]
         public IActionResult Delete(int id)
         {
@@ -110,7 +110,7 @@ namespace ExamThesis.Controllers
 
             return View(examFromDb);
         }
-        [Authorize(Roles = UserRoles.Teacher)]
+        [Authorize(Roles = UserRoles.Student)]
         [HttpDelete]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

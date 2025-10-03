@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using ExamThesis.Common;
 using ExamThesis.Storage.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,7 +18,7 @@ namespace ExamThesis.Services.Services
 {
     public interface IQuestionService
     {
-        Task Create(CreateQuestion question);
+        Task Create(CreateQuestion question, IFormFile? imageFile);
         Task DeleteById(int id);
         Task<bool> DeleteAnswer(string answerText);
         Task CreatePackage(QuestionPackage package);
@@ -31,8 +32,18 @@ namespace ExamThesis.Services.Services
         {
             _db = db;
         }
-        public async Task Create(CreateQuestion question)
+        public async Task Create(CreateQuestion question,IFormFile? imageFile)
         {
+            byte[]? imageData = null;
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await imageFile.CopyToAsync(memoryStream);
+                    imageData = memoryStream.ToArray(); // η εικόνα σε byte[]
+                }
+            }
             var model = new ExamThesis.Storage.Model.Question
             {
                 QuestionText = question.QuestionText,
@@ -47,7 +58,9 @@ namespace ExamThesis.Services.Services
                 QuestionPoints = question.QuestionPoints,
                 NegativePoints = question.NegativePoints,
                 QuestionCategoryId = question.QuestionCategoryId,
-                PackageId = question.PackageId
+                PackageId = question.PackageId,
+                ImageData = imageData,
+                ImageType = question.ImageType  // <- DO NOT FORGET
             };
 
             _db.Questions.Add(model);
