@@ -62,7 +62,7 @@
                     <div class="card question-card mb-4">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
-                                <h6 class="card-title mb-0"><span class="badge bg-secondary me-2">Q@questionCounter</span>@question.QuestionText</h6>
+                                <h6 class="card-title mb-0"><span class="badge bg-secondary me-2">@questionCounter)</span>@question.QuestionText</h6>
                                 <span class="badge bg-info text-dark align-self-start">@question.QuestionPoints βαθμοί</span>
                             </div>
 
@@ -119,24 +119,20 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
-        // Original single-selection logic (unchanged)
         $('.answer-checkbox').change(function () {
             var questionId = $(this).data('question-id');
             $('.answer-checkbox[data-question-id="' + questionId + '"]').not(this).prop('checked', false);
-            // Toggle active class for styling only
             $('.answer-checkbox[data-question-id="' + questionId + '"]').each(function(){
                 var parent = $(this).closest('.form-check');
                 if($(this).is(':checked')) parent.addClass('active'); else parent.removeClass('active');
             });
         });
 
-        // Optional confirmation (does not change submit logic)
         $('#finalSubmitBtn').on('click', function(){
             if(confirm('Οριστική υποβολή;')) { $(this).closest('form').submit(); }
         });
 
-        // Timer logic (same base, added progress bar only)
-        var endTime = "@ViewBag.EndTime"; // Existing format
+        var endTime = "@ViewBag.EndTime"; 
         endTime = new Date(new Date().toDateString() + ' ' + endTime);
 
         function formatTime(milliseconds) {
@@ -150,8 +146,8 @@
         }
 
         var remainingTime = endTime - new Date();
-        var initialTotalTime = remainingTime; // For progress calculation only
-        if (initialTotalTime < 1) initialTotalTime = 1; // avoid divide by zero
+        var initialTotalTime = remainingTime; 
+        if (initialTotalTime < 1) initialTotalTime = 1; 
 
         $('#timer').text(formatTime(remainingTime));
 
