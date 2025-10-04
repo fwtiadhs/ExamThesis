@@ -30,16 +30,40 @@
                     <div class="card-header bg-transparent fw-semibold">Αρχεία</div>
                     <div class="card-body">
                         @{
-                            var displayedPackageIds = new HashSet<string>(); // Χρησιμοποιούμε string αντί για int
+                            var packages = Model
+                                .GroupBy(m => m.PackageId)
+                                .Select(g => g.First())
+                                .Where(p => p.PackageId.HasValue) // ignore null package ids
+                                .ToList();
                         }
-                        @foreach (var file in Model)
+                        @foreach (var pkg in packages)
                         {
-                            if (!displayedPackageIds.Contains(file.PackageId.ToString()))
+                            if (pkg.FileData != null && pkg.FileData.Length > 0)
                             {
-                                displayedPackageIds.Add(file.PackageId.ToString());
-                                <a href="@Url.Action("Download", "QuestionPackage", new { id = file.PackageId })">
-                                    <button type="button" class="btn btn-outline-primary btn-sm px-3">@file.PackageName</button>
-                                </a>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <button type="button"
+                                            class="btn btn-outline-primary btn-sm px-3 pkg-view"
+                                            data-pkg-id="@pkg.PackageId"
+                                            data-pkg-name="@pkg.PackageName">
+                                        @pkg.PackageName
+                                    </button>
+                                    <a class="btn btn-link btn-sm text-decoration-none"
+                                       href="@Url.Action("Download", "QuestionPackage", new { id = pkg.PackageId })">
+                                        Download
+                                    </a>
+                                </div>
+                            }
+                            else
+                            {
+                                @* Option A: skip entirely *@
+                                @* continue; *@
+
+                                @* Option B: show disabled label so students know there’s no file *@
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm px-3" disabled>
+                                        @pkg.PackageName (no file)
+                                    </button>
+                                </div>
                             }
                         }
                     </div>
@@ -117,52 +141,7 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $('.answer-checkbox').change(function () {
-            var questionId = $(this).data('question-id');
-            $('.answer-checkbox[data-question-id="' + questionId + '"]').not(this).prop('checked', false);
-            $('.answer-checkbox[data-question-id="' + questionId + '"]').each(function(){
-                var parent = $(this).closest('.form-check');
-                if($(this).is(':checked')) parent.addClass('active'); else parent.removeClass('active');
-            });
-        });
-
-        $('#finalSubmitBtn').on('click', function(){
-            if(confirm('Οριστική υποβολή;')) { $(this).closest('form').submit(); }
-        });
-
-        var endTime = "@ViewBag.EndTime"; 
-        endTime = new Date(new Date().toDateString() + ' ' + endTime);
-
-        function formatTime(milliseconds) {
-            var hours = Math.floor(milliseconds / (1000 * 60 * 60));
-            var minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
-            var seconds = Math.floor((milliseconds % (1000 * 60)) / 1000);
-            var formattedHours = hours < 10 ? '0' + hours : hours;
-            var formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-            var formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
-            return formattedHours + ":" + formattedMinutes + ":" + formattedSeconds;
-        }
-
-        var remainingTime = endTime - new Date();
-        var initialTotalTime = remainingTime; 
-        if (initialTotalTime < 1) initialTotalTime = 1; 
-
-        $('#timer').text(formatTime(remainingTime));
-
-        setInterval(function () {
-            remainingTime = endTime - new Date();
-            $('#timer').text(formatTime(remainingTime));
-            var elapsed = initialTotalTime - remainingTime;
-            var pct = (elapsed / initialTotalTime) * 100;
-            if (pct < 0) pct = 0; if (pct > 100) pct = 100;
-            $('#timerBar').css('width', pct + '%');
-            if (remainingTime <= 0) {
-                $("form").submit();
-            }
-        }, 1000);
-    });
-</script>
+<script>window.examEndTime='@ViewBag.EndTime';</script>
+<script src="~/js/exam.js"></script>
 
 

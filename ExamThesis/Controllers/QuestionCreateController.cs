@@ -8,8 +8,6 @@ using Microsoft.AspNetCore.Authorization;
 using ExamThesis.Common.Model;
 using static ExamThesis.Controllers.AuthConnection.AuthController;
 
-
-
 namespace ExamThesis.Controllers
 {
     [Authorize(Roles = UserRoles.Student)]
@@ -25,7 +23,7 @@ namespace ExamThesis.Controllers
             _questionService = createQuestionService;
         }
 
-        // GET: /QuestionCreate?categoryId=123&page=1&pageSize=10
+        // GET: /QuestionCreate?categoryId=...&page=1&pageSize=10
         public async Task<IActionResult> Index(int? categoryId, int page = 1, int pageSize = 10)
         {
             if (pageSize <= 0) pageSize = 10;
@@ -75,22 +73,29 @@ namespace ExamThesis.Controllers
             ViewBag.QuestionPackages = new SelectList(questionPackages, "PackageId", "PackageName");
             return View(viewModel);
         }
-        public IActionResult Details(int id)
-        {
-            var model = _db.Questions
-            .Where(q => q.QuestionId == id)
-            .Include(q => q.Answers)
-            .FirstOrDefault();
-
-
-            return View(model);
-        }
 
         [HttpPost]
         public async Task<IActionResult> Create(CreateQuestion question, IFormFile? imageFile)
         {
-            if (!ModelState.IsValid)
+            // Server-side validation: at least one correct answer
+            if (question.Answers == null || !question.Answers.Any(a => a.IsCorrect))
+            {
+                ModelState.AddModelError(nameof(question.Answers), "Please select at least one correct answer.");
+
+                // repopulate dropdowns and return view with error
+                var questionPackages = await _db.QuestionPackages.ToListAsync();
+                ViewBag.QuestionCategories = new SelectList(_db.QuestionCategories, "QuestionCategoryId", "QuestionCategoryName", question.QuestionCategoryId);
+                ViewBag.QuestionPackages = new SelectList(questionPackages, "PackageId", "PackageName", question.PackageId);
                 return View(question);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var questionPackages = await _db.QuestionPackages.ToListAsync();
+                ViewBag.QuestionCategories = new SelectList(_db.QuestionCategories, "QuestionCategoryId", "QuestionCategoryName", question.QuestionCategoryId);
+                ViewBag.QuestionPackages = new SelectList(questionPackages, "PackageId", "PackageName", question.PackageId);
+                return View(question);
+            }
 
             var createModel = new ExamThesis.Common.CreateQuestion
             {
@@ -103,7 +108,7 @@ namespace ExamThesis.Controllers
                 NegativePoints = question.NegativePoints,
                 QuestionCategoryId = question.QuestionCategoryId,
                 PackageId = question.PackageId,
-                ImageType = question.ImageType // set early
+                ImageType = question.ImageType
             };
 
             if (imageFile is { Length: > 0 })
@@ -111,28 +116,27 @@ namespace ExamThesis.Controllers
                 using var ms = new MemoryStream();
                 await imageFile.CopyToAsync(ms);
                 createModel.ImageData = ms.ToArray();
-
-                // If you want to trust the actual file instead of the dropdown, uncomment:
-                // var ext = Path.GetExtension(imageFile.FileName);
-                // createModel.ImageType = ext;
             }
-
-            Console.WriteLine($"DEBUG Posted ImageType: '{question.ImageType}'");
-            Console.WriteLine($"DEBUG Final createModel.ImageType: '{createModel.ImageType}'");
 
             await _questionService.Create(createModel, imageFile);
             TempData["SuccessMessage"] = "Questions and Answers created successfully.";
             return RedirectToAction("Index");
         }
 
+        public IActionResult Details(int id)
+        {
+            var model = _db.Questions
+                .Where(q => q.QuestionId == id)
+                .Include(q => q.Answers)
+                .FirstOrDefault();
+
+            return View(model);
+        }
 
         [HttpPost]
         public IActionResult AddAnswer()
         {
-            // Κώδικας για να προσθέσετε μια νέα απάντηση στο μοντέλο
             var newAnswer = new CreateAnswer();
-            // Εδώ πρέπει να προσθέσετε τη νέα απάντηση στο μοντέλο της ερώτησης
-
             return PartialView("_AnswerPartial", newAnswer);
         }
 
@@ -155,6 +159,7 @@ namespace ExamThesis.Controllers
             await _questionService.DeleteById(id);
             return RedirectToAction("Index");
         }
+
         [HttpDelete]
         public async Task<IActionResult> DeleteAnswer(string answerText)
         {
@@ -163,8 +168,5 @@ namespace ExamThesis.Controllers
 
             return BadRequest(new { message = "Σφάλμα κατά τη διαγραφή της απάντησης." });
         }
-
     }
-
-
 }

@@ -2,7 +2,7 @@
 
 <h2>Create Question and Answers</h2>
 
-<form asp-action="Create" method="post" enctype="multipart/form-data">
+<form id="createQuestionForm" asp-action="Create" method="post" enctype="multipart/form-data">
     <div class="form-group">
         <label asp-for="QuestionText" class="control-label"></label>
         <input asp-for="QuestionText" class="form-control" />
@@ -28,6 +28,12 @@
     </div>
 
     <h4>Answers</h4>
+
+    <!-- client-side error for correct answer selection -->
+    <div id="correctAnswerError" class="alert alert-danger d-none">
+        Please select at least one correct answer.
+    </div>
+
     <div id="answers-container">
          @for (var i = 0; i < Model.Answers.Count; i++)
         {
@@ -36,7 +42,7 @@
                 <input asp-for="Answers[i].Text" class="form-control" />
 
                 <label>
-                    <input type="checkbox" asp-for="Answers[i].IsCorrect" />
+                    <input type="checkbox" class="answer-checkbox" asp-for="Answers[i].IsCorrect" />
                     Correct Answer
                 </label>
             </div>
@@ -93,8 +99,6 @@
             function addAnswer() {
                 var container = $('#answers-container');
                 var index = container.children().length;
-                var isChecked = $(".answer-checkbox").is(":checked") ? "true" : "false";
-                console.log(isChecked);
                 // Κατασκευή νέας απάντησης ως HTML
                 var newAnswerHtml = `
                             <div class="form-group">
@@ -111,14 +115,27 @@
                 container.append(newAnswerHtml);
             }
 
-        function removeAnswer() {
-            var container = $('#answers-container');
-            var childrenCount = container.children().length;
+            function removeAnswer() {
+                var container = $('#answers-container');
+                var childrenCount = container.children().length;
 
-            if (childrenCount > 1) {
-                container.children().last().remove();
+                if (childrenCount > 1) {
+                    container.children().last().remove();
+                }
             }
-        }
-    </script>
+
+            // Require at least one correct answer on submit
+            $(document).on('submit', '#createQuestionForm', function (e) {
+                var anyChecked = $('.answer-checkbox:checked').length > 0;
+                if (!anyChecked) {
+                    e.preventDefault();
+                    $('#correctAnswerError').removeClass('d-none');
+                    // optional: scroll to error
+                    $('html,body').animate({ scrollTop: $('#correctAnswerError').offset().top - 20 }, 300);
+                } else {
+                    $('#correctAnswerError').addClass('d-none');
+                }
+            });
+        </script>
 }
 </form>
