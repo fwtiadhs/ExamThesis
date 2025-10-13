@@ -92,12 +92,12 @@ namespace ExamThesis.Services.Services
 
             foreach (var categoryId in categoryIds)
             {
-                var questionPackages = await _db.QuestionPackages
+                var questionPackages = _db.QuestionPackages
                     .AsNoTracking()
                     .Where(qp => qp.QuestionCategoryId == categoryId)
                     .Include(qp => qp.QuestionsInPackages)
                         .ThenInclude(qip => qip.Question)
-                    .ToListAsync();
+                    .ToList();
 
                 if (questionPackages.Count == 0)
                     continue;
