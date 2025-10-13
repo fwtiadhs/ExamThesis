@@ -2,12 +2,169 @@
     ViewData["Title"] = "Καλώς ήρθατε";
 }
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 text-center">
-            <h1 class="display-4 mt-5">Καλώς ήρθατε στην εφαρμογή εξέτασης για το εργαστηριακό μέρος του μαθήματος Δίκτυα Υπολογιστών!</h1>
-            <p class="lead">Εδώ μπορείτε να πραγματοποιήσετε εξετάσεις για το εργαστήριο των Δικτύων Υπολογιστών.</p>
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/litera/bootstrap.min.css" />
+}
+
+@if (User.Identity?.IsAuthenticated == true && User.IsInRole("student"))
+{
+    <div class="container py-4">
+        <div class="p-5 mb-4 bg-light rounded-3 border">
+            <div class="container-fluid py-3">
+                <h1 class="display-5 fw-bold">Καλώς ήρθατε στο σύστημα εξετάσεων</h1>
+                <p class="col-lg-8 fs-5">
+                    Συμμετάσχετε στις διαθέσιμες εργαστηριακές εξετάσεις. Διαβάστε προσεκτικά τις οδηγίες και παρακολουθήστε τον χρόνο.
+                </p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a asp-controller="Exam" asp-action="Index" class="btn btn-primary btn-lg">Μετάβαση στις Εξετάσεις</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Οδηγίες Εξέτασης</h5>
+                        <ul class="mb-0">
+                            <li>Ελέγξτε το χρονόμετρο και τον διαθέσιμο χρόνο.</li>
+                            <li>Κάθε ερώτηση επιτρέπει μία επιλογή απάντησης.</li>
+                            <li>Υπάρχει πιθανόν αρνητική βαθμολογία· απαντήστε με προσοχή.</li>
+                            <li>Αρχεία πακέτων εμφανίζονται μόνο όταν υπάρχουν διαθέσιμα.</li>
+                            <li>Οι ερωτήσεις παραμένουν οι ίδιες σε περίπτωση αποσύνδεσης και επανασύνδεσης αλλά όχι και οι απαντήσεις.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Κατάσταση Συστήματος</h5>
+                        <p class="mb-1"><span class="badge bg-success">Online</span></p>
+                        <small class="text-muted">Ώρα διακομιστή: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+}
+else if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="container py-4">
+        <div class="p-5 mb-4 bg-light rounded-3 border">
+            <div class="container-fluid py-3">
+                <h1 class="display-5 fw-bold">Καλώς ήρθατε στο σύστημα εξετάσεων</h1>
+                <p class="col-lg-8 fs-5">
+                    Πραγματοποιήστε εργαστηριακές εξετάσεις, διαχειριστείτε ερωτήσεις και κατηγορίες, και κατεβάστε σχετικά αρχεία πακέτων.
+                </p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a asp-controller="Exam" asp-action="Index" class="btn btn-primary btn-lg">Μετάβαση στις Εξετάσεις</a>
+                    <a asp-controller="Exam" asp-action="Create" class="btn btn-success btn-lg">Δημιουργία Εξέτασης</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Εξετάσεις</h5>
+                        <p class="card-text">Δείτε τις διαθέσιμες εξετάσεις, έναρξη εξέτασης και εξαγωγή αποτελεσμάτων.</p>
+                    </div>
+                    <div class="card-footer bg-transparent d-flex gap-2">
+                        <a asp-controller="Exam" asp-action="Index" class="btn btn-outline-primary btn-sm">Λίστα Εξετάσεων</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Ερωτήσεις</h5>
+                        <p class="card-text">Διαχείριση ερωτήσεων και απαντήσεων, με κατηγοριοποίηση και αρνητική βαθμολογία.</p>
+                    </div>
+                    <div class="card-footer bg-transparent d-flex gap-2">
+                        <a asp-controller="QuestionCreate" asp-action="Index" class="btn btn-outline-primary btn-sm">Λίστα Ερωτήσεων</a>
+                        <a asp-controller="QuestionCreate" asp-action="Create" class="btn btn-outline-success btn-sm">Νέα Ερώτηση</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Κατηγορίες</h5>
+                        <p class="card-text">Ομαδοποιήστε τις ερωτήσεις σας σε κατηγορίες για δυναμική δημιουργία εξετάσεων.</p>
+                    </div>
+                    <div class="card-footer bg-transparent d-flex gap-2">
+                        <a asp-controller="QuestionCategory" asp-action="Index" class="btn btn-outline-primary btn-sm">Λίστα Κατηγοριών</a>
+                        <a asp-controller="QuestionCategory" asp-action="Create" class="btn btn-outline-success btn-sm">Νέα Κατηγορία</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Πακέτα Ερωτήσεων</h5>
+                        <p class="card-text">Διαχειριστείτε πακέτα με συσχετισμένες ερωτήσεις και αρχεία για χρήση στις εξετάσεις.</p>
+                    </div>
+                    <div class="card-footer bg-transparent d-flex gap-2">
+                        <a asp-controller="QuestionPackage" asp-action="Index" class="btn btn-outline-primary btn-sm">Λίστα Πακέτων</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Οδηγίες & Συμβουλές</h5>
+                        <ul class="mb-0">
+                            <li>Ελέγξτε το χρονόμετρο πριν την υποβολή.</li>
+                            <li>Κάθε ερώτηση επιτρέπει μία επιλογή απάντησης.</li>
+                            <li>Τα αρχεία πακέτων εμφανίζονται μόνο αν υπάρχουν διαθέσιμα.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Κατάσταση Συστήματος</h5>
+                        <p class="mb-1"><span class="badge bg-success">Online</span></p>
+                        <small class="text-muted">Ώρα διακομιστή: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="container py-4">
+        <div class="p-5 mb-4 bg-light rounded-3 border">
+            <div class="container-fluid py-3">
+                <h1 class="display-5 fw-bold">Καλώς ήρθατε στο σύστημα εξετάσεων</h1>
+                <p class="col-lg-8 fs-5">
+                    Παρακαλούμε συνδεθείτε για να δείτε τις διαθέσιμες εξετάσεις.
+                </p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a asp-controller="Auth" asp-action="Index" class="btn btn-outline-primary btn-lg">Σύνδεση</a>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+}
 

@@ -23,16 +23,56 @@
     <ul class="list-group">
         @foreach (var obj in ViewBag.QuestionPackagesList)
         {
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="mb-1">@obj.PackageName</h6>
-                    <small class="text-muted">ID: @obj.PackageId</small>
+            var collapseId = $"pkg-{obj.PackageId}";
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="me-2">
+                        <button class="btn btn-link text-start p-0" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                            <h6 class="mb-1">@obj.PackageName</h6>
+                            <small class="text-muted">ID: @obj.PackageId</small>
+                        </button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        @{ // compute totals as double to avoid cast issues
+                            double totalPoints = 0; double totalNeg = 0;
+                            if (obj.QuestionsInPackages != null)
+                            {
+                                foreach (var qip in obj.QuestionsInPackages)
+                                {
+                                    if (qip?.Question != null)
+                                    {
+                                        totalPoints += qip.Question.QuestionPoints;
+                                        totalNeg += qip.Question.NegativePoints;
+                                    }
+                                }
+                            }
+                        }
+                        <span class="badge bg-primary" title="Sum of question points">Pts: @($"{totalPoints:0.##}")</span>
+                        <span class="badge bg-warning text-dark" title="Sum of negative points">Neg: @($"{totalNeg:0.##}")</span>
+                        <form asp-controller="QuestionPackage" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this package?');">
+                            <input type="hidden" name="id" value="@obj.PackageId" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
                 </div>
-                <div>
-                    <form asp-controller="QuestionPackage" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this package?');">
-                        <input type="hidden" name="id" value="@obj.PackageId" />
-                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
-                    </form>
+                <div id="@collapseId" class="collapse mt-2">
+                    <strong>Questions in package (@(obj.QuestionsInPackages?.Count ?? 0))</strong>
+                    @if (obj.QuestionsInPackages != null && obj.QuestionsInPackages.Count > 0)
+                    {
+                        <ul class="small mb-0 mt-1">
+                            @foreach (var qip in obj.QuestionsInPackages)
+                            {
+                                if (qip?.Question != null)
+                                {
+                                    <li>@qip.Question.QuestionText</li>
+                                }
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="text-muted small">No questions</div>
+                    }
                 </div>
             </li>
         }
@@ -43,16 +83,56 @@ else if (Model != null && Model.Any())
     <ul class="list-group">
         @foreach (var obj in Model)
         {
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="mb-1">@obj.PackageName</h6>
-                    <small class="text-muted">ID: @obj.PackageId</small>
+            var collapseId = $"pkg-{obj.PackageId}";
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="me-2">
+                        <button class="btn btn-link text-start p-0" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                            <h6 class="mb-1">@obj.PackageName</h6>
+                            <small class="text-muted">ID: @obj.PackageId</small>
+                        </button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        @{ // compute totals as double to avoid cast issues
+                            double totalPoints = 0; double totalNeg = 0;
+                            if (obj.QuestionsInPackages != null)
+                            {
+                                foreach (var qip in obj.QuestionsInPackages)
+                                {
+                                    if (qip?.Question != null)
+                                    {
+                                        totalPoints += qip.Question.QuestionPoints;
+                                        totalNeg += qip.Question.NegativePoints;
+                                    }
+                                }
+                            }
+                        }
+                        <span class="badge bg-primary" title="Sum of question points">Pts: @($"{totalPoints:0.##}")</span>
+                        <span class="badge bg-warning text-dark" title="Sum of negative points">Neg: @($"{totalNeg:0.##}")</span>
+                        <form asp-controller="QuestionPackage" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this package?');">
+                            <input type="hidden" name="id" value="@obj.PackageId" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
                 </div>
-                <div>
-                    <form asp-controller="QuestionPackage" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this package?');">
-                        <input type="hidden" name="id" value="@obj.PackageId" />
-                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
-                    </form>
+                <div id="@collapseId" class="collapse mt-2">
+                    <strong>Questions in package (@(obj.QuestionsInPackages?.Count ?? 0))</strong>
+                    @if (obj.QuestionsInPackages != null && obj.QuestionsInPackages.Count > 0)
+                    {
+                        <ul class="small mb-0 mt-1">
+                            @foreach (var qip in obj.QuestionsInPackages)
+                            {
+                                if (qip?.Question != null)
+                                {
+                                    <li>@qip.Question.QuestionText</li>
+                                }
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="text-muted small">No questions</div>
+                    }
                 </div>
             </li>
         }

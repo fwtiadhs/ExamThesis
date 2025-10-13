@@ -1,11 +1,14 @@
 ﻿@model ExamThesis.Models.QuestionPackage
-<form enctype="multipart/form-data" method="post">
+<form asp-action="Create" enctype="multipart/form-data" method="post">
+        @Html.AntiForgeryToken()
         <div class="row pb-2">
             <h2 class="text-primary">Create Package</h2>
         </div>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="mb-3">
         <label asp-for="PackageName">Name</label>
         <input asp-for="PackageName" class="form-control" />
+        <span asp-validation-for="PackageName" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label asp-for="QuestionCategoryId" class="control-label"></label>
@@ -21,9 +24,14 @@
                 <option value=".pdf">PDF</option>
                 <option value=".pcapng">PCAPNG</option>
                 <option value=".pkt">PKT</option>
+                <option value=".txt">TXT</option>
             </select>
         </div>
 
         <button type="submit" class="btn btn-primary" style="width:150px">Create</button>
         <a asp-controller="QuestionCategory" asp-action="Index" class="btn btn-secondary" style="width:150px">Back to List</a>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

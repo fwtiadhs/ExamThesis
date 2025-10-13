@@ -3,6 +3,8 @@ using ExamThesis.Storage.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 using static ExamThesis.Controllers.AuthConnection.AuthController;
 
 namespace ExamThesis.Controllers
@@ -19,8 +21,29 @@ namespace ExamThesis.Controllers
         }
         public IActionResult Index()
         {
-            IEnumerable<QuestionPackage> objQuestionPackageList = _db.QuestionPackages.ToList();
-            ViewBag.QuestionPackagesList = _db.QuestionPackages.ToList();
+            var objQuestionPackageList = _db.QuestionPackages
+                .Include(qp => qp.QuestionsInPackages)
+                    .ThenInclude(qip => qip.Question)
+                .AsNoTracking()
+                .ToList();
+
+            // Natural sort packages by name (e.g., ping 1, ping 2, ping 10)
+            objQuestionPackageList = objQuestionPackageList
+                .OrderBy(p => p.PackageName, NaturalStringComparer.Instance)
+                .ToList();
+
+            // Natural sort questions inside each package by QuestionText
+            foreach (var pkg in objQuestionPackageList)
+            {
+                if (pkg?.QuestionsInPackages != null)
+                {
+                    pkg.QuestionsInPackages = pkg.QuestionsInPackages
+                        .OrderBy(qip => qip!.Question?.QuestionText, NaturalStringComparer.Instance)
+                        .ToList();
+                }
+            }
+
+            ViewBag.QuestionPackagesList = objQuestionPackageList;
             ViewBag.QuestionCategories = new SelectList(_db.QuestionCategories, "QuestionCategoryId", "QuestionCategoryName");
             return View(objQuestionPackageList);
         }
@@ -105,6 +128,9 @@ namespace ExamThesis.Controllers
                 case ".pkt":
                     fileExtension = ".pkt";
                     break;
+                case ".txt":
+                    fileExtension = ".txt";
+                    break;
                 default:
                     return BadRequest("Unsupported file type.");
             }
@@ -130,10 +156,72 @@ namespace ExamThesis.Controllers
 
         private bool IsFileValid(IFormFile file)
         {
-            var allowedExtensions = new[] { ".pcapng", ".pkt", ".pdf" };
+            var allowedExtensions = new[] { ".pcapng", ".pkt", ".pdf", ".txt" };
             var fileExtension = Path.GetExtension(file.FileName).ToLower();
 
             return allowedExtensions.Contains(fileExtension);
+        }
+    }
+
+    internal sealed class NaturalStringComparer : IComparer<string?>
+    {
+        public static readonly NaturalStringComparer Instance = new();
+
+        public int Compare(string? x, string? y)
+        {
+            if (ReferenceEquals(x, y)) return 0;
+            if (x is null) return -1;
+            if (y is null) return 1;
+
+            var rx = Tokenize(x);
+            var ry = Tokenize(y);
+            int i = 0;
+            for (; i < rx.Count && i < ry.Count; i++)
+            {
+                var a = rx[i];
+                var b = ry[i];
+                int cmp;
+                if (a.IsNumber && b.IsNumber)
+                {
+                    cmp = a.Number!.Value.CompareTo(b.Number!.Value);
+                }
+                else
+                {
+                    cmp = string.Compare(a.Text, b.Text, StringComparison.OrdinalIgnoreCase);
+                }
+                if (cmp != 0) return cmp;
+            }
+            return rx.Count.CompareTo(ry.Count);
+        }
+
+        private static List<Token> Tokenize(string s)
+        {
+            var list = new List<Token>();
+            var matches = Regex.Matches(s, "(\\d+)|(\\D+)");
+            foreach (Match m in matches)
+            {
+                if (m.Groups[1].Success)
+                {
+                    if (long.TryParse(m.Value, out var n)) list.Add(Token.Num(n));
+                    else list.Add(Token.Txt(m.Value));
+                }
+                else
+                {
+                    list.Add(Token.Txt(m.Value));
+                }
+            }
+            return list;
+        }
+
+        private readonly struct Token
+        {
+            public bool IsNumber { get; }
+            public long? Number { get; }
+            public string Text { get; }
+            private Token(long number) { IsNumber = true; Number = number; Text = string.Empty; }
+            private Token(string text) { IsNumber = false; Number = null; Text = text; }
+            public static Token Num(long n) => new(n);
+            public static Token Txt(string t) => new(t);
         }
     }
 }

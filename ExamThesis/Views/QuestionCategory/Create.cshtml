@@ -1,12 +1,19 @@
 ﻿@model ExamThesis.Models.QuestionCategory
-<form enctype="multipart/form-data" method="post">
-        <div class="row pb-2">
-            <h2 class="text-primary">Create Question</h2>
-        </div>
-        <div class="mb-3">
-            <label asp-for="QuestionCategoryName">Name</label>
-        <input asp-for="QuestionCategoryName" class="form-control" />
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <div class="row pb-2">
+        <h2 class="text-primary">Create Question</h2>
     </div>
-        <button type="submit" class="btn btn-primary" style="width:150px">Create</button>
-        <a asp-controller="QuestionCategory" asp-action="Index" class="btn btn-secondary" style="width:150px">Back to List</a>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="QuestionCategoryName" class="form-label">Name</label>
+        <input asp-for="QuestionCategoryName" class="form-control" />
+        <span asp-validation-for="QuestionCategoryName" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:150px">Create</button>
+    <a asp-controller="QuestionCategory" asp-action="Index" class="btn btn-secondary" style="width:150px">Back to List</a>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

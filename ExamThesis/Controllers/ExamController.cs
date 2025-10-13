@@ -127,11 +127,11 @@ namespace ExamThesis.Controllers
                 TempData["ErrorMessage"] = "Έχετε ήδη ολοκληρώσει αυτήν την εξέταση.";
                 return RedirectToAction("Index");
             }
-            //else if (!CanStartExam(id))
-            //{
-            //    TempData["ErrorMessage"] = "Δεν έχει ξεκινήσει η εξέταση!";
-            //    return RedirectToAction("Index");
-            //}
+            else if (!CanStartExam(id))
+            {
+                TempData["ErrorMessage"] = "Δεν έχει ξεκινήσει η εξέταση!";
+                return RedirectToAction("Index");
+            }
             else
             {
                 var exam = await _db.Exams.FindAsync(id);
@@ -167,8 +167,14 @@ namespace ExamThesis.Controllers
         }
         private bool CanStartExam(int examId)
         {
-            var exam = _db.Exams.First(er => er.ExamId == examId);
-            return DateTime.Now >= exam.StartTime || DateTime.Now <exam.EndTime;
+            var exam = _db.Exams.AsNoTracking().FirstOrDefault(er => er.ExamId == examId);
+            if (exam == null) return false;
+
+            // If you store UTC times, use DateTime.UtcNow consistently.
+            var now = DateTime.Now;
+
+            // Allow only within the exam window
+            return now >= exam.StartTime && now <= exam.EndTime;
         }
         [HttpGet]
 
@@ -216,7 +222,7 @@ namespace ExamThesis.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Authorize(Roles = UserRoles.Teacher)]
+        [Authorize(Roles = UserRoles.Student)]
         public IActionResult ExportExamResultsToExcel(int id)
         {
             var examResults = _db.ExamResults.Where(er => er.ExamId == id).ToList();
