@@ -18,10 +18,12 @@ namespace ExamThesis.Services.Services
     }
     public class CategoryService : ICategoryService
     {
-        private ExamContext _db;
-        public CategoryService(ExamContext db)
+        private readonly ExamContext _db;
+        private readonly IQuestionService _questionService;
+        public CategoryService(ExamContext db, IQuestionService questionService)
         {
             _db = db;
+            _questionService = questionService;
         }
 
         public async Task Create(ExamThesis.Common.QuestionCategory category)
@@ -37,9 +39,34 @@ namespace ExamThesis.Services.Services
 
         public async Task DeleteById(int id)
         {
+            // Delete all packages (and their questions/answers/joins) in this category first
+            var packageIds = await _db.QuestionPackages
+                .Where(p => p.QuestionCategoryId == id)
+                .Select(p => p.PackageId)
+                .ToListAsync();
+
+            foreach (var pkgId in packageIds)
+            {
+                await _questionService.DeletePackage(pkgId);
+            }
+
+            // Remove exam-category mappings to avoid FK issues
+            var examCats = await _db.ExamCategories
+                .Where(ec => ec.QuestionCategoryId == id)
+                .ToListAsync();
+            if (examCats.Count > 0)
+            {
+                _db.ExamCategories.RemoveRange(examCats);
+                await _db.SaveChangesAsync();
+            }
+
+            // Finally remove the category
             var obj = await _db.QuestionCategories.FindAsync(id);
-            _db.QuestionCategories.Remove(obj);
-            await _db.SaveChangesAsync();
+            if (obj != null)
+            {
+                _db.QuestionCategories.Remove(obj);
+                await _db.SaveChangesAsync();
+            }
         }
 
         public async Task Edit(Common.QuestionCategory obj, int id)
