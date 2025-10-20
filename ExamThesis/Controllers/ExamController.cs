@@ -120,6 +120,9 @@ namespace ExamThesis.Controllers
             return RedirectToAction("Index");
         }
 
+        // Prevent cached back navigation to the exam page
+        [Authorize(Roles = $"{UserRoles.Student},{UserRoles.Teacher}")]
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true, Duration = 0)]
         public async Task<IActionResult> Exam(int id)
         {
             if (IsUserAlreadyParticipated(id))
@@ -187,6 +190,8 @@ namespace ExamThesis.Controllers
             return Json(new { isParticipated });
         }
 
+        [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true, Duration = 0)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Submit(int id, List<int> selectedAnswers,List<int> selectedQuestions,string studentId)
         {
             var claimsIdentity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
@@ -214,6 +219,10 @@ namespace ExamThesis.Controllers
                 {
                     ViewBag.Passed = false;
                 }
+                Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0";
+                Response.Headers["Pragma"] = "no-cache";
+                Response.Headers["Expires"] = "0";
+
 
                 return View("Result");
             }

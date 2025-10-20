@@ -1,6 +1,11 @@
 ﻿@{
     ViewData["Title"] = "Exam Result";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // Αν έχετε δημιουργήσει layout, προσαρμόστε αναλόγως
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // No cache for result page
+    ViewContext.HttpContext.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0";
+    ViewContext.HttpContext.Response.Headers["Pragma"] = "no-cache";
+    ViewContext.HttpContext.Response.Headers["Expires"] = "0";
 }
 
 <div class="container">
@@ -33,3 +38,10 @@
         </div>
     </div>
 </div>
+
+<script>
+history.pushState(null, "", location.href);
+window.addEventListener("popstate", function () {
+    location.replace("@Url.Action("Index", "Exam")");
+});
+</script>
