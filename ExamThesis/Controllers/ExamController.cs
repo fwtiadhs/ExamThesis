@@ -152,14 +152,15 @@ namespace ExamThesis.Controllers
         }
         private bool IsUserAlreadyParticipated(int examId)
         {
-            var claimsIdentity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
-            var userIdClaim = claimsIdentity?.FindFirst("UserId");
-            if (userIdClaim != null)
+            // Prefer AM; fallback to UID if AM is missing
+            var am = HttpContext.Session.GetString("AM") 
+                     ?? (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity)?.FindFirst("AM")?.Value;
+            var uid = (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity)?.FindFirst("UserId")?.Value;
+
+            var identifier = am ?? uid;
+            if (!string.IsNullOrEmpty(identifier))
             {
-                var userId = userIdClaim.Value;
-
-                var examResult = _db.ExamResults.Any(er => er.ExamId == examId && er.StudentId == userId);
-
+                var examResult = _db.ExamResults.Any(er => er.ExamId == examId && er.StudentId == identifier);
                 return examResult;
             }
             else
@@ -191,12 +192,15 @@ namespace ExamThesis.Controllers
         }
 
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true, Duration = 0)]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Submit(int id, List<int> selectedAnswers,List<int> selectedQuestions,string studentId)
         {
+            // Prefer AM; fallback to UID if AM is missing
             var claimsIdentity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
-            var userIdClaim = claimsIdentity?.FindFirst("UserId");
-            studentId = userIdClaim.Value; 
+            var am = HttpContext.Session.GetString("AM") ?? claimsIdentity?.FindFirst("AM")?.Value;
+            var uid = claimsIdentity?.FindFirst("UserId")?.Value;
+
+            studentId = am ?? uid;
+
             try
             {
                 var earnedPoints = await _examService.SubmitExam(id, selectedAnswers,studentId,selectedQuestions);
@@ -242,15 +246,15 @@ namespace ExamThesis.Controllers
                 var worksheet = workbook.Worksheets.Add("ExamResults");
 
                 worksheet.Cell(1, 1).Value = "StudentId";
-                worksheet.Cell(1, 2).Value = "ExamId";
-                worksheet.Cell(1, 3).Value = "Grade";
+                worksheet.Cell(1, 2).Value = "Grade";
+                worksheet.Cell(1, 3).Value = "ExamId";
 
                 for (int i = 0; i < examResults.Count; i++)
                 {
                     var examResult = examResults[i];
-                    worksheet.Cell(i + 2, 1).Value = examResult.StudentId;
-                    worksheet.Cell(i + 2, 2).Value = examResult.ExamId;
-                    worksheet.Cell(i + 2, 3).Value = examResult.Grade;
+                    worksheet.Cell(i + 2, 1).Value = examResult.StudentId; // now AM if present
+                    worksheet.Cell(i + 2, 2).Value = examResult.Grade;
+                    worksheet.Cell(i + 2, 3).Value = examResult.ExamId;
                 }
 
                 using (var stream = new MemoryStream())

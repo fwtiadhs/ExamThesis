@@ -56,14 +56,19 @@ namespace ExamThesis.Controllers.AuthConnection
 
             ViewData["Name"] = profileResponse.cn;
             ViewData["UserId"] = profileResponse.uid;
+            ViewData["am"] = profileResponse.am;
+
+            // Persist identifiers in session
             HttpContext.Session.SetString("UserId", profileResponse.uid);
+            HttpContext.Session.SetString("AM", profileResponse.am);
 
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, profileResponse.cn),
                 new Claim(ClaimTypes.NameIdentifier, profileResponse.id),
                 new Claim("UserId", profileResponse.uid),
-                new Claim("Edu", profileResponse.eduPersonAffiliation)
+                new Claim("Edu", profileResponse.eduPersonAffiliation),
+                new Claim("AM", profileResponse.am) // add AM claim
             };
 
             if (profileResponse.eduPersonAffiliation == "staff")
