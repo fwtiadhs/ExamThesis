@@ -1,5 +1,6 @@
 ﻿@model List<ExamThesis.Storage.Model.Exam>
 @using ExamThesis.Controllers
+@using static ExamThesis.Controllers.AuthConnection.AuthController
 @inject ExamThesis.Controllers.ExamController ExamController
 
 @section Styles {
@@ -26,7 +27,7 @@
 
                             <div class="mt-auto d-flex flex-wrap gap-2">
                                 <a href="@Url.Action("Exam", new { id = exam.ExamId })" class="btn btn-primary">Start Exam</a>
-                                @if (User.IsInRole("student"))
+                                @if (User.IsInRole(UserRoles.Teacher))
                                 {
                                     <a asp-controller="Exam" asp-action="Delete" asp-route-id="@exam.ExamId" class="btn btn-danger">Delete</a>
                                     <a href="@Url.Action("ExportExamResultsToExcel", new { id = exam.ExamId })" class="btn btn-success">Export to Excel</a>
@@ -43,7 +44,7 @@
         <div class="alert alert-info">No exams available.</div>
     }
 
-    @if (User.IsInRole("student"))
+    @if (User.IsInRole(UserRoles.Teacher))
     {
         <div class="mt-4">
             <a href="@Url.Action("Create")" class="btn btn-success">Create Exam</a>

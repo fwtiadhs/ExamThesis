@@ -34,7 +34,7 @@ namespace ExamThesis.Controllers
             var exams = _db.Exams.ToList();
             return View(exams);
         }
-        [Authorize(Roles = UserRoles.Student)]
+        [Authorize(Roles = UserRoles.Teacher)]
         public IActionResult Create()
         {
 
@@ -52,7 +52,7 @@ namespace ExamThesis.Controllers
 
             return View(model);
         }
-        [Authorize(Roles = UserRoles.Student)]
+        [Authorize(Roles = UserRoles.Teacher)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateExam model)
@@ -97,7 +97,7 @@ namespace ExamThesis.Controllers
 
             return View(model);
         }
-        [Authorize(Roles = UserRoles.Student)]
+        [Authorize(Roles = UserRoles.Teacher)]
         [HttpGet]
         public IActionResult Delete(int id)
         {
@@ -110,7 +110,7 @@ namespace ExamThesis.Controllers
 
             return View(examFromDb);
         }
-        [Authorize(Roles = UserRoles.Student)]
+        [Authorize(Roles = UserRoles.Teacher)]
         [HttpDelete]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -152,22 +152,13 @@ namespace ExamThesis.Controllers
         }
         private bool IsUserAlreadyParticipated(int examId)
         {
-            // Prefer AM; fallback to UID if AM is missing
-            var am = HttpContext.Session.GetString("AM") 
-                     ?? (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity)?.FindFirst("AM")?.Value;
-            var uid = (_httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity)?.FindFirst("UserId")?.Value;
+            var ci = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+            var am = HttpContext.Session.GetString("AM") ?? ci?.FindFirst("AM")?.Value;
+            var uid = ci?.FindFirst("UserId")?.Value;
+            var id = am ?? uid;
 
-            var identifier = am ?? uid;
-            if (!string.IsNullOrEmpty(identifier))
-            {
-                var examResult = _db.ExamResults.Any(er => er.ExamId == examId && er.StudentId == identifier);
-                return examResult;
-            }
-            else
-            {
-                return false;
-            }
-
+            return !string.IsNullOrEmpty(id)
+                && _db.ExamResults.Any(er => er.ExamId == examId && er.StudentId == id);
         }
         private bool CanStartExam(int examId)
         {
@@ -192,14 +183,25 @@ namespace ExamThesis.Controllers
         }
 
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true, Duration = 0)]
-        public async Task<IActionResult> Submit(int id, List<int> selectedAnswers,List<int> selectedQuestions,string studentId)
+        public async Task<IActionResult> Submit(int id, List<int> selectedAnswers, List<int> selectedQuestions, string? studentId)
         {
-            // Prefer AM; fallback to UID if AM is missing
-            var claimsIdentity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
-            var am = HttpContext.Session.GetString("AM") ?? claimsIdentity?.FindFirst("AM")?.Value;
-            var uid = claimsIdentity?.FindFirst("UserId")?.Value;
-
+            var ci = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+            var am = HttpContext.Session.GetString("AM") ?? ci?.FindFirst("AM")?.Value;
+            var uid = ci?.FindFirst("UserId")?.Value;
             studentId = am ?? uid;
+
+            if (string.IsNullOrEmpty(studentId))
+            {
+                TempData["ErrorMessage"] = "User identifier missing.";
+                return RedirectToAction("Index");
+            }
+
+            // Server-side duplicate guard
+            if (_db.ExamResults.Any(er => er.ExamId == id && er.StudentId == studentId))
+            {
+                TempData["ErrorMessage"] = "You have already submitted this exam.";
+                return RedirectToAction("Index");
+            }
 
             try
             {
@@ -235,7 +237,7 @@ namespace ExamThesis.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Authorize(Roles = UserRoles.Student)]
+        [Authorize(Roles = UserRoles.Teacher)]
         public IActionResult ExportExamResultsToExcel(int id)
         {
             var examResults = _db.ExamResults.Where(er => er.ExamId == id).ToList();

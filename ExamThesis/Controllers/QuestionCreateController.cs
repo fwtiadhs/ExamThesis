@@ -10,7 +10,7 @@ using static ExamThesis.Controllers.AuthConnection.AuthController;
 
 namespace ExamThesis.Controllers
 {
-    [Authorize(Roles = UserRoles.Student)]
+    [Authorize(Roles = UserRoles.Teacher)]
     public class QuestionCreateController : Controller
     {
 

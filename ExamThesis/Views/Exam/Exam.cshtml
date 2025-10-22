@@ -157,6 +157,25 @@ window.addEventListener("pageshow", function (e) {
         window.location.reload();
     }
 });
+
+(function () {
+    const form = document.getElementById("examForm");
+    if (!form) return;
+
+    form.addEventListener("submit", function (e) {
+        const confirmMsg = "Are you sure you want to submit the exam? You won't be able to change your answers.";
+        if (!window.confirm(confirmMsg)) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+
+        // Prevent double submit
+        const btn = form.querySelector('button[type="submit"]');
+        if (btn) { btn.disabled = true; btn.innerText = "Submitting..."; }
+    });
+})();
+
 </script>
 
 
