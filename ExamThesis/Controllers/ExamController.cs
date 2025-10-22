@@ -34,7 +34,7 @@ namespace ExamThesis.Controllers
             var exams = _db.Exams.ToList();
             return View(exams);
         }
-        [Authorize(Roles = UserRoles.Teacher)]
+        [Authorize(Roles = UserRoles.Student)]
         public IActionResult Create()
         {
 
@@ -52,7 +52,7 @@ namespace ExamThesis.Controllers
 
             return View(model);
         }
-        [Authorize(Roles = UserRoles.Teacher)]
+        [Authorize(Roles = UserRoles.Student)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateExam model)
@@ -130,25 +130,27 @@ namespace ExamThesis.Controllers
                 TempData["ErrorMessage"] = "Έχετε ήδη ολοκληρώσει αυτήν την εξέταση.";
                 return RedirectToAction("Index");
             }
-            else if (!CanStartExam(id))
+            if (!CanStartExam(id))
             {
                 TempData["ErrorMessage"] = "Δεν έχει ξεκινήσει η εξέταση!";
                 return RedirectToAction("Index");
             }
-            else
+
+            var exam = await _db.Exams.FindAsync(id);
+            if (exam != null)
             {
-                var exam = await _db.Exams.FindAsync(id);
-                if (exam != null)
-                {
-                    ViewBag.EndTime = exam.EndTime.ToString("HH:mm:ss");
-                    ViewBag.StartTime = exam.StartTime.ToString("HH:mm:ss");
-                }
-                ViewBag.ExamId = id;
-                var claimsIdentity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
-                var userIdClaim = claimsIdentity?.FindFirst("UserId")?.Value;
-                var model = await _examService.GetExamQuestionsByExamId(id, userIdClaim);
-                return base.View(model);
+                ViewBag.EndTime = exam.EndTime.ToString("HH:mm:ss");
+                ViewBag.StartTime = exam.StartTime.ToString("HH:mm:ss");
             }
+            ViewBag.ExamId = id;
+
+            var ci = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+            var am = HttpContext.Session.GetString("AM") ?? ci?.FindFirst("AM")?.Value;
+            var uid = ci?.FindFirst("UserId")?.Value;
+            var studentKey = am ?? uid ?? string.Empty;
+
+            var model = await _examService.GetExamQuestionsByExamId(id, studentKey);
+            return View(model);
         }
         private bool IsUserAlreadyParticipated(int examId)
         {
@@ -183,7 +185,7 @@ namespace ExamThesis.Controllers
         }
 
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true, Duration = 0)]
-        public async Task<IActionResult> Submit(int id, List<int> selectedAnswers, List<int> selectedQuestions, string? studentId)
+        public async Task<IActionResult> Submit(int id, List<int> selectedAnswers, List<int> selectedQuestions, string studentId)
         {
             var ci = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
             var am = HttpContext.Session.GetString("AM") ?? ci?.FindFirst("AM")?.Value;

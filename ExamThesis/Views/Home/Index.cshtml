@@ -1,4 +1,5 @@
-﻿@{
+﻿@using static ExamThesis.Controllers.AuthConnection.AuthController
+@{
     ViewData["Title"] = "Καλώς ήρθατε";
 }
 
@@ -6,7 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/litera/bootstrap.min.css" />
 }
 
-@if (User.Identity?.IsAuthenticated == true && User.IsInRole("student"))
+@if (User.Identity?.IsAuthenticated == true && User.IsInRole(UserRoles.Student))
 {
     <div class="container py-4">
         <div class="p-5 mb-4 bg-light rounded-3 border">
@@ -56,7 +57,7 @@
         }
     </div>
 }
-else if (User.Identity?.IsAuthenticated == true)
+else if (User.Identity?.IsAuthenticated == true && User.IsInRole(UserRoles.Teacher))
 {
     <div class="container py-4">
         <div class="p-5 mb-4 bg-light rounded-3 border">
