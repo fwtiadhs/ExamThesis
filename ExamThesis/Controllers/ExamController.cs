@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Net.Http;
 using System.Security.Claims;
 using static ExamThesis.Controllers.AuthConnection.AuthController;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ExamThesis.Controllers
 {
@@ -22,11 +23,13 @@ namespace ExamThesis.Controllers
         private readonly ExamContext _db;
         private readonly IExamService _examService;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public ExamController(ExamContext db, IExamService examService, IHttpContextAccessor httpContextAccessor)
+        private readonly IMemoryCache _cache;
+        public ExamController(ExamContext db, IExamService examService, IHttpContextAccessor httpContextAccessor, IMemoryCache cache)
         {
             _db = db;
             _examService = examService;
             _httpContextAccessor = httpContextAccessor;
+            _cache = cache;
         }
         
         public IActionResult Index()
@@ -150,6 +153,12 @@ namespace ExamThesis.Controllers
             var studentKey = am ?? uid ?? string.Empty;
 
             var model = await _examService.GetExamQuestionsByExamId(id, studentKey);
+
+            // Load saved in-progress answers for this student+exam
+            var progressKey = $"{studentKey}_{id}_answers_v1";
+            var savedMap = _cache.Get<Dictionary<int, int>>(progressKey);
+            ViewBag.SelectedAnswerIds = savedMap != null ? new HashSet<int>(savedMap.Values) : new HashSet<int>();
+
             return View(model);
         }
         private bool IsUserAlreadyParticipated(int examId)
@@ -184,6 +193,39 @@ namespace ExamThesis.Controllers
             return Json(new { isParticipated });
         }
 
+        [Authorize(Roles = $"{UserRoles.Student},{UserRoles.Teacher}")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SaveProgress([FromBody] SaveProgressDto dto)
+        {
+            if (dto == null || dto.ExamId <= 0 || dto.QuestionId <= 0 || dto.AnswerId <= 0)
+                return BadRequest("Invalid payload.");
+
+            var ci = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+            var am = HttpContext.Session.GetString("AM") ?? ci?.FindFirst("AM")?.Value;
+            var uid = ci?.FindFirst("UserId")?.Value;
+            var studentKey = am ?? uid ?? string.Empty;
+            if (string.IsNullOrEmpty(studentKey)) return Unauthorized();
+
+            var key = $"{studentKey}_{dto.ExamId}_answers_v1";
+            var map = _cache.Get<Dictionary<int, int>>(key) ?? new Dictionary<int, int>();
+            map[dto.QuestionId] = dto.AnswerId;
+
+            _cache.Set(key, map, new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(120)
+            });
+
+            return Ok(new { ok = true });
+        }
+
+        public sealed class SaveProgressDto
+        {
+            public int ExamId { get; set; }
+            public int QuestionId { get; set; }
+            public int AnswerId { get; set; }
+        }
+        [HttpPost]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true, Duration = 0)]
         public async Task<IActionResult> Submit(int id, List<int> selectedAnswers, List<int> selectedQuestions, string studentId)
         {
@@ -208,7 +250,8 @@ namespace ExamThesis.Controllers
             try
             {
                 var earnedPoints = await _examService.SubmitExam(id, selectedAnswers,studentId,selectedQuestions);
-                
+                _cache.Remove($"{studentId}_{id}_answers_v1");
+
                 var exam = await _db.Exams.FindAsync(id);
                 if (exam == null)
                 {

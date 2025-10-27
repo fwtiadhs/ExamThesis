@@ -7,27 +7,44 @@
     return z(h) + ':' + z(m) + ':' + z(s);
   }
 
+  function getAntiForgeryToken() {
+    var el = document.querySelector('input[name="__RequestVerificationToken"]');
+    return el ? el.value : '';
+  }
+
+  function sendProgress(examId, questionId, answerId) {
+    try {
+      var token = getAntiForgeryToken();
+      fetch('/Exam/SaveProgress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'RequestVerificationToken': token
+        },
+        body: JSON.stringify({ examId: parseInt(examId), questionId: parseInt(questionId), answerId: parseInt(answerId) })
+      }).catch(function () { /* ignore network errors */ });
+    } catch (_) { /* ignore */ }
+  }
+
   function initSingleChoice() {
+    var form = document.getElementById('examForm');
+    var examIdEl = form ? form.querySelector('input[name="examId"]') : null;
+    var examId = examIdEl ? examIdEl.value : '';
+
     document.querySelectorAll('.answer-checkbox').forEach(function (cb) {
       cb.addEventListener('change', function () {
         var qid = cb.getAttribute('data-question-id');
+        // enforce single choice per question
         document.querySelectorAll('.answer-checkbox[data-question-id="' + qid + '"]').forEach(function (other) {
           if (other !== cb) other.checked = false;
           var parent = other.closest('.form-check');
           if (parent) parent.classList.toggle('active', other.checked);
         });
+        // persist selection when checked
+        if (cb.checked && examId && qid) {
+          sendProgress(examId, qid, cb.value);
+        }
       });
-    });
-  }
-
-  function initFinalSubmit() {
-    var btn = document.getElementById('finalSubmitBtn');
-    if (!btn) return;
-    btn.addEventListener('click', function () {
-      if (confirm('???????? ???????;')) {
-        var form = btn.closest('form');
-        if (form) form.submit();
-      }
     });
   }
 
@@ -65,9 +82,39 @@
     tick();
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
+  function initSubmitConfirm() {
+    var form = document.getElementById('examForm');
+    if (!form) return;
+    form.addEventListener('submit', function (e) {
+      var confirmMsg = "Are you sure you want to submit the exam? You won't be able to change your answers.";
+      if (!window.confirm(confirmMsg)) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+      var btn = form.querySelector('button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.innerText = 'Submitting...'; }
+    });
+  }
+
+  function initBfcacheGuard() {
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) {
+        window.location.reload();
+      }
+    });
+  }
+
+  function initAll() {
     initSingleChoice();
-    initFinalSubmit();
     initTimer();
-  });
+    initSubmitConfirm();
+    initBfcacheGuard();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
 })();

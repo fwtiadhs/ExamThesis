@@ -29,11 +29,14 @@
                     <div class="me-2">
                         <button class="btn btn-link text-start p-0" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
                             <h6 class="mb-1">@obj.PackageName</h6>
-                            <small class="text-muted">ID: @obj.PackageId</small>
+                            <small class="text-muted d-block">ID: @obj.PackageId</small>
+                            <small class="text-muted d-block">
+                                Category: @(obj.QuestionCategory?.QuestionCategoryName ?? "Uncategorized")
+                            </small>
                         </button>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        @{ // compute totals as double to avoid cast issues
+                        @{
                             double totalPoints = 0; double totalNeg = 0;
                             if (obj.QuestionsInPackages != null)
                             {
@@ -89,11 +92,14 @@ else if (Model != null && Model.Any())
                     <div class="me-2">
                         <button class="btn btn-link text-start p-0" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
                             <h6 class="mb-1">@obj.PackageName</h6>
-                            <small class="text-muted">ID: @obj.PackageId</small>
+                            <small class="text-muted d-block">ID: @obj.PackageId</small>
+                            <small class="text-muted d-block">
+                                Category: @(obj.QuestionCategory?.QuestionCategoryName ?? "Uncategorized")
+                            </small>
                         </button>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        @{ // compute totals as double to avoid cast issues
+                        @{
                             double totalPoints = 0; double totalNeg = 0;
                             if (obj.QuestionsInPackages != null)
                             {

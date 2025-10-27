@@ -29,7 +29,7 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Exam" asp-action="Index">Exam</a>
                             </li>
-                            @if (User.IsInRole(UserRoles.Teacher))
+                            @if (User.IsInRole(UserRoles.Student))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-controller="QuestionCategory" asp-action="Index">Categories</a>

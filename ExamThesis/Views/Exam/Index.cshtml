@@ -44,7 +44,7 @@
         <div class="alert alert-info">No exams available.</div>
     }
 
-    @if (User.IsInRole(UserRoles.Teacher))
+    @if (User.IsInRole(UserRoles.Student))
     {
         <div class="mt-4">
             <a href="@Url.Action("Create")" class="btn btn-success">Create Exam</a>

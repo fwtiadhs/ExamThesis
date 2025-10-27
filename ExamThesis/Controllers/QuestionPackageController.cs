@@ -9,7 +9,7 @@ using static ExamThesis.Controllers.AuthConnection.AuthController;
 
 namespace ExamThesis.Controllers
 {
-    [Authorize(Roles = UserRoles.Teacher)]
+    [Authorize(Roles = UserRoles.Student)]
     public class QuestionPackageController : Controller
     {
         private readonly ExamContext _db;
@@ -22,6 +22,7 @@ namespace ExamThesis.Controllers
         public IActionResult Index()
         {
             var objQuestionPackageList = _db.QuestionPackages
+                .Include(qp => qp.QuestionCategory)                 // <-- load category
                 .Include(qp => qp.QuestionsInPackages)
                     .ThenInclude(qip => qip.Question)
                 .AsNoTracking()
